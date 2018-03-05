@@ -1,0 +1,32 @@
+<div class="pageContent">
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this, navTabAjaxDone);">
+		<div class="pageFormContent" layoutH="60">
+			<div class="unit">
+				<label>接口名称：</label>
+				<input name="url" type="text" size="30" value="" class="required" placeholder="请输入接口名称"/>
+			</div>
+			<div class="unit">
+				<label>接口描述：</label>
+				<input name="name" type="text" size="30" value="" class="required" placeholder="请输入接口描述"/>
+			</div>
+			<div class="unit">
+				<label>作　　者：</label>
+				<input name="author" type="text" size="30"  value="" placeholder="请输入作者"/>
+			</div>
+			<div class="unit">
+				<label>返回参数说明：</label>
+				<textarea name="description" class="textInput" cols="60" rows="16" placeholder="请输入返回参数说明"></textarea>
+			</div>
+			<div class="unit">
+				<label>是否初始化：</label>
+				<input name="isinit" type="checkbox" value="1"/> 初始化
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>

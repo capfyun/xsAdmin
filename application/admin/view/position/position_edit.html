@@ -1,0 +1,53 @@
+<div class="pageContent">
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
+		<div class="pageFormContent" layoutH="60">
+			<input name="id" type="hidden" value="{:input('id',0)}" />
+			<div class="unit">
+				<label>上级部门：</label>
+				<select name="parent_id" style="width:180px;">
+					<option value="0">最上级
+						{volist name="data.position_list" id="vo"}
+							<option value="{$vo.id}" {if condition="$data['info']['parent_id'] eq $vo['id']"}selected{/if}>{$vo.name_format}
+						{/volist}
+				</select>
+			</div>
+			<div class="unit">
+				<label>　　名称：</label>
+				<input name="name" type="text" size="30"  value="{$data.info.name}" class="required" minlength="1" maxlength="30" placeholder="6~30位，字母、数字、下划线"/>
+			</div>
+			<div class="unit">
+				<label>　　类型：</label>
+				<input name="type" type="radio" value="0" {if condition="$data['info']['type'] eq '0'"}checked{/if}>无
+				<input name="type" type="radio" value="1" {if condition="$data['info']['type'] eq '1'"}checked{/if}>部门
+				<input name="type" type="radio" value="2" {if condition="$data['info']['type'] eq '2'"}checked{/if}>职员
+				<input name="type" type="radio" value="2" {if condition="$data['info']['type'] eq '3'"}checked{/if}>领导
+			</div>
+			<div class="unit">
+				<label>　　排序：</label>
+				<input name="sort" type="text" size="30" value="{$data.info.sort}" min="0" max="999" placeholder="0~999数字越小越靠前"/>
+			</div>
+			<div class="unit">
+				<label>　　描述：</label>
+				<textarea name="description" class="textInput" cols="40" rows="5" >{$data.info.description}</textarea>
+			</div>
+			<div class="unit">
+				<label>权限配置：</label>
+				<div style="border:1px solid #C1C1C1;width:250px;height:380px;float:left;overflow:auto;">
+					{volist name="data.group_list" id="vo"}
+						<div style="border:1px solid #B8D0D6;padding:2px;margin:2px;" data-id="{$vo.id}">
+							<input name="group_id[]" type="checkbox" value="{$vo.id}" {if condition="in_array($vo['id'],$data['group_has'])"}checked{/if}>
+							{$vo.title}
+						</div>
+					{/volist}
+				</div>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+

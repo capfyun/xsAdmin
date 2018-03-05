@@ -1,0 +1,101 @@
+<div class="pageContent">
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
+		<div class="pageFormContent" layoutH="60">
+			<div class="unit">
+				<label>上级菜单：</label>
+				<select name="parent_id" style="width:180px;">
+					<option value="0">顶级菜单
+						{$data.rule_html}
+				</select>
+			</div>
+			<div class="unit">
+				<label>　　名称：</label>
+				<input name="title" type="text" size="30"  value="" class="required" minlength="1" maxlength="50" placeholder="请输入名称"/>
+			</div>
+			<div class="unit">
+				<label>链接地址：</label>
+				<input name="name" type="text" size="30" value="" minlength="1" maxlength="50" placeholder="请输入地址"/>
+			</div>
+			<div class="unit">
+				<label>菜单类型：</label>
+				<input name="menu" type="radio" value="0" required class="authRuleChangeTable" checked >隐藏
+				<input name="menu" type="radio" value="1" required class="authRuleChangeTable" >菜单
+				<input name="menu" type="radio" value="2" required class="authRuleChangeTable" >按键
+			</div>
+			<fieldset class="buttonExtend" style="display:none;" >
+				<legend>按键扩展</legend>
+				<div class="unit">
+					<label>按键类型：</label>
+					<input name="button" type="radio" value="0" checked>默认
+					<input name="button" type="radio" value="1" >普通
+					<input name="button" type="radio" value="2" >单选页面
+					<input name="button" type="radio" value="3" >多选页面
+					<input name="button" type="radio" value="4" >多选处理
+				</div>
+				<div class="unit">
+					<label>按键图标：</label>
+					<input name="icon" type="radio" value="0" checked><img src="/static/admin/img/icon.png">
+					<input name="icon" type="radio" value="1" ><img src="/static/admin/img/add.png">
+					<input name="icon" type="radio" value="2" ><img src="/static/admin/img/edit.png">
+					<input name="icon" type="radio" value="3" ><img src="/static/admin/img/delete.png">
+				</div>
+			</fieldset>
+			<div class="unit">
+				<label>链接类型：</label>
+				<input name="target" type="radio" value="0" required class="authRuleChangeTable" checked>默认
+				<input name="target" type="radio" value="1" required class="authRuleChangeTable" >全屏
+				<input name="target" type="radio" value="2" required class="authRuleChangeTable" >窗口
+			</div>
+			<fieldset class="targetExtend" style="display:none;">
+				<legend>窗口扩展</legend>
+				<div class="unit">
+					<label>　　高度：</label>
+					<input name="height" type="text" size="30" value="0" class="digits" min="0" max="9999" placeholder="高度"/>
+				</div>
+				<div class="unit">
+					<label>　　宽度：</label>
+					<input name="width" type="text" size="30" value="0" class="digits" min="0" max="9999" placeholder="宽度"/>
+				</div>
+			</fieldset>
+			<div class="unit">
+				<label>　　排序：</label>
+				<input name="sort" type="text" size="30" value="" class="digits" min="0" max="999" placeholder="0~999数值越小越前"/>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+
+<script type="text/javascript">
+	$.extend(admin.auth,{
+		/**
+		 * 切换类型显示
+		 */
+		changeTable : function () {
+			console.log('cc');
+			var thisObj = $(this);
+			var thisForm = thisObj.parents('.pageForm');
+			switch (thisObj.attr('name')) {
+				case 'menu' :
+					var thisDiv = thisForm.find('.buttonExtend');
+					thisObj.val() == '2' ? thisDiv.show() : thisDiv.hide();
+					break;
+				case 'target' :
+					var thisDiv = thisForm.find('.targetExtend');
+					thisObj.val() == '2' ? thisDiv.show() : thisDiv.hide();
+					break;
+			}
+		},
+
+	});
+	$(function () {
+		//切换类型显示事件
+		$('.authRuleChangeTable').on('change',admin.auth.changeTable);
+	});
+
+</script>

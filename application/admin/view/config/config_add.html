@@ -1,0 +1,75 @@
+<div class="pageContent">
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
+		<div class="pageFormContent" layoutH="60">
+			<div class="unit">
+				<label>　　标题：</label>
+				<input name="title" type="text" size="30" value="" class="required textInput" placeholder="中文标题"/>
+			</div>
+			<div class="unit">
+				<label>　　名称：</label>
+				<input name="name" type="text" size="30" value="" class="alphanumeric required textInput" placeholder="小写英文和_组成"/>
+				<span class="info">*不能重复</span>
+			</div>
+			<div class="unit">
+				<label>　值类型：</label>
+				<input name="type" type="radio" value="1" required class="configChangeTable">数值
+				<input name="type" type="radio" value="2" required class="configChangeTable">字符串
+				<input name="type" type="radio" value="3" required class="configChangeTable">文本
+				<input name="type" type="radio" value="4" required class="configChangeTable">数组
+				<input name="type" type="radio" value="5" required class="configChangeTable">枚举
+			</div>
+			<div class="unit">
+				<label>　　分组：</label>
+				<select name="group">
+					<option value="0">-</option>
+					{volist name="data.group_list" id="vo"}
+					<option value="{$key}">{$vo}</option>
+					{/volist}
+				</select>
+			</div>
+			<div class="unit">
+				<label>　　　值：</label>
+				<textarea name="value" class="textInput" cols="40" rows="5" placeholder="值类型为数组时，格式“键1:值1[回车]键2:值2..." ></textarea>
+				<span class="info" style="float:left;clear:left;margin-left:130px;">*值类型为数组时，格式“键1:值1[回车]键2:值2...”</span>
+			</div>
+			<div class="unit extraExtend" style="display:none;">
+				<label>　枚举项：</label>
+				<textarea name="extra" class="textInput" cols="40" rows="5" placeholder="如果是枚举型需要配置该项，格式“键1:值1[回车]键2:值2..." ></textarea>
+			</div>
+			<div class="unit">
+				<label>　　描述：</label>
+				<textarea name="description" class="textInput" cols="40" rows="5" ></textarea>
+			</div>
+			<div class="unit">
+				<label>　　排序：</label>
+				<input name="sort" type="text" size="30"  value="" class="digits textInput" min="0" max="999" placeholder="0~999的数字"/>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+<script type="text/javascript">
+	$.extend(admin.config,{
+		/**
+		 * 切换类型显示
+		 */
+		changeTable : function () {
+			var thisObj = $(this);
+			var thisForm = thisObj.parents('.pageForm');
+			var thisDiv = thisForm.find('.extraExtend');
+			thisObj.val() == '5' ? thisDiv.show() : thisDiv.hide();
+		},
+
+	});
+	$(function () {
+		//切换类型显示事件
+		$('.configChangeTable').on('change',admin.config.changeTable);
+	});
+
+
+</script>

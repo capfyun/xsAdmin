@@ -1,0 +1,54 @@
+<form id="pagerForm" method="post" action="{:url()}">
+	{include file="layout/search"/}
+	<input type="hidden" name="search[keyword]" value="{$Request.param.search.keyword}" />
+</form>
+
+<div class="pageHeader">
+	<form onsubmit="return navTabSearch(this);" action="{:url()}" method="post">
+	<div class="searchBar">
+		<ul class="searchContent" >
+			<div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+			<li >
+				<label ></label>
+				<input type="text" name="search[keyword]" value="{$Request.param.search.keyword}" placeholder=""/>
+			</li>
+		</ul>
+	</div>
+	</form>
+</div>
+<div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			{include file="layout/menu"/}
+		</ul>
+	</div>
+	<table class="table" width="100%" layoutH="138">
+		<thead>
+			<tr>
+				<th width="5%"><input type="checkbox" group="ids" class="checkboxCtrl">ID</th>
+				<th width="20%">客户名称</th>
+				<th width="">合同名</th>
+				<th width="10%">合同开始时间</th>
+				<th width="10%">合同结束时间</th>
+				<th width="10%">创建时间</th>
+				<th width="15%">文件</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.list" id="vo"}
+				<tr target="id" rel="{$vo.id}">
+					<td><input type="checkbox" name="ids" value="{$vo.id}">{$vo.id}</td>
+					<td>{$vo.name}</td>
+					<td>{$vo.title}</td>
+					<td>{:date('Y-m-d',$vo['start_time'])}</td>
+					<td>{:date('Y-m-d',$vo['end_time'])}</td>
+					<td>{:date('Y-m-d H:i',$vo['create_time'])}</td>
+					<td><a href="{:url('transmit/download',['name'=>$vo['file_save_name'],'type'=>'save_name'])}" target="_blank" style="color:cornflowerblue;">{$vo.file_name}</a></td>
+				</tr>
+			{/volist}
+		</tbody>
+	</table>
+	<div class="panelBar">
+		{include file="layout/nav"/}
+	</div>
+</div>

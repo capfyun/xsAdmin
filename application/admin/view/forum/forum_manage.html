@@ -1,0 +1,47 @@
+<div class="pageContent">
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
+		<div class="pageFormContent" layoutH="56">
+			<input name="id" type="hidden" value="{:input('id',0)}" />
+			<div class="unit">
+				<label>　　置顶：</label>
+				<input name="top" type="text" size="30"  value="{$data.info.top}" class="required" min="0" max="999" placeholder="中文标题"/>
+				<span class="info">数值越大越靠前，0为不置顶</span>
+			</div>
+			<div class="unit">
+				<label>　　颜色：</label>
+				<input type="radio" name="color" value="" required placeholder="" {if condition="$data['info']['color'] eq ''"} checked {/if}/>默认
+				<input type="radio" name="color" value="red" required placeholder="" {if condition="$data['info']['color'] eq 'red'"} checked {/if}/>
+				<span style="color:red;">██</span>
+				<input type="radio" name="color" value="green" required placeholder="" {if condition="$data['info']['color'] eq 'green'"} checked {/if}/>
+				<span style="color:green;">██</span>
+				<input type="radio" name="color" value="violet" required placeholder="" {if condition="$data['info']['color'] eq 'violet'"} checked {/if}/>
+				<span style="color:violet;">██</span>
+				<input type="radio" name="color" value="orange" required placeholder="" {if condition="$data['info']['color'] eq 'orange'"} checked {/if}/>
+				<span style="color:orange;">██</span>
+				<input type="radio" name="color" value="gray" required placeholder="" {if condition="$data['info']['color'] eq 'gray'"} checked {/if}/>
+				<span style="color:gray;">██</span>
+				<input type="radio" name="color" value="pink" required placeholder="" {if condition="$data['info']['color'] eq 'pink'"} checked {/if}/>
+				<span style="color:pink;">██</span>
+			</div>
+			<div class="unit">
+				<label >　　锁定：</label>
+				<select name="is_lock" >
+					<option value="0" {if condition="$data['info']['is_lock'] eq '0'"} selected {/if}>否</option>
+					<option value="1" {if condition="$data['info']['is_lock'] eq '1'"} selected {/if}>是</option>
+				</select>
+				<span class="info" style="float:left;clear:left;margin-left:130px;">锁定后主题不可回复和编辑</span>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+<script type="text/javascript">
+
+
+
+</script>

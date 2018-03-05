@@ -1,0 +1,27 @@
+<div class="pageContent">
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
+		<div class="pageFormContent" layoutH="60">
+			<input name="id" type="hidden" value="{$Request.param.id}" />
+			<div class="unit">
+				<label>　权限组：</label>
+				<div style="border:1px solid #C1C1C1;width:250px;height:380px;float:left;overflow:auto;">
+				{volist name="data.auth_group_list" id="vo"}
+					<div style="border:1px solid #B8D0D6;padding:2px;margin:2px;" data-id="{$vo.id}">
+						<input name="group_id[]" type="checkbox" value="{$vo.id}" {if condition="in_array($vo['id'],$data['auth_group_user'])"}checked{/if}>　{$vo.title}
+					</div>
+				{/volist}
+				</div>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<!-- <li><a class="buttonActive" href="javascript:;" onclick="page.add(this);"><span>保存</span></a></li> -->
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li>
+					<div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div>
+				</li>
+			</ul>
+		</div>
+	</form>
+</div>
+

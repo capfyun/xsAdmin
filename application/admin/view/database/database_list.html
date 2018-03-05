@@ -1,0 +1,52 @@
+<form id="pagerForm" method="post" action="{:url()}">
+	{include file="layout/search"/}
+	<input type="hidden" name="search[keyword]" value="{$Request.param.search.keyword}" />
+</form>
+
+<div class="pageHeader">
+	<form onsubmit="return navTabSearch(this);" action="{:url()}" method="post">
+	<div class="searchBar">
+		<ul class="searchContent" >
+			<div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+			<li >
+				<label ></label>
+				<input type="text" name="search[keyword]" value="{$Request.param.search.keyword}" placeholder="ID、标题、名称"/>
+			</li>
+		</ul>
+	</div>
+	</form>
+</div>
+<div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			{include file="layout/menu"/}
+		</ul>
+	</div>
+	<table class="table" width="100%" layoutH="138">
+		<thead>
+			<tr>
+				<th width="5%"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
+				<th >表名</th>
+				<th width="10%">数据量</th>
+				<th width="10%">数据大小</th>
+				<th width="12%">创建时间</th>
+				<th width="5%">备份状态</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.list" id="vo"}
+				<tr target="id" rel="{$vo.Name}">
+					<td><input type="checkbox" name="ids" value="{$vo.Name}"></td>
+					<td>{$vo.Name}</td>
+					<td>{$vo.Rows}</td>
+					<td>{:service('Tool')->formatBytes($vo['Data_length'])}</td>
+					<td>{$vo.Create_time}</td>
+					<td>未备份</td>
+				</tr>
+			{/volist}
+		</tbody>
+	</table>
+	<div class="panelBar">
+		{include file="layout/nav"/}
+	</div>
+</div>

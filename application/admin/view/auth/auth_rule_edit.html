@@ -1,0 +1,108 @@
+<div class="pageContent">
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
+		<div class="pageFormContent" layoutH="60">
+			<input name="id" type="hidden" value="{:input('id',0)}" />
+			<div class="unit">
+				<label>上级菜单：</label>
+				<select name="parent_id" style="width:180px;">
+					<option value="0">顶级菜单
+					{$data.rule_html}
+				</select>
+			</div>
+			<div class="unit">
+				<label>　　名称：</label>
+				<input name="title" type="text" size="30"  value="{$data.info.title}" class="required" minlength="1" maxlength="50" placeholder="请输入名称"/>
+			</div>
+			<div class="unit">
+				<label>链接地址：</label>
+				<input name="name" type="text" size="30" value="{$data.info.name}" minlength="1" maxlength="50" placeholder="请输入地址"/>
+			</div>
+			<div class="unit">
+				<label>菜单类型：</label>
+				<input name="menu" type="radio" value="0" required class="authRuleChangeTable" {if condition="$data['info']['menu'] eq '0'"}checked{/if}>隐藏
+				<input name="menu" type="radio" value="1" required class="authRuleChangeTable" {if condition="$data['info']['menu'] eq '1'"}checked{/if}>菜单
+				<input name="menu" type="radio" value="2" required class="authRuleChangeTable" {if condition="$data['info']['menu'] eq '2'"}checked{/if}>按键
+			</div>
+			<fieldset class="buttonExtend" {if condition="$data['info']['menu'] neq '2'"}style="display:none;"{/if} >
+				<legend>按键扩展</legend>
+				<div class="unit">
+					<label>按键类型：</label>
+					<input name="button" type="radio" value="0" {if condition="$data['info']['button'] eq '0'"}checked{/if}>默认
+					<input name="button" type="radio" value="1" {if condition="$data['info']['button'] eq '1'"}checked{/if}>普通
+					<input name="button" type="radio" value="2" {if condition="$data['info']['button'] eq '2'"}checked{/if}>单选页面
+					<input name="button" type="radio" value="3" {if condition="$data['info']['button'] eq '3'"}checked{/if}>多选页面
+					<input name="button" type="radio" value="4" {if condition="$data['info']['button'] eq '4'"}checked{/if}>多选处理
+				</div>
+				<div class="unit">
+					<label>按键图标：</label>
+					<input name="icon" type="radio" value="0" {if condition="$data['info']['icon'] eq '0'"}checked{/if}><img src="/static/admin/img/icon.png">
+					<input name="icon" type="radio" value="1" {if condition="$data['info']['icon'] eq '1'"}checked{/if}><img src="/static/admin/img/add.png">
+					<input name="icon" type="radio" value="2" {if condition="$data['info']['icon'] eq '2'"}checked{/if}><img src="/static/admin/img/edit.png">
+					<input name="icon" type="radio" value="3" {if condition="$data['info']['icon'] eq '3'"}checked{/if}><img src="/static/admin/img/delete.png">
+				</div>
+			</fieldset>
+			<div class="unit">
+				<label>链接类型：</label>
+				<input name="target" type="radio" value="0" required class="authRuleChangeTable" {if condition="$data['info']['target'] eq '0'"}checked{/if}>默认
+				<input name="target" type="radio" value="1" required class="authRuleChangeTable" {if condition="$data['info']['target'] eq '1'"}checked{/if}>全屏
+				<input name="target" type="radio" value="2" required class="authRuleChangeTable" {if condition="$data['info']['target'] eq '2'"}checked{/if}>窗口
+			</div>
+			<fieldset class="targetExtend" {if condition="$data['info']['target'] neq '2'"}style="display:none;"{/if}>
+				<legend>窗口扩展</legend>
+				<div class="unit">
+					<label>　　高度：</label>
+					<input name="height" type="text" size="30" value="{$data.info.height}" class="digits" min="0" max="9999" placeholder="高度"/>
+				</div>
+				<div class="unit">
+					<label>　　宽度：</label>
+					<input name="width" type="text" size="30" value="{$data.info.width}" class="digits" min="0" max="9999" placeholder="宽度"/>
+				</div>
+			</fieldset>
+			<div class="unit">
+				<label>　　排序：</label>
+				<input name="sort" type="text" size="30" value="{$data.info.sort}" class="digits" min="0" max="999" placeholder="0~999数值越小越前"/>
+			</div>
+			<div class="unit">
+				<label>　　状态：</label>
+				<input name="status" type="radio" value="0" {if condition="$data['info']['status'] eq '0'"}checked{/if}>禁用
+				<input name="status" type="radio" value="1" {if condition="$data['info']['status'] eq '1'"}checked{/if}>启用
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+
+<script type="text/javascript">
+	$.extend(admin.auth,{
+		/**
+		 * 切换类型显示
+		 */
+		changeTable : function () {
+			var thisObj = $(this);
+			var thisForm = thisObj.parents('.pageForm');
+			switch (thisObj.attr('name')) {
+				case 'menu' :
+					var thisDiv = thisForm.find('.buttonExtend');
+					thisObj.val() == '2' ? thisDiv.show() : thisDiv.hide();
+					break;
+				case 'target' :
+					var thisDiv = thisForm.find('.targetExtend');
+					thisObj.val() == '2' ? thisDiv.show() : thisDiv.hide();
+					break;
+			}
+		},
+
+	});
+
+	$(function () {
+		//切换类型显示事件
+		$('.authRuleChangeTable').on('change',admin.auth.changeTable);
+	});
+
+
+</script>

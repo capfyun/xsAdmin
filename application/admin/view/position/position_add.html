@@ -1,0 +1,41 @@
+<div class="pageContent">
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone);">
+		<div class="pageFormContent" layoutH="60">
+			<div class="unit">
+				<label>上级部门：</label>
+				<select name="parent_id" style="width:180px;">
+					<option value="0">最上级
+						{volist name="data.position_list" id="vo"}
+							<option value="{$vo.id}">{$vo.name_format}
+						{/volist}
+				</select>
+			</div>
+			<div class="unit">
+				<label>　　名称：</label>
+				<input name="name" type="text" size="30"  value="" class="required" minlength="1" maxlength="30" placeholder="6~30位，字母、数字、下划线"/>
+			</div>
+			<div class="unit">
+				<label>　　类型：</label>
+				<input name="type" type="radio" value="0" required>无
+				<input name="type" type="radio" value="1" required>部门
+				<input name="type" type="radio" value="2" required>职员
+				<input name="type" type="radio" value="3" required>领导
+			</div>
+			<div class="unit">
+				<label>　　排序：</label>
+				<input name="sort" type="text" size="30" value="" min="0" max="999" placeholder="0~999数字越小越靠前"/>
+			</div>
+			<div class="unit">
+				<label>　　描述：</label>
+				<textarea name="description" class="textInput" cols="40" rows="5" ></textarea>
+			</div>
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+</div>
+

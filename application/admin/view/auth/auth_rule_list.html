@@ -1,0 +1,129 @@
+<form id="pagerForm" method="post" action="{:url()}">
+	{include file="layout/search"/}
+	<input type="hidden" name="search[keyword]" value="{$Request.param.search.keyword}" />
+	<input type="hidden" name="search[status]" value="{$Request.param.search.status}">
+	<input type="hidden" name="search[menu]" value="{$Request.param.search.menu}">
+	<input type="hidden" name="search[button]" value="{$Request.param.search.button}">
+	<input type="hidden" name="parent_id" value="{$data.id}">
+</form>
+
+<div class="pageHeader">
+	<form onsubmit="return navTabSearch(this);" action="{:url()}" method="post">
+	<input type="hidden" name="parent_id" value="{$data.id}">
+	<div class="searchBar" >
+		<ul class="searchContent" >
+			<div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+			<li >
+				<label></label>
+				<input type="text" name="search[keyword]" value="{$Request.param.search.keyword}" placeholder="ID、名称、链接地址"/>
+			</li>
+			<li >
+				<label>状态：</label>
+				<select class="combox" name="search[status]">
+					<option value="">全部</option>
+					<option value="0" {if condition="input('search.status') eq '0'"}selected{/if}>禁用</option>
+					<option value="1" {if condition="input('search.status') eq '1'"}selected{/if}>启用</option>
+				</select>
+			</li>
+			<li>
+				<label >菜单类型：</label>
+				<select class="combox" name="search[menu]">
+					<option value="">全部</option>
+					<option value="0" {if condition="input('search.menu') eq '0'"}selected{/if}>隐藏</option>
+					<option value="1" {if condition="input('search.menu') eq '1'"}selected{/if}>菜单</option>
+					<option value="2" {if condition="input('search.menu') eq '2'"}selected{/if}>按键</option>
+				</select>
+			</li>
+			<li >
+				<label >按键类型：</label>
+				<select class="combox" name="search[button]">
+					<option value="">全部</option>
+					<option value="0" {if condition="input('search.button') eq '0'"}selected{/if}>默认</option>
+					<option value="1" {if condition="input('search.button') eq '1'"}selected{/if}>普通</option>
+					<option value="2" {if condition="input('search.button') eq '2'"}selected{/if}>单选页面</option>
+					<option value="3" {if condition="input('search.button') eq '3'"}selected{/if}>多选页面</option>
+					<option value="4" {if condition="input('search.button') eq '4'"}selected{/if}>多选处理</option>
+				</select>
+			</li>
+		</ul>
+	</div>
+	</form>
+</div>
+<div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			<li><a class="icon" target="navTab" href="{:url('',array('parent_id'=>$data['parent_id']))}" rel="8" title="菜单管理"><span>返回</span></a></li>
+			{include file="layout/menu"/}
+		</ul>
+	</div>
+	<table class="table" width="100%" layoutH="138">
+		<thead>
+			<tr>
+				<th width="5%"><input type="checkbox" group="ids" class="checkboxCtrl">ID</th>
+				<th width="10%">名称</th>
+				<th >链接地址</th>
+				<th width="6%">菜单类型</th>
+				<th width="10%">按键类型</th>
+				<th width="6%">链接类型</th>
+				<th width="10%">窗口尺寸</th>
+				<th width="5%">状态</th>
+				<th width="5%">排序</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.list" id="vo"}
+			<tr target="id" rel="{$vo.id}">
+				<td><input type="checkbox" name="ids" value="{$vo.id}">{$vo.id}</td>
+				<td><a target="navTab" href="{:url('',array('parent_id'=>$vo['id']))}" rel="8" title="菜单管理" style="color:#3366BB;">{$vo.title}</a></td>
+				<td>{$vo.name}</td>
+				<td>
+					{switch name="vo.menu"}
+						{case value="0"}<span>隐藏</span>{/case}
+						{case value="1"}<span>菜单</span>{/case}
+						{case value="2"}<span>按键</span>{/case}
+						{default /}<span style="color:dodgerblue;">未知</span>
+					{/switch}
+				</td>
+				<td>
+					{if condition="$vo['menu'] eq 2"}
+						{switch name="vo.button"}
+							{case value="0"}<span>默认</span>{/case}
+							{case value="1"}<span>普通</span>{/case}
+							{case value="2"}<span>单选页面</span>{/case}
+							{case value="3"}<span>多选页面</span>{/case}
+							{case value="4"}<span>多选处理</span>{/case}
+							{default /}<span style="color:dodgerblue;">-</span>
+						{/switch}
+						{switch name="vo.icon"}
+							{case value="1"}<img src="/static/admin/img/add.png">{/case}
+							{case value="2"}<img src="/static/admin/img/edit.png">{/case}
+							{case value="3"}<img src="/static/admin/img/delete.png">{/case}
+							{default/}<img src="/static/admin/img/icon.png">
+						{/switch}
+					{/if}
+				</td>
+				<td>
+					{switch name="vo.target"}
+						{case value="0"}<span>默认</span>{/case}
+						{case value="1"}<span>全屏</span>{/case}
+						{case value="2"}<span>窗口</span>{/case}
+						{default /}<span style="color:dodgerblue;">-</span>
+					{/switch}
+				</td>
+				<td>{if condition="$vo['target'] eq 2"}高{$vo.height}、宽{$vo.width}{/if}</td>
+				<td>
+					{switch name="vo.status"}
+						{case value="0"}<span style="color:red;">禁用</span>{/case}
+						{case value="1"}<span >启用</span>{/case}
+						{default /}<span style="color:dodgerblue;">-</span>
+					{/switch}
+				</td>
+				<td>{$vo.sort}</td>
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+	<div class="panelBar">
+		{include file="layout/nav"/}
+	</div>
+</div>

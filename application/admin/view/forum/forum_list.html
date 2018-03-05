@@ -1,0 +1,57 @@
+<form id="pagerForm" method="post" action="{:url()}">
+	{include file="layout/search"/}
+	<input type="hidden" name="search[keyword]" value="{$Request.param.search.keyword}" />
+</form>
+
+<div class="pageHeader">
+	<form onsubmit="return navTabSearch(this);" action="{:url()}" method="post">
+	<div class="searchBar">
+		<ul class="searchContent" >
+			<div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+			<li >
+				<label ></label>
+				<input type="text" name="search[keyword]" value="{$Request.param.search.keyword}" placeholder="标题"/>
+			</li>
+		</ul>
+	</div>
+	</form>
+</div>
+<div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			{include file="layout/menu"/}
+		</ul>
+	</div>
+	<table class="table" width="100%" layoutH="138">
+		<thead>
+			<tr>
+				<th width="5%"><input type="checkbox" group="ids" class="checkboxCtrl">ID</th>
+				<th width="5%">分类</th>
+				<th width="">标题</th>
+				<th width="8%">回复/查看</th>
+				<th width="12%">作者</th>
+				<th width="18%">最后发表</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.list" id="vo"}
+				<tr target="id" rel="{$vo.id}">
+					<td><input type="checkbox" name="ids" value="{$vo.id}"></td>
+					<td><span style="">{$vo.category_name}</span></td>
+					<td>
+						{if condition="$vo['is_lock'] eq 1"}<span style="color:darkgray;">[锁定]</span>
+						{elseif condition="$vo['top'] gt 0"}<span style="color:red;">[置顶]</span>
+						{/if}
+						<a href="{:url('forum/forum_thread',['forum_id'=>$vo['id']])}" target="navTab" rel="forum-{$vo.id}" title="{$vo.title}" style="cursor:pointer;color:{$vo['color'] ?: '#2D64B3' };">{$vo.title}</a>
+					</td>
+					<td><span style="">{$vo.reply_count}</span>/<span style="color:darkgray;">{$vo.view_count}</span></td>
+					<td>{$vo.realname} <span style="color:darkgray;">{:date('Y-m-d',$vo['create_time'])}</span></td>
+					<td>{$vo.last_realname} <span style="color:darkgray;">{:date('Y-m-d H:i',$vo['last_time'])}</span></td>
+				</tr>
+			{/volist}
+		</tbody>
+	</table>
+	<div class="panelBar">
+		{include file="layout/nav"/}
+	</div>
+</div>

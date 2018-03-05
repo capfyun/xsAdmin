@@ -1,0 +1,157 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Web sockets test</title>
+	<script type="text/javascript" src="/static/dwz/js/jquery-2.1.4.min.js"></script>
+	<script type="text/javascript" src="/static/common/js/tool.js"></script><!-- 自定义函数库 -->
+</head>
+<body>
+
+
+<div id="chatWindow" style="width: 800px;height: 500px; border: 1px solid black;float:left;"></div>
+<div style="width: 80px;height: 500px; border: 1px solid black;float: left;"></div>
+<div style="clear:both;"></div>
+<textarea id="content" name="content"></textarea>
+<input type="text" name="username" value="" placeholder="登录姓名"/>
+<button  type="button" onclick='chat.login();'>登录</button><br /><br />
+<button  type="button" onclick='chat.sendMessage();'>发送消息</button><br /><br />
+
+<div><img src="{:captcha_src()}" alt="captcha" onclick="$(this).attr('src','{:captcha_src()}'+'?_id='+Date.parse(new Date())/1000)"/></div>
+
+</body>
+
+
+<script type="text/javascript">
+
+	$(function () {
+		try {
+			ws = new WebSocket("ws://106.14.41.173:9501");//连接服务器
+			//建立连接
+			ws.onopen = function(event){
+//				chat.show('有人连接了，快和TA打个招呼吧！');
+				console.log("已经与服务器建立了连接\r\n当前连接状态："+this.readyState);
+			};
+			//接收消息
+			ws.onmessage = function(event){
+				console.log(event.data);
+				if(!event.data) return ;
+				var result = JSON.parse(event.data);
+				//错误处理
+				if(result.code != 0){
+					tool.inform({
+						msg : result.msg,
+					});
+					return false;
+				}
+				//处理
+				data = result.data;
+				switch (data.type){
+					case chat.event.online:
+						chat.show('上线了！',data.username,1);
+						break;
+					case chat.event.chat:
+						chat.show(data.content,data.username);
+						break;
+					case chat.event.offline:
+						if(data.username){
+							chat.show('下线了！',data.username,1);
+						}
+						break;
+					case chat.event.refresh_user:
+						break;
+				}
+			};
+			//连接关闭
+			ws.onclose = function(event){
+				chat.show('您已断开连接！','',1);
+				console.log("已经与服务器断开连接\r\n当前连接状态："+this.readyState);
+			};
+			//连接异常
+			ws.onerror = function(event){
+				tool.inform({
+					msg:'连接出现异常！',
+				});
+			};
+		} catch (ex) {
+			alert(ex.message);
+		}
+	});
+
+	var chat = {
+		/**
+		 * 事件
+		 */
+		event : {
+			online  : 1, //上线
+			chat    : 2, //聊天
+			offline : 3, //下线
+			refresh_user : 4,
+		},
+		/**
+		 * 显示内容
+		 */
+		show : function (msg,username,system) {
+			var content = '<div>' +
+					(system ? '<span style="color:red;">[系统]</span>' : '') +
+					'<span style="color:grey;">'+username+'：</span>' +
+					'<span style="color:cornflowerblue;">'+msg+'</span>' +
+					'<span style="color:grey;">'+chat.getDateTime()+'</span>' +
+					'</div>';
+			$('#chatWindow').append(content);
+		},
+		/**
+		 * 获取当前格式化的时间
+		 */
+		getDateTime : function(){
+			var date = new Date();
+			var seperator1 = "-";
+			var seperator2 = ":";
+			var month = date.getMonth() + 1;
+			var strDate = date.getDate();
+			if (month >= 1 && month <= 9) {
+				month = "0" + month;
+			}
+			if (strDate >= 0 && strDate <= 9) {
+				strDate = "0" + strDate;
+			}
+			var currentdate = date.getFullYear() + seperator1 + month + seperator1 + strDate
+					+ " " + date.getHours() + seperator2 + date.getMinutes()
+					+ seperator2 + date.getSeconds();
+			return currentdate;
+		},
+		/**
+		 * 发送消息
+		 */
+		sendMessage : function () {
+			try{
+				var content = $('#content').val();
+				var data = {
+					content : content,
+					username : $('input[name=username]').val(),
+					type : chat.event.chat,
+				};
+				data = JSON.stringify(data);
+				ws.send(data);
+			}catch(ex){
+				alert(ex.message);
+			}
+		},
+		/**
+		 * 登录
+		 */
+		login : function() {
+			var username = $('input[name=username]').val();
+			var data = {
+				username : username,
+				type : 1,
+			};
+			data = JSON.stringify(data);
+			ws.send(data);
+		}
+	};
+
+
+
+</script>
+
+</html>

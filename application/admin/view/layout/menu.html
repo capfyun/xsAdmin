@@ -1,0 +1,88 @@
+{php}$data['extend'] = isset($data['extend']) ? $data['extend'] : [];{/php}
+{volist name="menu.button" id="vo"}
+	{switch name="vo.button"}
+		{//普通按钮}
+		{case value="1"}
+			<li>
+				<a href="{:url($vo['name'],$data['extend'])}" rel="{$vo.id}" title="{$vo.title}"
+					{switch name="vo.icon"}
+						{case value="1"}class="add"{/case}
+						{case value="2"}class="edit"{/case}
+						{case value="3"}class="delete"{/case}
+						{default /}class="icon"
+					{/switch} 
+					{switch name="vo.target"}
+						{case value="1"}target="navTab"{/case}
+						{case value="2"}target="dialog"{/case}
+						{default /}
+					{/switch}
+					{if condition="$vo['width'] gt '0'"}width="{$vo.width}"{/if}
+					{if condition="$vo['height'] gt '0'"}height="{$vo.height}"{/if}
+				>
+					<span>{$vo.title}</span>
+				</a>
+			</li>
+		{/case}
+		{//单选页面}
+		{case value="2"}
+			<li>
+				{php}$data['extend_ex'] = is_array($data['extend']) ? array_merge($data['extend'],['id'=>'{id}']) : $data['extend'].'&id={id}';{/php}
+				<a href="{:url($vo['name'],$data['extend_ex'])}" rel="{$vo.id}" warn="选择一条数据" title="{$vo.title}"
+					{switch name="vo.icon"}
+						{case value="1"}class="add"{/case}
+						{case value="2"}class="edit"{/case}
+						{case value="3"}class="delete"{/case}
+						{default /}class="icon"
+					{/switch} 
+					{switch name="vo.target"}
+						{case value="1"}target="navTab"{/case}
+						{case value="2"}target="dialog"{/case}
+						{default /}
+					{/switch}
+					{if condition="$vo['width'] gt '0'"}width="{$vo.width}"{/if}
+					{if condition="$vo['height'] gt '0'"}height="{$vo.height}"{/if}
+				>
+					<span>{$vo.title}</span>
+				</a>
+			</li>
+		{/case}
+		{//多选页面}
+		{case value="3"}
+			<li>
+				<a href="{:url($vo['name'],$data['extend'])}" rel="{$vo.id}" key="ids" target="selectedTab" title="{$vo.title}" warn="至少选择一条数据" targetType="navTab"
+					{switch name="vo.icon"}
+						{case value="1"}class="add"{/case}
+						{case value="2"}class="edit"{/case}
+						{case value="3"}class="delete"{/case}
+						{default /}class="icon"
+					{/switch}
+					{switch name="vo.target"}
+						{case value="1"}pageType="navTab"{/case}
+						{case value="2"}pageType="dialog"{/case}
+						{default /}
+					{/switch}
+				>
+					<span>{$vo.title}</span>
+				</a>
+			</li>
+		{/case}
+		{//多选处理}
+		{case value="4"}
+			<li>
+				<a href="{:url($vo['name'],$data['extend'])}" rel="ids" target="selectedTodo" title="确定【{$vo.title}】?" postType="string" warn="至少选择一条数据" targetType="navTab"
+				   	{switch name="vo.icon"}
+				   		{case value="1"}class="add"{/case}
+						{case value="2"}class="edit"{/case}
+						{case value="3"}class="delete"{/case}
+						{default /}class="icon"
+					{/switch}
+				>
+				<span>{$vo.title}</span>
+				</a>
+			</li>
+		{/case}
+		{//默认按钮}
+		{default /}
+			<li><a class="icon" href="/{$vo.name}/" target="navTab" rel="{$vo.id}"><span>{$vo.title}</span></a></li>
+	{/switch}
+{/volist}

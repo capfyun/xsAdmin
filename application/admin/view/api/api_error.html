@@ -1,0 +1,40 @@
+<form id="pagerForm" method="post" action="{:url()}">
+	{include file="layout/search"/}
+	<input type="hidden" name="search[keyword]" value="{$Request.param.search.keyword}" />
+	<input type="hidden" name="search[status]" value="{$Request.param.search.status}">
+</form>
+
+
+<div class="pageHeader">
+	<form onsubmit="return navTabSearch(this);" action="{:url()}" method="post">
+	<div class="searchBar">
+		<ul class="searchContent" >
+			<div class="buttonActive"><div class="buttonContent"><button type="submit">检索</button></div></div>
+		</ul>
+	</div>
+	</form>
+</div>
+
+<div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			{include file="layout/menu"/}
+		</ul>
+	</div>
+	<table class="list" width="100%" layoutH="90">
+		<thead>
+		<tr>
+			<th width="10%">错误码</th>
+			<th >错误内容</th>
+		</tr>
+		</thead>
+		<tbody>
+			{volist name="data.list" id="vo"}
+			<tr >
+				<td>{$key}</td>
+				<td>{$vo}</td>
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+</div>

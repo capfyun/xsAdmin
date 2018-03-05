@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="renderer" content="webkit" />
+	<title>{:config('web_site_title')}</title>
+	<meta name="keywords" content="" />
+	<meta name="description" content="" />
+	<meta name="baidu-site-verification" content="RqxVzdPenO" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<meta name="applicable-device" content="mobile" />
+	<meta name="applicable-device" content="pc" />
+	<meta name="applicable-device" content="pc,mobile" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<meta name="format-detection" content="telephone=no" />
+	<meta http-equiv="x-dns-prefetch-control" content="on"/>
+	{//jscss文件}
+	{include file="layout/front"/}
+</head>
+<body>
+<div id="layout">
+	{//头部}
+	<div id="header">
+		<div class="headerNav">
+			<a class="logo" href="javascript:;">标志</a>
+			<ul class="nav">
+				<li id="switchEnvBox" ><a href="javascript:;">消息<strong></strong></a>
+					<ul style="width:400px" >
+						<li style="width:100%; "><a href="javascript:;">暂无更多消息</a></li>
+					</ul>
+				</li>
+				<li><a href="{:url('user/user_info')}" target="dialog" rel="28" title="个人信息" width="500" height="500">您好，<strong>{:session('user_auth.username')}</strong></a></li>
+				<li><a href="{:url('user/password_edit')}" target="dialog" rel="27" title="密码修改" width="500" height="400">密码修改</a></li>
+				<li><a href="javascript:;" id="logout">退出</a></li>
+			</ul>
+			<ul class="themeList" id="themeList">
+				<li theme="default"><div class="selected">蓝色</div></li>
+				<li theme="green"><div>绿色</div></li>
+				<!--<li theme="red"><div>红色</div></li>-->
+				<li theme="purple"><div>紫色</div></li>
+				<li theme="silver"><div>银色</div></li>
+				<li theme="azure"><div>天蓝</div></li>
+			</ul>
+		</div>
+	</div>
+	{//左侧菜单}
+	<div id="leftside">
+		<div id="sidebar_s">
+			<div class="collapse">
+				<div class="toggleCollapse"><div></div></div>
+			</div>
+		</div>
+		<div id="sidebar">
+			<div class="toggleCollapse"><h2>主菜单</h2><div>收缩</div></div>
+			{//菜单树start}
+			<div class="accordion" fillSpace="sidebar">
+				{$menu.main}
+			</div>
+			{//菜单树end}
+		</div>
+	</div>
+	{//内容}
+	<div id="container">
+		<div id="navTab" class="tabsPage">
+			<div class="tabsPageHeader">
+				<div class="tabsPageHeaderContent"><!-- 显示左右控制时添加 class="tabsPageHeaderMargin" -->
+					<ul class="navTab-tab">
+						<li tabid="main" class="main"><a href="javascript:;"><span><span class="home_icon">我的主页</span></span></a></li>
+					</ul>
+				</div>
+				<div class="tabsLeft">left</div><!-- 禁用只需要添加一个样式 class="tabsLeft tabsLeftDisabled" -->
+				<div class="tabsRight">right</div><!-- 禁用只需要添加一个样式 class="tabsRight tabsRightDisabled" -->
+				<div class="tabsMore">more</div>
+			</div>
+			<ul class="tabsMoreList">
+				<li><a href="javascript:;">我的主页</a></li>
+			</ul>
+			<div class="navTab-panel tabsPageContent layoutBox">
+				<div class="page unitBox">
+					<div class="accountInfo">
+						<div class="alertInfo">
+							<div style="margin-top:10px;">
+								<span><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=550373770&site=qq&menu=yes"><img border="0" src="/static/admin/img/button_111.gif" alt="点击这里发消息给管理员" title="点击这里发消息给管理员"/></a></span>
+								<br/><span>遇到问题，点击告诉管理员</span>
+							</div>							</div>
+						<!-- <div class="right"><p style="color:red">网站首页 <a href="{:url('Home/Index/index')}" target="_blank">http://{$_SERVER.HTTP_HOST}{:url('Home/Index/index')}</a></p></div> -->
+						<div class="right"><object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=8,0,0,0" width="160" height="70" id="honehoneclock" align="middle"><param name="allowScriptAccess" value="always"><param name="movie" value="http://chabudai.sakura.ne.jp/blogparts/honehoneclock/honehone_clock_tr.swf"><param name="quality" value="high"><param name="bgcolor" value="#ffffff"><param name="wmode" value="transparent"><embed wmode="transparent" src="http://chabudai.sakura.ne.jp/blogparts/honehoneclock/honehone_clock_tr.swf" quality="high" bgcolor="#ffffff" width="160" height="70" name="honehoneclock" align="middle" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></object></div>
+
+						<p><span>{:config('web_site_title')}</span></p>
+						<!-- <p>网站首页 <a href="{:url('Home/Index/index')}" target="_blank">http://{$_SERVER.HTTP_HOST}{:url('Home/Index/index')}</a></p> -->
+					</div>
+					<div class="pageContent pageForm">
+
+						<div >
+							<div class="row">
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+</div>
+{//底部}
+<div id="footer">Copyright &copy; 2017 <a href="demo_page2.html" target="dialog">七果团队</a> 版权信息</div>
+
+</body>
+<script type="text/javascript">
+
+$(function () {
+	//退出登录事件
+	$('#logout').on('click',admin.index.logout);
+});
+</script>
+</html>
+

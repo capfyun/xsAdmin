@@ -1,0 +1,75 @@
+<form id="pagerForm" method="post" action="{:url()}">
+	{include file="layout/search"/}
+	<input type="hidden" name="search[keyword]" value="{$Request.param.search.keyword}" />
+</form>
+
+<div class="pageHeader">
+	<form onsubmit="return navTabSearch(this);" action="{:url()}" method="post">
+	<div class="searchBar">
+		<ul class="searchContent" >
+			{volist name=":config('config_group_list')" id="vo"}
+				<a href="{:url('',['group_id'=>$key])}" target="navTab" rel="83">
+					<div {if condition="$key eq input('group_id',1)"}class="buttonActive"{else/}class="button"{/if}>
+						<div class="buttonContent">
+							<button type="button">
+								{$vo}
+							</button>
+						</div>
+					</div>
+				</a>
+			{/volist}
+		</ul>
+	</div>
+	</form>
+</div>
+<div class="pageContent">
+	<div class="panelBar">
+		<ul class="toolBar">
+			{include file="layout/menu"/}
+		</ul>
+	</div>
+	<form method="post" action="{:url()}" class="pageForm required-validate" onsubmit="return validateCallback(this,navTabAjaxDone);">
+		<div class="pageFormContent" layoutH="145">
+			<input name="group_id" type="hidden" value="{:input('group_id',0)}" />
+			{volist name="data.list" id="vo"}
+				<div class="unit">
+					<label>{$vo.title}：</label>
+					{switch name="vo.type"}
+						{case value="1"}
+							<input type="text" class="textInput" size="40" name="config[{$vo.name}]" value="{$vo.value}" placeholder="{$vo.description}">
+						{/case}
+						{case value="2"}
+							<input type="text" class="textInput" size="40" name="config[{$vo.name}]" value="{$vo.value}" placeholder="{$vo.description}">
+						{/case}
+						{case value="3"}
+							<textarea name="config[{$vo.name}]" class="textInput" cols="40" rows="5" >{$vo.value}</textarea>
+						{/case}
+						{case value="4"}
+							<textarea name="config[{$vo.name}]" class="textInput" cols="40" rows="5" >{$vo.value}</textarea>
+						{/case}
+						{case value="5"}
+							<select name="config[{$vo.name}]">
+								{volist name=":service('config')->parse_config_attr($vo['extra'])" id="vo1"}
+									<option value="{$key}" {if condition="$vo['value'] eq $key"}selected{/if}>{$vo1}</option>
+								{/volist}
+							</select>
+						{/case}
+						{default/}<input type="text" class="textInput" name="config[{$vo.name}]" value="{$vo.value}" placeholder="{$vo.description}">
+					{/switch}
+					<span class="info" style="float:left;clear:left;margin-left:130px;">{$vo.description}</span>
+				</div>
+				<div class="divider"></div>
+			{/volist}
+		</div>
+		<div class="formBar">
+			<ul>
+				<li><div class="buttonActive"><div class="buttonContent"><button type="submit">保存</button></div></div></li>
+				<li><div class="button"><div class="buttonContent"><button type="button" class="close">取消</button></div></div></li>
+			</ul>
+		</div>
+	</form>
+
+	<div class="panelBar">
+		{include file="layout/nav"/}
+	</div>
+</div>
