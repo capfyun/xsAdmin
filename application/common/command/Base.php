@@ -8,6 +8,9 @@ namespace app\common\command;
 
 class Base extends \think\console\Command{
 	
+	//当前模块
+	protected $module = 'common';
+	
 	/**
 	 * 初始化
 	 */

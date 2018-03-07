@@ -31,7 +31,7 @@ class Transmit extends Base{
 	 */
 	public function __construct(){
 		parent::__construct();
-		$this->config = \think\Config::get('uploadconfig') ? : []; //获取默认配置
+		$this->config = \think\Config::get('upload_config') ? : []; //获取默认配置
 	}
 	
 	/**
@@ -129,8 +129,12 @@ class Transmit extends Base{
 		}
 		/* 进行上传 */
 		$path = $this->path.$type.'/'; //上传地址
-		if(isset($this->config[$type])) $file = $file->validate($this->config[$type]); //文件校验
-		$data = $file->move(ROOT_PATH.'public'.$path); //移动到框架应用根目录/public/upload/ 目录下
+		//文件校验
+		if(isset($this->config[$type])){
+			$file = $file->validate($this->config[$type]);
+		}
+		//移动到框架应用根目录/public/ 目录下
+		$data = $file->move(ROOT_PATH.'public'.$path);
 		//上传失败
 		if(!$data){
 			$this->error = $file->getError();
