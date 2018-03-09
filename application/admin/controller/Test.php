@@ -15,12 +15,18 @@ class Test extends \think\Controller{
 	 * 测试
 	 */
 	public function test(){
-		$a = array(0=>'7',1=>'2',2=>'',3=>'6');
-		$b = array_filter($a);
-		asort($b);
-		$c = array_keys($b);
-		$c = implode(',',$c);
-		halt($c);
+		$this->result('asdasd','123','123','json');
+		echo 'aaaaa';exit();
+		
+		
+		$auth = 'config/config_set';
+		echo ( $auth == $query = preg_replace('/^.+\?/U', '', $auth)  ) ? 'abc' : '123';
+		
+		
+		halt($query);
+		
+		$a = service('Auth')->check('index/index,config/config_set',2);
+		halt($a);
 		
 		return $this->fetch();
 	}
