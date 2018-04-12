@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-class System extends \app\common\controller\BaseAdmin{
+class System extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 系统信息
@@ -14,8 +14,7 @@ class System extends \app\common\controller\BaseAdmin{
 		/* 系统信息 */
 		//设置报错级别
 		error_reporting(E_ALL&~E_NOTICE);
-		$os       = explode(' ', php_uname());
-		$s_system = service('System');
+		$os     = explode(' ', php_uname());
 		//服务器参数
 		$server = [
 			['服务器域名/IP地址', $_SERVER['SERVER_NAME'].'('.(DIRECTORY_SEPARATOR=='/' ? $_SERVER['SERVER_ADDR'] : @gethostbyname($_SERVER['SERVER_NAME'])).')',],
@@ -48,59 +47,59 @@ class System extends \app\common\controller\BaseAdmin{
 		$php_config = [
 			['PHP版本（php_version）', PHP_VERSION],
 			['PHP运行方式', strtoupper(php_sapi_name())],
-			['脚本占用最大内存（memory_limit）', $s_system->show('memory_limit')],
-			['PHP安全模式（safe_mode）', $s_system->show('safe_mode')],
-			['POST方法提交最大限制（post_max_size）', $s_system->show('post_max_size')],
-			['上传文件最大限制（upload_max_filesize）', $s_system->show('upload_max_filesize')],
-			['浮点型数据显示的有效位数（precision）', $s_system->show('precision')],
-			['脚本超时时间（max_execution_time）', $s_system->show('max_execution_time')],
-			['socket超时时间（default_socket_timeout）', $s_system->show('default_socket_timeout')],
-			['PHP页面根目录（doc_root）', $s_system->show('doc_root')],
-			['用户根目录（user_dir）', $s_system->show('user_dir')],
-			['dl()函数（enable_dl）', $s_system->show('enable_dl')],
-			['指定包含文件目录（include_path）', $s_system->show('include_path')],
-			['显示错误信息（display_errors）', $s_system->show('display_errors')],
-			['自定义全局变量（register_globals）', $s_system->show('register_globals')],
-			['"<?...?>"短标签（short_open_tag）', $s_system->show('short_open_tag')],
-			['"<% %>"ASP风格标记（asp_tags）', $s_system->show('asp_tags')],
-			['忽略重复错误信息（ignore_repeated_errors）', $s_system->show('ignore_repeated_errors')],
-			['忽略重复的错误源（ignore_repeated_source）', $s_system->show('ignore_repeated_source')],
-			['报告内存泄漏（report_memleaks）', $s_system->show('report_memleaks')],
-			['自动字符串转义（magic_quotes_gpc）', $s_system->show('magic_quotes_gpc')],
-			['外部字符串自动转义（magic_quotes_runtime）', $s_system->show('magic_quotes_runtime')],
-			['打开远程文件（allow_url_fopen）', $s_system->show('allow_url_fopen')],
-			['声明argv和argc变量（register_argc_argv）', $s_system->show('register_argc_argv')],
+			['脚本占用最大内存（memory_limit）', $this->show('memory_limit')],
+			['PHP安全模式（safe_mode）', $this->show('safe_mode')],
+			['POST方法提交最大限制（post_max_size）', $this->show('post_max_size')],
+			['上传文件最大限制（upload_max_filesize）', $this->show('upload_max_filesize')],
+			['浮点型数据显示的有效位数（precision）', $this->show('precision')],
+			['脚本超时时间（max_execution_time）', $this->show('max_execution_time')],
+			['socket超时时间（default_socket_timeout）', $this->show('default_socket_timeout')],
+			['PHP页面根目录（doc_root）', $this->show('doc_root')],
+			['用户根目录（user_dir）', $this->show('user_dir')],
+			['dl()函数（enable_dl）', $this->show('enable_dl')],
+			['指定包含文件目录（include_path）', $this->show('include_path')],
+			['显示错误信息（display_errors）', $this->show('display_errors')],
+			['自定义全局变量（register_globals）', $this->show('register_globals')],
+			['"<?...?>"短标签（short_open_tag）', $this->show('short_open_tag')],
+			['"<% %>"ASP风格标记（asp_tags）', $this->show('asp_tags')],
+			['忽略重复错误信息（ignore_repeated_errors）', $this->show('ignore_repeated_errors')],
+			['忽略重复的错误源（ignore_repeated_source）', $this->show('ignore_repeated_source')],
+			['报告内存泄漏（report_memleaks）', $this->show('report_memleaks')],
+			['自动字符串转义（magic_quotes_gpc）', $this->show('magic_quotes_gpc')],
+			['外部字符串自动转义（magic_quotes_runtime）', $this->show('magic_quotes_runtime')],
+			['打开远程文件（allow_url_fopen）', $this->show('allow_url_fopen')],
+			['声明argv和argc变量（register_argc_argv）', $this->show('register_argc_argv')],
 			['Cookie 支持', isset($_COOKIE) ? '<font color="green">√</font>' : '<font color="red">×</font>'],
-			['拼写检查（ASpell Library）', $s_system->isfun('aspell_check_raw')],
-			['高精度数学运算（BCMath）', $s_system->isfun('bcadd')],
-			['PREL相容语法（PCRE）', $s_system->isfun('preg_match')],
-			['PDF文档支持', $s_system->isfun('pdf_close')],
-			['SNMP网络管理协议', $s_system->isfun('snmpget')],
-			['VMailMgr邮件处理', $s_system->isfun('vm_adduser')],
-			['Curl支持', $s_system->isfun('curl_init')],
+			['拼写检查（ASpell Library）', $this->isfun('aspell_check_raw')],
+			['高精度数学运算（BCMath）', $this->isfun('bcadd')],
+			['PREL相容语法（PCRE）', $this->isfun('preg_match')],
+			['PDF文档支持', $this->isfun('pdf_close')],
+			['SNMP网络管理协议', $this->isfun('snmpget')],
+			['VMailMgr邮件处理', $this->isfun('vm_adduser')],
+			['Curl支持', $this->isfun('curl_init')],
 			['SMTP支持/SMTP地址', get_cfg_var('SMTP') ? '<font color="green">√</font>('.get_cfg_var('SMTP').')' : '<font color="red">×</font>'],
 			['被禁用的函数（disable_functions）', $disable_functions],
 		];
 		/* 组件支持 */
 		$subassembly = [
-			['FTP支持', $s_system->isfun('ftp_login')],
-			['XML解析支持', $s_system->isfun('xml_set_object')],
-			['Session支持', $s_system->isfun('session_start')],
-			['Socket支持', $s_system->isfun('socket_accept')],
-			['Calendar支持', $s_system->isfun('cal_days_in_month')],
-			['允许URL打开文件', $s_system->show('allow_url_fopen')],
+			['FTP支持', $this->isfun('ftp_login')],
+			['XML解析支持', $this->isfun('xml_set_object')],
+			['Session支持', $this->isfun('session_start')],
+			['Socket支持', $this->isfun('socket_accept')],
+			['Calendar支持', $this->isfun('cal_days_in_month')],
+			['允许URL打开文件', $this->show('allow_url_fopen')],
 			['GD库支持', function_exists('gd_info') ? @gd_info()['GD Version'] : '<font color="red">×</font>'],
-			['压缩文件支持(Zlib)', $s_system->isfun('gzclose')],
-			['IMAP电子邮件系统函数库', $s_system->isfun('imap_close')],
-			['历法运算函数库', $s_system->isfun('JDToGregorian')],
-			['正则表达式函数库', $s_system->isfun('preg_match')],
-			['WDDX支持', $s_system->isfun('wddx_add_vars')],
-			['Iconv编码转换', $s_system->isfun('iconv')],
-			['mbstring', $s_system->isfun('mb_eregi')],
-			['高精度数学运算', $s_system->isfun('bcadd')],
-			['LDAP目录协议', $s_system->isfun('ldap_close')],
-			['MCrypt加密处理', $s_system->isfun('mcrypt_cbc')],
-			['哈稀计算', $s_system->isfun('mhash_count')],
+			['压缩文件支持(Zlib)', $this->isfun('gzclose')],
+			['IMAP电子邮件系统函数库', $this->isfun('imap_close')],
+			['历法运算函数库', $this->isfun('JDToGregorian')],
+			['正则表达式函数库', $this->isfun('preg_match')],
+			['WDDX支持', $this->isfun('wddx_add_vars')],
+			['Iconv编码转换', $this->isfun('iconv')],
+			['mbstring', $this->isfun('mb_eregi')],
+			['高精度数学运算', $this->isfun('bcadd')],
+			['LDAP目录协议', $this->isfun('ldap_close')],
+			['MCrypt加密处理', $this->isfun('mcrypt_cbc')],
+			['哈稀计算', $this->isfun('mhash_count')],
 		];
 		
 		/* 第三方组件 */
@@ -122,20 +121,20 @@ class System extends \app\common\controller\BaseAdmin{
 		/* 数据库支持 */
 		$sqlites3 = \SQLite3::version();
 		$database = [
-			['MySQL 数据库', $s_system->isfun('mysql_close').(function_exists("mysql_get_server_info") && ($s = @mysql_get_server_info()) ? '&nbsp; mysql_server 版本：'.$s : '')],
-			['ODBC 数据库', $s_system->isfun('odbc_close')],
-			['Oracle 数据库', $s_system->isfun('ora_close')],
-			['SQL Server 数据库', $s_system->isfun('mssql_close')],
-			['dBASE 数据库', $s_system->isfun('dbase_close')],
-			['SQLite 数据库', $s_system->isfun('dbase_close')],
+			['MySQL 数据库', $this->isfun('mysql_close').(function_exists("mysql_get_server_info") && ($s = @mysql_get_server_info()) ? '&nbsp; mysql_server 版本：'.$s : '')],
+			['ODBC 数据库', $this->isfun('odbc_close')],
+			['Oracle 数据库', $this->isfun('ora_close')],
+			['SQL Server 数据库', $this->isfun('mssql_close')],
+			['dBASE 数据库', $this->isfun('dbase_close')],
+			['SQLite 数据库', $this->isfun('dbase_close')],
 			['dBASE 数据库', extension_loaded('sqlite3') ? '<font color=green>√</font>　SQLite3　Ver '.$sqlites3['versionString'] : isfun('sqlite_close').(function_exists('sqlite_close') ? ' 版本： '.@sqlite_libversion() : '')],
-			['Hyperwave 数据库', $s_system->isfun('hw_close')],
-			['Postgre SQL 数据库', $s_system->isfun('pg_close')],
-			['Informix 数据库', $s_system->isfun('ifx_close')],
-			['DBA 数据库', $s_system->isfun('dba_close')],
-			['DBM 数据库', $s_system->isfun('dbmclose')],
-			['FilePro 数据库', $s_system->isfun('filepro_fieldcount')],
-			['SyBase 数据库', $s_system->isfun('sybase_close')],
+			['Hyperwave 数据库', $this->isfun('hw_close')],
+			['Postgre SQL 数据库', $this->isfun('pg_close')],
+			['Informix 数据库', $this->isfun('ifx_close')],
+			['DBA 数据库', $this->isfun('dba_close')],
+			['DBM 数据库', $this->isfun('dbmclose')],
+			['FilePro 数据库', $this->isfun('filepro_fieldcount')],
+			['SyBase 数据库', $this->isfun('sybase_close')],
 		
 		];
 		
@@ -149,6 +148,33 @@ class System extends \app\common\controller\BaseAdmin{
 			'database'    => $database,
 		
 		]]);
+	}
+	
+	/**
+	 * 检测PHP设置参数
+	 * @param string $var 参数
+	 * @return string
+	 */
+	private function show($var){
+		$result = get_cfg_var($var);
+		switch($result){
+			case 0:
+				return '<font color="red">×</font>';
+			case 1:
+				return '<font color="green">√</font>';
+			default:
+				return $result;
+		}
+	}
+	
+	/**
+	 * 检测函数支持
+	 * @param string $fun_name 函数名
+	 * @return string
+	 */
+	private function isfun($fun_name = ''){
+		if(!$fun_name || trim($fun_name)=='' || preg_match('~[^a-z0-9\_]+~i', $fun_name, $tmp)) return '错误';
+		return (false!==function_exists($fun_name)) ? '<font color="green">√</font>' : '<font color="red">×</font>';
 	}
 	
 }

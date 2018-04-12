@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-class Database extends \app\common\controller\BaseAdmin{
+class Database extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 数据库-列表

@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-class User extends \app\common\controller\BaseAdmin{
+class User extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 用户列表
@@ -25,7 +25,7 @@ class User extends \app\common\controller\BaseAdmin{
 		if(isset($search['status']) && $search['status']!='') $where['status'] = $search['status']; //用户状态
 		$list = $this->dwzPaging($db->where($where)->field('*')->order('id DESC'), $pageNum, $numPerPage);
 		foreach($list as $k => $v){
-			$groups     = service('Auth')->getGroups($v['id']);
+			$groups     = model('Auth')->getGroups($v['id']);
 			$auth_group = [];
 			foreach($groups as $k1 => $v1) $auth_group[] = $v1['title'];
 			$list[$k]['auth_groups'] = implode('、', $auth_group);

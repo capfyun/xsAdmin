@@ -25,4 +25,6 @@ class Upload extends Base{
 	//只读字段
 	protected $readonly = ['md5','sha1'];    //模型中定义readonly属性，配置指定只读字段
 	
+	
+	
 }

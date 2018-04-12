@@ -123,15 +123,35 @@ class Tool extends Base{
 	 * @param string $list_name 自数组名称
 	 * @return array 多维数组
 	 */
-	public function sortArraySon($data, $parent_id = 0, $parent_name = 'parent_id', $list_name = 'list'){
-		$return = [];
-		foreach($data as $k => $v)
-			if($v[$parent_name]==$parent_id){
-				$list          = $this->sortArraySon($data, $v['id'], $parent_name, $list_name);
-				$v[$list_name] = empty($list) ? [] : $list;
-				$return[]      = $v;
+	public function sortArrayRecursio($data, $option = []){
+		$option = array_merge(array(
+			'parent_id'      => 0, //指定父id开始整理
+			'id_name'        => 'id', //id键名
+			'parent_id_name' => 'parent_id',
+			'child'          => 'child', //子集键名
+		), $option);
+		//递归
+		$fn = function($data, $option) use (&$fn){
+			$return = array();
+			if(isset($data[$option['parent_id']]) && is_array($data[$option['parent_id']])){
+				foreach($data[$option['parent_id']] as $k => $v){
+					$new_option          = array_merge(
+						$option,
+						array('parent_id' => $v[$option['id_name']])
+					);
+					$v[$option['child']] = isset($data[$v[$option['id_name']]]) ? $fn($data, $new_option) : [];
+					$return[]            = $v;
+				}
 			}
-		return $return;
+			return $return;
+		};
+		//先分组
+		$group_data = array();
+		foreach($data as $k => $v){
+			$group_data[$v[$option['parent_id_name']]][] = $v;
+		}
+		
+		return $fn($group_data, $option);
 	}
 	
 	/**
@@ -140,7 +160,7 @@ class Tool extends Base{
 	 * @return string 校验字符串
 	 */
 	public function safeCheckcode($string, $algo = 'md5'){
-		return hash($algo, $string.config('auth_key_data'));
+		return hash($algo, $string.config('data_secret_key'));
 	}
 	
 	/**
@@ -151,7 +171,7 @@ class Tool extends Base{
 	public function safeSignature($data, $algo = 'md5'){
 		if(is_array($data)) ksort($data);
 		$string = serialize($data); //转为字符串
-		return hash($algo, $string.config('auth_key_data')); //生成签名
+		return hash($algo, $string.config('data_secret_key')); //生成签名
 	}
 	
 	/**
@@ -381,8 +401,8 @@ class Tool extends Base{
 		
 		$all = $type ? false : true;
 		foreach($regular as $k => $v){
-			if($all || in_array($k,$type)){
-				$result = preg_match($v,$mobile);
+			if($all || in_array($k, $type)){
+				$result = preg_match($v, $mobile);
 				if($result){
 					return true;
 				}

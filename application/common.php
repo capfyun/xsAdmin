@@ -35,18 +35,19 @@ function mongo($name = '',$config = [], $force = false){
 
 //====================调试====================
 //数据库写入，快捷调试
-function _dblog(){
+function db_debug(){
 	$data = func_get_args();
 	//写入数据库
 	db('log_debug')->insert([
 		'data' => json_encode($data),
+		'date' => date('Y-m-d H:i:s'),
 		'url'  => request()->module().'/'.request()->controller().'/'.request()->action(),
 	]);
 }
 
 //文件写入，快捷调试
-function _wr($data, $file = 'debug.txt'){
-	$path    = $_SERVER['DOCUMENT_ROOT'].'/static/debug/'.$file;
+function file_debug($data, $file = 'debug.txt'){
+	$path    = $_SERVER['DOCUMENT_ROOT'].'/resource/debug/'.$file;
 	$content = var_export($data, true)."\r\n";
 	file_put_contents($path, $content, FILE_APPEND|LOCK_EX);
 }

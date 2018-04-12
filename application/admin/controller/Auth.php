@@ -1,138 +1,106 @@
 <?php
 /**
- * 控制器-权限
+ * 权限
  * @author 夏爽
  */
 namespace app\admin\controller;
 
-class Auth extends \app\common\controller\BaseAdmin{
+class Auth extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 菜单-列表
-	 * 参数 $pageNum=页码数，$numPerPage=每页数据条数 $search=搜索关键字
 	 * @param int $pid 上级ID
 	 */
-	public function auth_rule_list($pageNum = 1, $numPerPage = null, $search = array(), $parent_id = 0){
-		$db = db('auth_rule');
-		if(!empty($search['keyword'])){
-			$db->where(function($query) use ($search){
-				$query->whereOr([
-					'id'    => ['eq', $search['keyword']],
-					'name'  => ['like', '%'.$search['keyword'].'%'],
-					'title' => ['like', '%'.$search['keyword'].'%'],
-				]);
+	public function rule_list($parent_id = 0){
+		$keyword = [
+			'title' => ['title' => ['LIKE', '%'.input('search.keyword').'%']],
+			'name'  => ['name' => ['LIKE', '%'.input('search.keyword').'%']],
+		];
+		$where   = ['parent_id' => $parent_id];
+		input('search.keyword')=='' || $where = array_merge($where, $keyword[input('search.keyword_type')]);
+		input('search.status')=='' || $where['status'] = input('search.status');
+		input('search.menu_type')=='' || $where['menu_type'] = input('search.menu_type');
+		input('search.request_type')=='' || $where['request_type'] = input('search.request_type');
+		
+		$paging = db('auth_rule')
+			->where($where)
+			->order(input('order') ? : 'sort DESC')
+			->paginate(['query' => array_filter(input()),])
+			->each(function($item, $key){
+				$menu_type_format         = [0 => '隐藏', 1 => '菜单', 2 => '选项'];
+				$status_format            = [0 => '禁用', 1 => '启用'];
+				$item['menu_type_format'] = isset($menu_type_format[$item['menu_type']]) ? $menu_type_format[$item['menu_type']] : '';
+				$item['status_format']    = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '';
+				return $item;
 			});
-		}
-		$where = ['parent_id' => $parent_id];
-		if(isset($search['status']) && $search['status']!='') $where['status'] = $search['status']; //状态
-		if(isset($search['menu']) && $search['menu']!='') $where['menu'] = $search['menu']; //菜单类型
-		if(isset($search['button']) && $search['button']!='') $where['button'] = $search['button']; //按键类型
 		
-		$list = $this->dwzPaging($db->where($where)->field('*')->order('sort asc'), $pageNum, $numPerPage);
-		
+		cookie('forward', request()->url());
 		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'list'      => $list,
-			'id'        => $parent_id,
-			'parent_id' => $db->where(['id' => $parent_id])->value('parent_id') ? : 0,
-			'extend'    => ['parent_id' => $parent_id],
-		],]);
+		return $this->fetch('', [
+			'paging'    => $paging,
+			'parent_id' => $parent_id ? db('auth_rule')->where(['id' => $parent_id])->value('parent_id') : 0,
+		]);
 	}
 	
 	/**
-	 * 菜单-新增
-	 * @param int $pid 上级ID
+	 * 新增编辑菜单
 	 */
-	public function auth_rule_add($parent_id = null){
+	public function rule_addedit($id = 0){
 		if($this->request->isPost()){
-			$result = model('AuthRule')->allowField(true)->save($this->request->post());
-			return $result>0 ? $this->dwzReturn(200) : $this->dwzReturn(300);
-		}
-		
-		/* 权限列表 */
-		$rule_list = db('auth_rule')->field(['id', 'parent_id', 'name', 'title'])->order('sort ASC')->limit(1000)->select();
-		//递归排序
-		$rule_list_format = service('Tool')->sortArraySon($rule_list);
-		//换砖为html代码
-		$html = service('Auth')->getAuthRuleListToHtmlSelect($rule_list_format, 1, '', $parent_id);
-		
-		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'rule_html' => $html, //权限列表
-		]]);
-	}
-	
-	/**
-	 * 菜单-编辑
-	 * @param int $id 当前ID
-	 * @param int $parent_id 上级ID
-	 */
-	public function auth_rule_edit($id = 0, $parent_id = null){
-		if($this->request->isPost()){
-			$result = model('AuthRule')->allowField(true)->save($this->request->post(), ['id' => $id]);
-			return $result>0 ? $this->dwzReturn(200) : $this->dwzReturn(300);
+			if($id){
+				$result = model('AuthRule')->allowField(true)->save(input(), ['id' => $id]);
+			}else{
+				$result = model('AuthRule')->allowField(true)->save(input());
+			}
+			$result || $this->error();
+			$this->success('操作成功', cookie('forward'));
 		}
 		/* 权限详情 */
-		$rule_info = db('auth_rule')->where(['id' => $id])->field('*')->find();
+		$rule = $id ? model('authRule')->get($id) : [];
 		
 		/* 权限列表 */
-		$rule_list = db('auth_rule')->field(['id', 'parent_id', 'name', 'title'])->order('sort ASC')->limit(1000)->select();
+		$rule_list = db('auth_rule')->order('sort DESC')->select();
 		//递归排序
-		$rule_list_format = service('Tool')->sortArraySon($rule_list);
-		//换砖为html代码
-		$html = service('Auth')->getAuthRuleListToHtmlSelect($rule_list_format, 1, '', $parent_id);
+		$rule_list = service('Tool')->sortArrayRecursio($rule_list);
 		
 		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'info'      => $rule_info, //权限详情
-			'rule_html' => $html, //权限列表
-		]]);
+		return $this->fetch('', [
+			'info'      => $rule,
+			'rule_list' => $rule_list,
+		]);
 	}
 	
 	/**
 	 * 权限组-列表
-	 * 参数 $pageNum=页码数 $numPerPage=每页数据条数 $search=搜索
 	 */
-	public function auth_group_list($pageNum = 1, $numPerPage = null, $search = array()){
-		$db = db('auth_group');
-		if(!empty($search['keyword'])){
-			$db->where(function($query) use ($search){
-				$query->whereOr([
-					'id'          => array('eq', $search['keyword']),
-					'title'       => array('like', '%'.$search['keyword'].'%'),
-					'description' => array('like', '%'.$search['keyword'].'%'),
-				]);
+	public function group_list(){
+		$keyword = [
+			'title' => ['title' => ['LIKE', '%'.input('search.keyword').'%']],
+		];
+		$where   = [];
+		input('search.status')=='' || $where['status'] = input('search.status');
+		input('search.keyword')=='' || $where = array_merge($where, $keyword[input('search.keyword_type')]);
+		$paging = model('AuthGroup')
+			->where($where)
+			->order('sort DESC')
+			->paginate()
+			->each(function($item, $key){
+				$status_format         = [0 => '禁用', 1 => '启用'];
+				$item['status_format'] = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '-';
+				return $item;
 			});
-		}
-		$where = [];
-		if(isset($search['status']) && $search['status']!='') $where['status'] = $search['status']; //用户状态
-		$list = $this->dwzPaging($db->where($where)->field('*')->order('sort ASC'), $pageNum, $numPerPage);
 		
 		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'list' => $list,
-		]]);
+		return $this->fetch('', [
+			'paging' => $paging,
+		]);
 	}
 	
 	/**
-	 * 权限组-新增
-	 */
-	public function auth_group_add(){
-		if($this->request->isPost()){
-			$result = model('AuthGroup')->allowField(true)->isUpdate(false)->save($this->request->post());
-			if(!$result) return $this->dwzReturn(300);
-			return $this->dwzReturn(200);
-		}
-		/* 视图 */
-		return $this->fetch();
-	}
-	
-	/**
-	 * 权限组-编辑
-	 * @param int $id 当前ID
+	 * 新增编辑权限组
 	 * @param array $rules 权限ID集
 	 */
-	public function auth_group_edit($id = 0, $rules = array()){
+	public function group_addedit($id = 0, $rules = array()){
 		if($this->request->isPost()){
 			sort($rules);
 			$this->request->post(['rules' => implode(',', $rules)]);
@@ -151,54 +119,6 @@ class Auth extends \app\common\controller\BaseAdmin{
 			'info'      => $info,
 			'rule_html' => $rule_html,
 		]]);
-	}
-	
-	/**
-	 * 启用菜单
-	 * @param string $ids
-	 */
-	public function auth_rule_status_on($ids = ''){
-		return $this->status('auth_rule', $ids, 1);
-	}
-	
-	/**
-	 * 禁用菜单
-	 * @param string $ids
-	 */
-	public function auth_rule_status_off($ids = ''){
-		return $this->status('auth_rule', $ids, 0);
-	}
-	
-	/**
-	 * 删除菜单
-	 * @param string $ids 数据集
-	 */
-	public function auth_rule_del($ids = ''){
-		return $this->delete('auth_rule', $ids);
-	}
-	
-	/**
-	 * 启用权限组
-	 * @param string $ids 数据集
-	 */
-	public function auth_group_status_on($ids = ''){
-		return $this->status('auth_group', $ids, 1);
-	}
-	
-	/**
-	 * 禁用权限组
-	 * @param string $ids 数据集
-	 */
-	public function auth_group_status_off($ids = ''){
-		return $this->status('auth_group', $ids, 0);
-	}
-	
-	/**
-	 * 删除权限组
-	 * @param string $ids 数据集
-	 */
-	public function auth_group_del($ids = ''){
-		return $this->delete('auth_group', $ids);
 	}
 	
 }

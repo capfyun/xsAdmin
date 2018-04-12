@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-class Config extends \app\common\controller\BaseAdmin{
+class Config extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 配置-列表

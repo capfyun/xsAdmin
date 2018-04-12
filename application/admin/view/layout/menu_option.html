@@ -1,0 +1,13 @@
+
+{volist name="app.option" id="vo"}
+	<a class="btn btn-app menu-option"
+	   	data-title="{$vo.title}"
+	   	data-request-type="{$vo.request_type}"
+		data-param-num="{$vo.param_num}"
+		data-param-name="{$vo.param_name}"
+		href="{:url($vo['name'],isset($extra) ? $extra : [],false)}"
+	>
+		<i class="fa {$vo.icon ? : 'fa-link'} "></i>{$vo.title}
+	</a>
+{/volist}
+

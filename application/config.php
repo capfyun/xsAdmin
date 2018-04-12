@@ -11,19 +11,26 @@
 use \think\Env;
 
 return [
-	
 	// +----------------------------------------------------------------------
 	// | 自定义配置
 	// +----------------------------------------------------------------------
-	/* 网站 */
+	
+	//网站域名
 	'web_domain'             => 'http://'.(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '127.0.0.1'),//'http://zsdk.7guoyouxi.com/',
 	
-	/* 当前应用环境 */
+	//当前应用环境
 	'app_env'                => \think\Env::get('app_env', 'local'),
 	
-	/* 数据加密配置 */
-	'auth_key_data'          => 'k+_b}yC2Hx~:uZ/O=a9g-0{6^B|LhfwFlG@I?1MY',    //默认数据加密KEY
-	'auth_key_user'          => '&17@:iY$0?(twB]kru)46J^!9l;.,Z5oE[bI_QmA',    //默认密码加密KEY
+	//数据加密KEY
+	'data_secret_key'        => 'k+_b}yC2Hx~:uZ/O=a9g-0{6^B|LhfwFlG@I?1MY',
+	//默认密码加密KEY
+	'password_secret_key'    => '&17@:iY$0?(twB]kru)46J^!9l;.,Z5oE[bI_QmA',
+	
+	//密钥
+	'rsa_private_key'       => '../openssl/rsa_private_key.pem',
+	'rsa_public_key'         => '../openssl/rsa_public_key.pem',
+	'client_private_key'     => '../openssl/client_private_key.pem',
+	'client_public_key'      => '../openssl/client_public_key.pem',
 	
 	/* MongoDB配置 */
 	'mongo'                  => [
@@ -34,35 +41,6 @@ return [
 		'username' => Env::get('mongo_username', ''),
 		'password' => Env::get('mongo_password', ''),
 		'prefix'   => Env::get('mongo_prefix', 'kd_'),
-	],
-	
-	/* 上传配置 */
-	'upload_config'          => [
-		//图片
-		'image'    => [
-			'size' => 2*1024*1024, //上传的文件大小限制
-			'ext'  => 'jpg,jpeg,gif,png,bmp', //允许上传的文件后缀
-		],
-		//文档
-		'document' => [
-			'size' => 10*1024*1024,
-			'ext'  => 'zip,rar,7z,txt,pdf,doc,dot,docx,wps,wpt,xls,xlt,xlsx,xlsm,et,ett', //允许上传的文件后缀
-		],
-		//flash
-		'flash'    => [
-			'size' => 10*1024*1024,
-			'ext'  => 'swf',
-		],
-		//媒体
-		'media'    => [
-			'size' => 50*1024*1024,
-			'ext'  => 'mp4,avi,mp3',
-		],
-		//文件
-		'file'     => [
-			'size' => 100*1024*1024,
-			'ext'  => 'jpg,jpeg,gif,png,bmp,zip,rar,7z,txt,pdf,doc,dot,docx,wps,wpt,xls,xlt,xlsx,xlsm,et,ett,swf,mp4,avi,mp3',
-		],
 	],
 	
 	// +----------------------------------------------------------------------

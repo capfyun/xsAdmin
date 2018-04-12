@@ -1,0 +1,17 @@
+
+{extend name="layout/base" /}
+
+{block name="content"}
+
+<form  action="{:url()}"  enctype="multipart/form-data" >
+
+	<input name="aa[]" type="file" value="">
+	<input name="aa[]" type="file" value="">
+	<input name="bb[]" type="file" value="">
+	<button type="submit">提交</button>
+
+</form>
+
+
+
+{/block}}

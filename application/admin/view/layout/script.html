@@ -1,0 +1,316 @@
+<!--<script src="/resource/asset/js/jquery-3.3.1.js"></script>-->
+<script type="text/javascript">
+	$(function(){
+		//select2插件
+		$(".select2").select2();
+
+		//bootstrap validator init
+		$.extend($.fn.bootstrapValidator.DEFAULT_OPTIONS, {
+//			live : 'disabled',
+		});
+
+		app.run();
+	});
+
+	var app = {
+		/**
+		 * 初始化
+		 */
+		run : function(){
+			//菜单
+			app.menu.init();
+
+			//表单
+			app.table.init();
+
+		},
+		/**
+		 * 菜单
+		 */
+		menu : {
+			//菜单路径
+			checked_menu : null,
+			//初始化
+			init : function(){
+				//主菜单
+				this.checked_menu = JSON.parse('{:json_encode($app["checked"])}');
+				var main_menu = JSON.parse('{:json_encode($app["menu"])}');
+				var $html = this.treeview(main_menu);
+				$('#main-menu').html('<li class="treeview header">HEADER</li>' + $html);
+			},
+			/**
+			 * 主菜单初始化
+			 * @param {object} data
+			 */
+			treeview : function(data){
+				var $this = this;
+				var $function = function(data){
+					var $string = '';
+					for(var k in data){
+						var is_child = data[k]['child'].length > 0;
+						var is_checked = $this.checked_menu[data[k]['id']] ? 1 : 0;
+						$string += '<li class="' + (is_child ? 'treeview' : '') + (is_checked ? ' menu_open active' : '')+'  " >'
+								+ '	<a href="' + (data[k].name ? '/' + data[k].name : '#') + '">'
+								+ '		<i class="fa ' + (data[k].icon ? data[k].icon : 'fa-link') + ' "></i>'
+								+ '		<span>' + data[k].title + '</span>';
+						if(is_child){
+							$string += '<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>';
+						}
+						$string += '	</a>';
+						if(is_child){
+							$string += '<ul class="treeview-menu" '+(is_checked ? ' style="display:block;" ' : '')+'>'
+									+ $function(data[k]['child'])
+									+ '</ul>';
+						}
+						$string += '</li>';
+					}
+					return $string;
+				};
+				return $function(data);
+			},
+		},
+
+		/**
+		 * 表单
+		 */
+		table : {
+			//搜索框jquery对象
+			search : null,
+			//table表格jquery对象
+			table : null,
+			//初始化
+			init : function(){
+				//元素对象初始化
+				this.search = $('div#search');
+				this.table = $('div#table');
+
+				//排序
+				this.orderInit("{:input('order','')}");
+
+				//全选事件
+				this.checkInit();
+
+				//表格选择
+				this.selectInit();
+
+				//菜单选项初始化
+				this.optionInit();
+			},
+			/**
+			 * 表格排序初始化
+			 * @param {object} $rule 如：id asc
+			 */
+			orderInit: function($rule){
+				var $this = this;
+				var $orders = $this.table.find('[order-field]');
+				if(!$orders.length){
+					return false;
+				}
+				$rule = $rule ? $rule.split(' ',2) : [];
+				$.each($orders, function(k, v){
+					var $order = $(v);
+					//响应初始化
+					if($rule.length==2){
+						$order.removeClass('order-asc').removeClass('order-desc');
+						if($order.attr('order-field') == $rule[0]){
+							$order.addClass('order-'+$rule[1]);
+						}
+					}
+					//初始化icon
+					if(!$order.find('.order-icon').length){
+						$order.find('.order-icon').remove();
+					}
+					var $icon = 'fa-sort';
+					var $color = 'D6D6D6';
+					if($order.hasClass('order-asc')){
+						$icon = 'fa-sort-asc';
+						$color = '999999';
+					}else if($order.hasClass('order-desc')){
+						$icon = 'fa-sort-desc';
+						$color = '999999';
+					}
+					var $html = '<div class="order-icon" style="float:right;cursor:pointer;">'
+							+ '<i class="fa ' + $icon + '" style="color:#' + $color + ';"></i>'
+							+ '</div>';
+					//绑定事件
+					$($html).on('click',function(){
+						var $th = $(this).closest('th');
+						//生成排序格式字段
+						var $order_field = $th.attr('order-field')+($th.hasClass('order-asc') ? ' desc' : ' asc');
+						//放入隐藏表单
+						$this.search.find('input[name=order]').val($order_field);
+						//提交
+						$this.search.find('form').submit();
+					}).appendTo($order);
+				});
+			},
+			/**
+			 * 全选checkbox初始化
+			 */
+			checkInit : function(){
+				var $this = this;
+				//全选事件
+				$this.table.find('span.table-checkall').on('click',function(){
+					var $span = $(this);
+					var $tr = $this.table.find('tbody').find('tr');
+					if($span.hasClass('selected')){
+						$tr.removeClass('selected');
+						$span.removeClass('selected');
+					}else{
+						$tr.addClass('selected');
+						$span.addClass('selected');
+					}
+				});
+				//反选事件
+				$this.table.find('span.table-checkinvert').on('click',function(){
+					var $trs = $this.table.find('tbody').find('tr');
+					$.each($trs,function(k,v){
+						var $tr = $(v);
+						$tr.hasClass('selected') ? $tr.removeClass('selected') : $tr.addClass('selected');
+					});
+				});
+			},
+			/**
+			 * 表格点击变色
+			 */
+			selectInit : function(){
+				var $this = this;
+				var $trs = $this.table.find('tbody').find('tr');
+				$trs.on('click',function(){
+					var $tr = $(this);
+					$tr.hasClass('selected')
+							? $tr.removeClass('selected')
+							: $tr.addClass('selected');
+				});
+			},
+			/**
+			 * 获取选中的数据
+			 */
+			getParam : function(){
+				return this.table.find('tbody').find('tr.selected');
+			},
+			/**
+			 * 菜单选项初始化
+			 */
+			optionInit : function(){
+				var $this = this;
+				$this.table.find('a.menu-option').on('click',function(){
+					var $action = $(this);
+					var $param = [];
+					var $trs = $this.getParam();
+					//请求参数
+					var $name = $action.attr('data-param-name') ? $action.attr('data-param-name') : 'id';
+					var $value = '';
+					$.each($trs,function(k,v){
+						var $tr = $(v);
+						var $data = $tr.attr('data-'+$name);
+						$value += (k==0 ? '' : ',')+$data;
+					});
+					$param[$name] = $value;
+					switch($action.attr('data-param-num')){
+						//无
+						case '0':
+							break;
+						//1个
+						case '1':
+							if($trs.length!=1){
+								alert('选择一条数据');
+								return false;
+							}
+							$param[$name] = $value;
+							break;
+						//多个
+						case '2':
+							if($trs.length<=0){
+								alert('至少选择一条数据');
+								return false;
+							}
+							break;
+						//1个或无
+						case '3':
+							if($trs.length!=0 && $trs.length!=1){
+								alert('不选择或选择一条数据');
+								return false;
+							}
+							break;
+					}
+					//普通页面和ajax提交
+					var $url = $action.attr('href');
+					switch($action.attr('data-request-type')){
+						//普通页面
+						case '0':
+							var $params = Object.keys($param).map(function (key) {
+								return encodeURIComponent(key) + "=" + encodeURIComponent($param[key]);
+							}).join("&");
+
+							window.location.href = $url+($params ? '?'+$params : '');
+							break;
+						//ajax提交
+						case '1':
+							if(!confirm('确定“'+$action.attr('data-title')+'”？')){
+								return false;
+							}
+							$.post($url,$param,function(data,status){
+								if(status == 'success'){
+									alert(data.msg);
+								}else{
+									alert('无响应');
+								}
+							});
+							break;
+					}
+					return false;
+				});
+			},
+			/**
+			 * 搜索框
+			 */
+			searchInit : function(){
+				var $this = this;
+				var $current = JSON.parse('{:json_encode($app["current"])}');
+				$key = 'search_clear_'+$current.name;
+				//隐藏搜索栏
+				if(window.localStorage.getItem($key)==1){
+					var $i = $this.search.find('button[data-widget=collapse]').find('i');
+					$i.removeClass('fa-minus').addClass('fa-plus');
+					$this.search.addClass('collapsed-box');
+				}
+				$this.search.find('button[data-widget=collapse]').on('click',function(){
+					var $button = $(this);
+					var $value = $button.find('i').hasClass('fa-minus') ? 1 : 0;
+					window.localStorage.setItem($key,$value)
+				});
+			},
+		},
+		/**
+		 * 权限
+		 */
+		auth : {
+			treeview : function(rule_list,parent_id,id){
+				var $this = this;
+				var $function = function(data){
+					var $string = '';
+					for(var k in data){
+						var is_child = data[k]['child'].length > 0;
+						var is_checked = parent_id==data[k]['id'] ? 1 : 0;
+						$string += '<ul style="list-style:none;"><li style="list-style:none;"><label class="radio-inline">';
+						if(id!=data[k]['id']){
+							$string += '<input type="radio" name="parent_id" value="'+data[k]['id']+'" '+(is_checked ? 'checked' : '')+'>';
+						}
+						$string += '<span class="fa '+(data[k]['icon'] ? data[k]['icon'] : 'fa-link')+'"></span> '+data[k]['title']+'</label></li>';
+						if(is_child){
+							$string += $function(data[k]['child']);
+						}
+						$string	+= '</ul>';
+					}
+					return $string;
+				};
+				return '<label class="radio-inline"><input type="radio" name="parent_id" value="0" '+(parent_id==0 ? 'checked' : '')+'><span class="fa fa-link"></span> 根目录</label>'+$function(rule_list);
+			},
+		},
+
+
+	};
+
+
+</script>

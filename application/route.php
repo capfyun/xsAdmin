@@ -19,7 +19,7 @@ return [
 	],
 	/* 域名路由 */
 	'__domain__'  => [
-		'kd_crm.local'      => 'admin',
+		'xs.local'      => 'admin',
 		'api.kd_crm.local'  => 'api',
 		'crm.7guoyouxi.com' => 'admin',
 		// 泛域名规则

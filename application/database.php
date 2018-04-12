@@ -15,11 +15,11 @@ return [
     // 服务器地址
     'hostname'        => Env::get('database_hostname','127.0.0.1'),
     // 数据库名
-    'database'        => Env::get('database_database','crm'),
+    'database'        => Env::get('database_database','xs'),
     // 用户名
     'username'        => Env::get('database_username','root'),
     // 密码
-    'password'        => Env::get('database_password','Kding1234'),
+    'password'        => Env::get('database_password','root'),
     // 端口
     'hostport'        => Env::get('database_hostport','3306'),
     // 连接dsn

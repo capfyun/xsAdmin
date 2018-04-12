@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-class Api extends \app\common\controller\BaseAdmin{
+class Api extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 接口列表

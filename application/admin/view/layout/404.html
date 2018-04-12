@@ -1,0 +1,23 @@
+{extend name="layout/base" /}
+
+{block name="content"}
+
+<div class="error-page">
+	<h2 class="headline text-yellow">
+		404
+	</h2>
+
+	<div class="error-content">
+		<h3>&nbsp;</h3>
+		<h3>
+			<i class="fa fa-warning text-yellow"></i>
+			&nbsp;&nbsp;{$msg ?? '出错啦。'}
+		</h3>
+		<h3 style="font-size:16px;">
+			你可以点击 <a href="javascript:window.history.back();">此处</a> 返回上一页。
+		</h3>
+	</div>
+	<!-- /.error-content -->
+</div>
+
+{/block}

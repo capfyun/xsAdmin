@@ -10,7 +10,10 @@ use think\console\Output;
 use think\console\input\Argument;
 use think\console\input\Option;
 
-class Timer extends \app\common\command\BaseAdmin{
+class Timer extends \app\common\command\Base{
+	
+	//当前模块
+	protected $module = 'admin';
 	
 	/**
 	 * 命令配置

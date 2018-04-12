@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-class Transmit extends \app\common\controller\BaseAdmin{
+class Transmit extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 上传，支持多文件多类型
