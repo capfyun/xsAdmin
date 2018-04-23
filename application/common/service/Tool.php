@@ -1,26 +1,11 @@
 <?php
 /**
- * 服务层-工具
+ * 工具
  * @author 夏爽
  */
 namespace app\common\service;
 
 class Tool extends Base{
-	
-	/**
-	 * 多表联查-字符串合并
-	 * @param  array $fields
-	 * @return string
-	 */
-	public function strField($fields){
-		$string = '';
-		foreach($fields as $k1 => $v1){
-			foreach($v1 as $k2 => $v2){
-				$string .= $k1.'.'.$v2.',';
-			}
-		}
-		return rtrim($string, ',');
-	}
 	
 	/**
 	 * 数据库查询-生成距离值
@@ -37,7 +22,7 @@ class Tool extends Base{
 	 * @param  string $string
 	 * @return string
 	 */
-	public function strFilter($string){
+	public function filter($string){
 		if(is_array($string)){
 			$string = implode('，', $string);
 			$string = htmlspecialchars(str_shuffle($string));
@@ -155,21 +140,14 @@ class Tool extends Base{
 	}
 	
 	/**
-	 * 生成校验串
-	 * @param  string $str 需要校验的字符串
-	 * @return string 校验字符串
-	 */
-	public function safeCheckcode($string, $algo = 'md5'){
-		return hash($algo, $string.config('data_secret_key'));
-	}
-	
-	/**
 	 * 生成数据签名
-	 * @param  array $data 需要生成签名的数据
+	 * @param  mixed $data 需要生成签名的数据
 	 * @return string 签名字符串
 	 */
-	public function safeSignature($data, $algo = 'md5'){
-		if(is_array($data)) ksort($data);
+	public function sign($data, $algo = 'md5'){
+		if(is_array($data)){
+			ksort($data);
+		}
 		$string = serialize($data); //转为字符串
 		return hash($algo, $string.config('data_secret_key')); //生成签名
 	}
@@ -348,7 +326,9 @@ class Tool extends Base{
 	 */
 	public function formatBytes($size, $delimiter = ''){
 		$units = array('B', 'KB', 'MB', 'GB', 'TB', 'PB');
-		for($i = 0; $size>=1024 && $i<5; $i++) $size /= 1024;
+		for($i = 0; $size>=1024 && $i<5; $i++){
+			$size /= 1024;
+		}
 		return round($size, 2).$delimiter.$units[$i];
 	}
 	
@@ -377,20 +357,9 @@ class Tool extends Base{
 	}
 	
 	/**
-	 * @brief 判断客户端是否为微信
-	 * @return boolean
-	 */
-	public static function isWechat(){
-		if(isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger')!==false){
-			return true;
-		}
-		return false;
-	}
-	
-	/**
 	 * 手机号格式验证
 	 */
-	public function checkMobile($mobile, $type = array()){
+	public function isMobile($mobile, $type = array()){
 		$regular = [
 			1 => '/^1(3[0-9]|5[0-35-9]|7[0-9]|8[0-9])\\d{8}$/', //手机号码 移动|联通|电信
 			2 => '/^1(34[0-8]|(3[5-9]|5[017-9]|8[0-9])\\d)\\d{7}$/', //中国移动
@@ -398,8 +367,7 @@ class Tool extends Base{
 			4 => '/^1((33|53|8[09])[0-9]|349)\\d{7}$/', //中国电信
 			5 => '/^0(10|2[0-5789]|\\d{3})-\\d{7,8}$/', //大陆地区固话及小灵通
 		];
-		
-		$all = $type ? false : true;
+		$all     = $type ? false : true;
 		foreach($regular as $k => $v){
 			if($all || in_array($k, $type)){
 				$result = preg_match($v, $mobile);
@@ -411,79 +379,75 @@ class Tool extends Base{
 		return false;
 	}
 	
-	//合法邮箱
-	function checkEmail($email){
+	/**
+	 * 校验邮箱
+	 * @param $email
+	 * @return bool
+	 */
+	public function isEmail($email){
 		return (!preg_match('#[a-z0-9&\-_.]+@[\w\-_]+([\w\-.]+)?\.[\w\-]+#is', $email) || !$email) ? false : true;
 	}
 	
-	/* 判断是电脑还是手机访问*/
-	function isMobil(){
-		$useragent               = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
-		$useragent_commentsblock = preg_match('|\(.*?\)|', $useragent, $matches)>0 ? $matches[0] : '';
-		$mobile_os_list          = array(
-			'Google Wireless Transcoder',
-			'Windows CE',
-			'WindowsCE',
-			'Symbian',
-			'Android',
-			'armv6l',
-			'armv5',
-			'Mobile',
-			'CentOS',
-			'mowser',
-			'AvantGo',
-			'Opera Mobi',
-			'J2ME/MIDP',
-			'Smartphone',
-			'Go.Web',
-			'Palm',
-			'iPAQ',
-		);
-		$mobile_token_list       = array(
-			'Profile/MIDP',
-			'Configuration/CLDC-',
-			'160×160',
-			'176×220',
-			'240×240',
-			'240×320',
-			'320×240',
-			'UP.Browser',
-			'UP.Link',
-			'SymbianOS',
-			'PalmOS',
-			'PocketPC',
-			'SonyEricsson',
-			'Nokia',
-			'BlackBerry',
-			'Vodafone', 'BenQ',
-			'Novarra-Vision',
-			'Iris',
-			'NetFront',
-			'HTC_',
-			'Xda_',
-			'SAMSUNG-SGH',
-			'Wapaka',
-			'DoCoMo',
-			'iPhone',
-			'iPod',
-		);
-		$found_mobile            = $this->checkSubstrs($mobile_os_list, $useragent_commentsblock) ||
-			$this->checkSubstrs($mobile_token_list, $useragent);
-		if($found_mobile){
-			$way = '手机登录';//'手机登录'
-		}else{
-			$way = '电脑登录';//'电脑登录'
-		}
-		return $way;
-	}
-	
-	private function checkSubstrs($substrs, $text){
-		foreach($substrs as $substr){
-			if(false!==strpos($text, $substr)){
-				return true;
-			}
+	/**
+	 * @brief 判断客户端是否为微信
+	 * @return boolean
+	 */
+	public static function isWechatAccess(){
+		if(isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger')!==false){
+			return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * 判断是电脑还是手机访问
+	 * @return bool
+	 */
+	public function isMobileAccess(){
+		$useragent               = isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
+		$useragent_commentsblock = preg_match('|\(.*?\)|', $useragent, $matches)>0 ? $matches[0] : '';
+		$mobile_os_list          = ['Google Wireless Transcoder', 'Windows CE', 'WindowsCE', 'Symbian',
+			'Android', 'armv6l', 'armv5', 'Mobile', 'CentOS', 'mowser', 'AvantGo', 'Opera Mobi', 'J2ME/MIDP',
+			'Smartphone', 'Go.Web', 'Palm', 'iPAQ',
+		];
+		$mobile_token_list       = ['Profile/MIDP', 'Configuration/CLDC-', '160×160', '176×220', '240×240',
+			'240×320', '320×240', 'UP.Browser', 'UP.Link', 'SymbianOS', 'PalmOS', 'PocketPC',
+			'SonyEricsson', 'Nokia', 'BlackBerry', 'Vodafone', 'BenQ', 'Novarra-Vision', 'Iris',
+			'NetFront', 'HTC_', 'Xda_', 'SAMSUNG-SGH', 'Wapaka', 'DoCoMo', 'iPhone', 'iPod',
+		];
+		$found_mobile            = false;
+		foreach($mobile_os_list as $substr){
+			if(false!==strpos($useragent_commentsblock, $substr)){
+				$found_mobile = true;
+				break;
+			}
+		}
+		foreach($mobile_token_list as $substr){
+			if(false!==strpos($useragent, $substr)){
+				$found_mobile = true;
+				break;
+			}
+		}
+		return $found_mobile;
+	}
+	
+	/**
+	 * 字符串转为数组
+	 * @param string $string 解析格式（a:名称1,b:名称2）
+	 * @return array
+	 */
+	public function strToArray($string){
+		$array = $string ? preg_split('/[,;\r\n]+/', trim($string, ",;\r\n")) : [];
+		$data  = [];
+		foreach($array as $v){
+			if(strpos($v, ':')){
+				list($key, $value) = explode(':', $v);
+				$data[$key] = $value;
+			}else{
+				$data[] = $v;
+			}
+		}
+		return $data;
 	}
 	
 }

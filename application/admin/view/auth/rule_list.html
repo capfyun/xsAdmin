@@ -10,21 +10,21 @@
 			<div class="form-group">
 				{include file="layout/search"/}
 				<input type="hidden" name="parent_id" value="{:input('parent_id',0)}" />
-				<input type="hidden" name="search[status]" value="{:input('search.status','')}" />
+				<input type="hidden" name="status" value="{:input('status','')}" />
 			</div>
 			<div class="form-group">
-				<select name="search[keyword_type]" class="form-control"  >
-					<option value="title" {if condition="input('search.keyword_type') eq 'title'"}selected{/if}>名称</option>
-					<option value="name" {if condition="input('search.keyword_type') eq 'name'"}selected{/if}>链接</option>
+				<select name="target" class="form-control"  >
+					<option value="title" {if condition="input('target')=='title'"}selected{/if}>名称</option>
+					<option value="name" {if condition="input('target')=='name'"}selected{/if}>链接</option>
 				</select>
-				<input name="search[keyword]"  value="{:input('search.keyword')}" type="text" class="form-control" placeholder="搜索">
+				<input name="keyword"  value="{:input('keyword')}" type="text" class="form-control" placeholder="关键字">
 			</div>
 			<div class="form-group">
 				<label class="">状态</label>
-				<select name="search[status]" class="form-control" >
+				<select name="status" class="form-control" >
 					<option value="">全部</option>
-					<option value="0" {if condition="input('search.status') eq '0'"}selected{/if}>禁用</option>
-					<option value="1" {if condition="input('search.status') eq '1'"}selected{/if}>启用</option>
+					<option value="0" {if condition="input('status')=='0'"}selected{/if}>禁用</option>
+					<option value="1" {if condition="input('status')=='1'"}selected{/if}>启用</option>
 				</select>
 			</div>
 		</form>
@@ -36,7 +36,7 @@
 		<div class="row">
 			<div class="col-sm-12">
 				<a class="btn btn-app " href="{:url('',['parent_id'=>$parent_id])}">
-					<i class="fa fa-arrow-left "></i> 返回上级
+					<i class="fa fa-reply"></i> 返回上级
 				</a>
 				{include file="layout/menu_option"/}
 			</div>
@@ -47,13 +47,13 @@
 				<table class="table table-bordered table-striped table-hover" >
 					<thead>
 						<tr >
-							<th class="" order-field="id">ID</th>
-							<th class="">名称</th>
-							<th class="">链接地址</th>
-							<th class="" >ICON</th>
-							<th class="" >菜单类型</th>
-							<th class="">状态</th>
-							<th class="order-desc" order-field="sort">排序</th>
+							<th class="" order-field="id" width="5%">ID</th>
+							<th class="" width="15%">名称</th>
+							<th class="" width="">链接地址</th>
+							<th class="" width="5%">ICON</th>
+							<th class="" width="10%">菜单类型</th>
+							<th class="" width="10%">状态</th>
+							<th class="order-desc" order-field="sort" width="10%">排序</th>
 						</tr>
 					</thead>
 					<tbody>

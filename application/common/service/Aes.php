@@ -7,7 +7,7 @@ namespace app\common\service;
 
 class Aes extends \app\common\service\Base{
 	
-	//密钥
+	//密钥，16位
 	private $secret_key = '64617728a3150152';
 	//加密向量
 	private $iv = '8105547186756005';
@@ -20,7 +20,6 @@ class Aes extends \app\common\service\Base{
 	public function __construct(){
 		parent::__construct();
 	}
-	
 	
 	/*
 	 * 实现AES加密

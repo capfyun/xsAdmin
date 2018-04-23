@@ -15,9 +15,6 @@ return [
 	// | 自定义配置
 	// +----------------------------------------------------------------------
 	
-	//网站域名
-	'web_domain'             => 'http://'.(isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '127.0.0.1'),//'http://zsdk.7guoyouxi.com/',
-	
 	//当前应用环境
 	'app_env'                => \think\Env::get('app_env', 'local'),
 	
@@ -27,10 +24,16 @@ return [
 	'password_secret_key'    => '&17@:iY$0?(twB]kru)46J^!9l;.,Z5oE[bI_QmA',
 	
 	//密钥
-	'rsa_private_key'       => '../openssl/rsa_private_key.pem',
+	'rsa_private_key'        => '../openssl/rsa_private_key.pem',
 	'rsa_public_key'         => '../openssl/rsa_public_key.pem',
 	'client_private_key'     => '../openssl/client_private_key.pem',
 	'client_public_key'      => '../openssl/client_public_key.pem',
+	
+	//上传配置
+	'upload_config'          => [
+		'save_path' => 'resource/file/',
+		'location'  => 1,
+	],
 	
 	/* MongoDB配置 */
 	'mongo'                  => [
@@ -50,7 +53,7 @@ return [
 	// 应用命名空间
 	'app_namespace'          => 'app',
 	// 应用调试模式
-	'app_debug'              => true,
+	'app_debug'              => Env::get('app_debug', true),
 	// 应用Trace
 	'app_trace'              => false,
 	// 应用模式状态
@@ -89,7 +92,7 @@ return [
 	// +----------------------------------------------------------------------
 	
 	// 默认模块名
-	'default_module'         => 'admin',
+	'default_module'         => 'home',
 	// 禁止访问模块
 	'deny_module_list'       => ['common'],
 	// 默认控制器名
@@ -250,7 +253,7 @@ return [
 	// +----------------------------------------------------------------------
 	'cookie'   => [
 		// cookie 名称前缀
-		'prefix'    => '',
+		'prefix'    => 'think',
 		// cookie 保存时间
 		'expire'    => 0,
 		// cookie 保存路径

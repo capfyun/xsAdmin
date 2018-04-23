@@ -5,6 +5,8 @@
  */
 namespace app\common\service;
 
+use think\Cache;
+
 class ExecLock extends Base{
 	//前缀
 	protected $prefix = '';
@@ -39,12 +41,12 @@ class ExecLock extends Base{
 		//生成锁名
 		$name = $this->getName($tag);
 		//校验是否已锁
-		if(cache($name) == 1){
+		if(cache($name)==1){
 			$this->error = '已锁';
 			return false;
 		}
 		//上锁
-		$result = cache($name, 1, $this->max_time);
+		$result = cache($name, 1, $this->max_time, 'execlock');
 		if(!$result){
 			$this->error = '系统错误';
 			return false;
@@ -61,7 +63,7 @@ class ExecLock extends Base{
 		//生成锁名
 		$name = $this->getName($tag);
 		//关闭
-		$result = cache($name,null);
+		$result = cache($name, null);
 		if(!$result){
 			$this->error = '系统错误';
 			return false;
@@ -76,8 +78,7 @@ class ExecLock extends Base{
 	 */
 	protected function getName($tag = ''){
 		//生成名称
-		$name = $this->prefix.
-			request()->module().
+		$name = request()->module().
 			request()->controller().
 			request()->action().
 			$tag;

@@ -1,6 +1,6 @@
 <?php
 /**
- * 控制器-用户
+ * 用户
  * @author 夏爽
  */
 namespace app\admin\controller;
@@ -9,145 +9,137 @@ class User extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 用户列表
-	 * 参数 $pageNum=页码数 $numPerPage=每页数据条数 $search=搜索
 	 */
-	public function user_list($pageNum = 1, $numPerPage = null, $search = []){
-		$db = db('user');
-		if(!empty($search['keyword'])){
-			$db->where(function($query) use ($search){
-				$query->whereOr([
-					'username' => ['like', '%'.$search['keyword'].'%'],
-					'realname' => ['like', '%'.$search['keyword'].'%'],
-				]);
-			});
-		}
-		$where = [];
-		if(isset($search['status']) && $search['status']!='') $where['status'] = $search['status']; //用户状态
-		$list = $this->dwzPaging($db->where($where)->field('*')->order('id DESC'), $pageNum, $numPerPage);
-		foreach($list as $k => $v){
-			$groups     = model('Auth')->getGroups($v['id']);
-			$auth_group = [];
-			foreach($groups as $k1 => $v1) $auth_group[] = $v1['title'];
-			$list[$k]['auth_groups'] = implode('、', $auth_group);
-		}
+	public function user_list(){
+		$keyword = [
+			'nickname' => ['m.nickname' => ['LIKE', '%'.input('keyword').'%']],
+			'mobile'   => ['m.mobile' => input('keyword')],
+			'username' => ['m.username' => input('keyword')],
+		];
+		$where   = [];
+		input('keyword')!='' && isset($keyword[input('target')]) && $where = array_merge($where, $keyword[input('target')]);
+		input('status')!='' && $where['m.status'] = input('status');
+		input('is_auth')!='' && $where['a.group_id'] = ['exp', 'IS '.(input('is_auth') ? 'NOT' : '').' NULL'];
 		
-		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'list' => $list,
-		]]);
+		$paging = db('user')->alias('m')
+			->join('auth_group_access a', 'a.user_id=m.id', 'LEFT')
+			->join('auth_group b', 'b.id=a.group_id', 'LEFT')
+			->field('m.*,group_concat(b.title separator "|") AS auth_groups')
+			->group('m.id')
+			->where($where)
+			->order('m.id DESC')
+			->paginate()
+			->each(function($item, $key){
+				$status_format                  = [0 => '禁用', 1 => '启用'];
+				$item['last_login_time_format'] = $item['last_login_time'] ? date('Y-m-d H:i', $item['last_login_time']) : '未登录过';
+				$item['last_login_ip_format']   = long2ip($item['last_login_ip']);
+				$item['status_format']          = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '-';
+				return $item;
+			});
+		
+		//视图
+		cookie('forward', request()->url());
+		return $this->fetch('', [
+			'paging' => $paging,
+		]);
 	}
 	
-	/*
-	 * 用户权限设置
-	 * @param int $id 用户ID
-	 * @param array $group_id 配置后的权限ID列表
+	/**
+	 * 新增编辑用户
 	 */
-	public function user_auth($id = 0, $group_id = array()){
-		if($this->request->isPost()){
-			$db = db('auth_group_access');
-			//拥有权限
-			$group_id_old = $db->where(array('user_id' => $id))->column('group_id');
-			//变更权限
-			$arr_add = array_diff($group_id, $group_id_old);
-			$arr_del = array_diff($group_id_old, $group_id);
-			//无变更
-			if(empty($arr_add) && empty($arr_del)) return $this->dwzReturn(300, '无变化!');
-			//添加权限
-			if(!empty($arr_add)){
-				$data_add = array();
-				foreach($arr_add as $k => $v) $data_add[] = array('user_id' => $id, 'group_id' => $v);
-				$result1 = $db->insertAll($data_add);
-			}
-			//删除权限
-			if(!empty($arr_del)){
-				$result2 = $db->where(['user_id' => $id, 'group_id' => array('in', $arr_del)])->delete();
-			}
-			if(isset($result1) && !$result1 && isset($result2) && !$result2) return $this->dwzReturn(300);
-			return $this->dwzReturn(200);
+	public function user_addedit(){
+		if(!$this->request->isPost()){
+			$user = model('User')->get(input('id'));
+			//权限组
+			$group_list = model('AuthGroup')->where(['status' => 1])->order('sort DESC,id DESC')->select();
+			$has_group  = $user && $user['id'] ? db('auth_group_access')->where(['user_id' => $user['id']])->column('group_id') : [];
+			//视图
+			return $this->fetch('', [
+				'info'       => $user,
+				'group_list' => $group_list,
+				'has_group'  => $has_group,
+			]);
 		}
-		//拥有的权限
-		$auth_group_user = db('auth_group_access')->where(['user_id' => $id])->column('group_id');
-		
-		//权限组列表
-		$auth_group_list = db('auth_group')->where(['status' => 1])->field(['id', 'title'])->order('sort ASC')->select();
-		
-		return $this->fetch('', ['data' => [
-			'auth_group_user' => $auth_group_user,
-			'auth_group_list' => $auth_group_list,
-		]]);
+		$param = $this->param([
+			'id'            => ['number', 'min' => 0],
+			'username|用户名'  => ['require', 'length' => '6,16'],
+			'nickname|昵称'   => ['require', 'length' => '2,16'],
+			'status|状态'     => ['require', 'between' => '0,1'],
+			'password|密码'   => ['length' => '6,16'],
+			'group_ids|权限租' => ['array'],
+		]);
+		$param===false && $this->error($this->getError());
+		if($param['id']){
+			//编辑
+			unset($param['username']);
+			//不修改密码
+			if(!$param['password']){
+				unset($param['password']);
+			}
+			$result  = model('User')->allowField(true)->isUpdate(true)->save($param);
+			$user_id = model('User')->id;
+		}else{
+			//新增
+			$param['password'] || $this->error('请输入密码');
+			$result  = model('User')->register($param['username'], $param['password']);
+			$user_id = $result;
+		}
+		$result || $this->error();
+		//权限
+		db('auth_group_access')->where(['user_id' => $user_id])->delete();
+		if($param['group_ids']){
+			$insert = [];
+			foreach($param['group_ids'] as $v){
+				$insert[] = ['user_id' => $user_id, 'group_id' => $v];
+			}
+			db('auth_group_access')->insertAll($insert);
+		}
+		$this->success('操作成功', cookie('forward'));
 	}
 	
 	/**
 	 * 用户资料修改
 	 */
 	public function user_info(){
-		if($this->request->isPost()){
+		if(!$this->request->isPost()){
 			//获取用户信息
-			$info = model('User')->get(['id' => $this->user_id]);
-			//数据校验
-			$data = [];
-			foreach($this->request->post() as $k => $v){
-				if(!empty($v) && $info[$k]!=$v) $data[$k] = $v;
-			}
-			//更新
-			$s_user = service('User');
-			$result = $s_user->userUpdate($this->user_id, $data);
-			if(!$result) return $this->dwzReturn(300, $s_user->getError());
-			return $this->dwzReturn(200);
+			$user = model('User')->get($this->user_id);
+			$user || $this->error('信息不存在');
+			$user['face_image'] = model('File')->url($user['face']);//model('File')->fileUrl($user['face']);
+			//视图
+			return $this->fetch('', [
+				'info' => $user,
+			]);
 		}
-		/* 获取用户信息 */
-		$info = model('User')->with('user_info')->where(['id' => $this->user_id, 'status' => 1])->find()->toArray();
-		if($info){
-			$info['face_image'] = service('Transmit')->file($info['face']);
+		$param = $this->param([
+			'nickname|昵称'          => ['require', 'length' => '2,16'],
+			'face|头像'              => ['number', 'min' => 0],
+			'gender|性别'            => ['number', 'between' => '0,2'],
+			'age|年龄'               => ['number', 'between' => '0,100'],
+			'old_password|密码'      => ['length' => '6,16'],
+			'new_password|新密码'     => ['length' => '6,16'],
+			'verify_password|重复密码' => ['length' => '6,16'],
+		]);
+		$param===false && $this->error($this->getError());
+		//修改密码
+		if($param['old_password']){
+			model('User')->checkPassword($this->user_id, $param['old_password'])
+			|| $this->error(model('User')->getError());
+			$param['new_password'] || $this->error('请填写新密码');
+			$param['new_password']!=$param['verify_password'] && $this->error('两次密码输入不相同');
+			$param['password'] = $param['new_password'];
 		}
-		
-		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'info' => $info,
-		]]);
-	}
-	
-	/**
-	 * 密码修改
-	 */
-	public function password_edit(){
-		if($this->request->isPost()){
-			//对比重复密码
-			if($this->request->param('new_password')!==$this->request->param('new_password_re'))
-				return $this->dwzReturn(300, '两次密码输入不一致');
-			//更改新密码
-			$s_user = service('User');
-			$result = $s_user->userUpdate($this->user_id, ['password' => $this->request->param('new_password')], $this->request->param('old_password'));
-			if(!$result) return $this->dwzReturn(300, $s_user->getError());
-			//更改成功
-			return $this->dwzReturn(200, '密码修改成功');
-		}
-		/* 视图 */
-		return $this->fetch();
-	}
-	
-	/**
-	 * 删除用户
-	 * @return array
-	 */
-	public function user_del($ids = ''){
-		return $this->delete('user', $ids);
-	}
-	
-	/**
-	 * 启用用户
-	 * @param string $ids 数据集
-	 */
-	public function user_status_on($ids = ''){
-		return $this->status('user', $ids, 1);
-	}
-	
-	/**
-	 * 禁用用户
-	 * @param string $ids 数据集
-	 */
-	public function user_status_off($ids = ''){
-		return $this->status('user', $ids, 0);
+		//修改信息
+		$result = model('User')->allowField(true)->isUpdate(true)
+			->save($param, ['id' => $this->user_id]);
+		$result || $this->error(model('User')->getError());
+		$result = model('UserInfo')->allowField(true)->isUpdate(true)
+			->save($param, ['user_id' => $this->user_id]);
+		$result || $this->error(model('UserInfo')->getError());
+		//更新session
+		session('nickname',$param['nickname']);
+		session('face',model('File')->url($param['face']));
+		$this->success('操作成功');
 	}
 	
 }

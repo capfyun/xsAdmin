@@ -1,6 +1,6 @@
 <?php
 /**
- * 控制器-接口
+ * 接口
  * @author 夏爽
  */
 namespace app\admin\controller;
@@ -9,104 +9,93 @@ class Api extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 接口列表
-	 * 参数 $pageNum=页码数 $numPerPage=每页数据条数 $search=搜索
 	 */
-	public function api_list($pageNum = 1, $numPerPage = null, $search = array()){
-		/* 获取数据 */
-		$m_api = model('Api');
-		if(!empty($search['keyword'])){
-			$m_api->where(function($query) use ($search){
-				$query->whereOr([
-					'id'     => ['eq', $search['keyword']],
-					'url'    => ['like', '%'.$search['keyword'].'%'],
-					'name'   => ['like', '%'.$search['keyword'].'%'],
-					'author' => ['like', '%'.$search['keyword'].'%'],
-				]);
+	public function api_list(){
+		$keyword = [
+			'url'  => ['url' => ['LIKE', '%'.input('keyword').'%']],
+			'name' => ['name' => ['LIKE', '%'.input('keyword').'%']],
+		];
+		$where   = [];
+		input('keyword')!='' && isset($keyword[input('target')]) && $where = array_merge($where, $keyword[input('target')]);
+		input('status')!='' && $where['status'] = input('status');
+		
+		$paging = model('Api')
+			->where($where)
+			->order(input('order') ? : 'id DESC')
+			->paginate()
+			->each(function($item, $key){
+				$status_format             = [0 => '禁用', 1 => '启用'];
+				$is_encrypt_format         = [0 => '否', 1 => '是'];
+				$item['status_format']     = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '-';
+				$item['is_encrypt_format'] = isset($is_encrypt_format[$item['is_encrypt']]) ? $is_encrypt_format[$item['is_encrypt']] : '-';
+				return $item;
 			});
+		
+		//视图
+		cookie('forward', request()->url());
+		return $this->fetch('', [
+			'paging' => $paging,
+		]);
+	}
+	
+	/**
+	 * 新增编辑接口
+	 */
+	public function api_addedit(){
+		if(!$this->request->isPost()){
+			$info = model('Api')->get(input('id'));
+			//视图
+			return $this->fetch('', [
+				'info' => $info,
+			]);
 		}
-		$where = [];
-		if(isset($search['status']) && $search['status']!='') $where['status'] = $search['status']; //状态
-		$list = $this->dwzPaging($m_api->where($where)->order('id ASC'), $pageNum, $numPerPage);
-		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'list' => $list,
-		]]);
+		$param  = $this->param([
+			'id'             => ['number', 'min' => 0],
+			'name|名称'        => ['require', 'length' => '1,20'],
+			'url|地址'         => ['require', 'length' => '1,50'],
+			'author|作者'      => ['length' => '1,16'],
+			'description|描述' => ['length' => '6,16'],
+			'init|初始化'       => [],
+		]);
+		$param===false && $this->error($this->getError());
+		$result = model('Api')->apiUpdate($param);
+		$result || $this->error(model('Api')->getError());
+		$this->success('操作成功', cookie('forward'));
 	}
 	
 	/**
 	 * 接口调试
-	 * @param int $id 数据ID
 	 */
-	public function api_debug($api_id = 0){
-		if($this->request->isPost()){
-			$result = service('Api')->apiDebug($api_id, $this->request->post());
-			if(!$result){
-				return 'error:'.service('Api')->getError();
-			}
-			return $result;
+	public function debug($api_id = 0){
+		if(!$this->request->isPost()){
+			$api = model('Api')->get($api_id);
+			$api || $this->error('接口不存在');
+			$api->param   = $api->param ? explode(',', $api->param) : [];
+			$api->explain = $api->explain ? json_decode($api->explain, true) : [];
+			
+			//视图
+			return $this->fetch('', [
+				'info' => $api,
+			]);
 		}
-		/* 获取详情 */
-		$info            = model('Api')->get($api_id)->toArray();
-		$info['url']     = url($info['url'], '', false, service('Api')->api_url);
-		$info['param']   = !empty($info['param']) ? explode(',', $info['param']) : [];
-		$info['explain'] = $info['explain'] ? json_decode($info['explain'],true) : [];
-		
-		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'info' => $info,
-		]]);
+		$result = model('Api')->apiDebug($api_id, input());
+		if(!$result){
+			return 'error:'.model('Api')->getError();
+		}
+		return $result;
 	}
 	
 	/**
 	 * 错误码列表
 	 */
-	public function api_error(){
-		/* 获取全部错误码 */
-		$error_msg = service('Api')->getErrorMsg();
+	public function code_list(){
+		//状态码
+		$code = model('Api')->getErrorCode();
 		
-		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'list' => $error_msg,
-		]]);
-	}
-	
-	/**
-	 * 接口添加
-	 */
-	public function api_add(){
-		if($this->request->isPost()){
-			$result = service('Api')->apiUpdate($this->request->post());
-			if(!$result) return $this->dwzReturn(500, service('Api')->getError());
-			return $this->dwzReturn(200);
-		}
-		/* 视图 */
-		return $this->fetch();
-	}
-	
-	/**
-	 * 接口编辑
-	 * @param int $id 数据ID
-	 */
-	public function api_edit($id = 0){
-		if($this->request->isPost()){
-			$result = service('Api')->apiUpdate($this->request->post());
-			if(!$result) return $this->dwzReturn(500, service('Api')->getError());
-			return $this->dwzReturn(200);
-		}
-		/* 获取详情 */
-		$info = model('Api')->get($id);
-		/* 视图 */
-		return $this->fetch('', ['data' => [
-			'info' => $info,
-		]]);
-	}
-	
-	/**
-	 * 删除接口
-	 * @param string $ids 数据集
-	 */
-	public function api_del($ids = ''){
-		return $this->delete('api', $ids);
+		//视图
+		return $this->fetch('', [
+			'list' => $code,
+		]);
 	}
 	
 }

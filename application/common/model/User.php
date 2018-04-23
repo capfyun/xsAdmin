@@ -129,22 +129,24 @@ class User extends Base{
 	}
 	
 	/**
-	 * 写入session
+	 * 登录后置操作
 	 * @param int $user 用户ID
 	 */
-	public function loginSession($user_id){
-		$user = $this->get(['id' => $user_id]);
-		/* 记录登录SESSION和COOKIES */
+	public function loginAfter($user_id){
+		$user = $this->get($user_id);
+		//记录登录SESSION和COOKIES
 		$auth = [
 			'user_id'         => $user->id,
 			'username'        => $user->username,
 			'last_login_time' => $user->last_login_time,
-			'nickname'        => $user->nickname,
-			'face'            => $user->user_info->face,
 		];
 		session('user_id', $user->id);
 		session('user', $auth);
-		session('user_sign', service('Tool')->safeSignature($auth));
+		session('user_sign', service('Tool')->sign($auth));
+		session('nickname', $user->nickname);
+		session('face', url('open/image', ['i' => $user->face, 'w' => 150, 'h' => 150]));
+		cookie(service('Tool')->sign('username'), service('Aes')->encrypt($user->username), 7*24*60*60);
+		cookie(service('Tool')->sign('password'), service('Aes')->encrypt($user->password), 7*24*60*60);
 	}
 	
 	/**
@@ -164,20 +166,19 @@ class User extends Base{
 	 * @return void
 	 */
 	public function logout(){
-		//删除session
-		session(['user_id', 'user', 'user_sign',], null);
-		//清空session
+		//清空session、cookie
 		session(null);
+		cookie(null,null);
 	}
 	
 	/**
 	 * 检测用户是否登录
-	 * @return int 用户ID，失败时返回0
+	 * @return int 用户ID，失败时返回false
 	 */
 	public function isLogin(){
 		$user = session('user');
 		if(!$user
-			|| session('user_sign')!=service('Tool')->safeSignature($user)
+			|| session('user_sign')!=service('Tool')->sign($user)
 		){
 			return 0;
 		}
@@ -208,6 +209,38 @@ class User extends Base{
 		return $this->where(['id' => $user_id])->value('nickname');
 	}
 	
-	
+	/**
+	 * 使用cookie登录
+	 * @return int 用户ID
+	 */
+	public function cookieLogin(){
+		$cookie_username = cookie(service('Tool')->sign('username'));
+		$cookie_password = cookie(service('Tool')->sign('password'));
+		
+		if(!$cookie_username || !$cookie_password){
+			$this->logout();
+			return 0;
+		}
+		//解密帐号密码
+		$username = service('Aes')->decrypt($cookie_username);
+		$password = service('Aes')->decrypt($cookie_password);
+		$username = htmlspecialchars(strip_tags($username));
+		//登录
+		$user_id = $this->login($username, 'username');
+		if(!$user_id){
+			$this->logout();
+			return 0;
+		}
+		//校验密码
+		$user = $this->get($user_id);
+		if($user->password!=$password){
+			$this->logout();
+			return 0;
+		}
+		//成功，记入session
+		$this->loginAfter($user_id);
+		$this->loginUpdate($user_id);
+		return $user_id;
+	}
 	
 }

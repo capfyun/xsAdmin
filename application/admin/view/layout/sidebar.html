@@ -7,10 +7,10 @@
 		<!-- Sidebar user panel (optional) -->
 		<div class="user-panel">
 			<div class="pull-left image">
-				<img src="/resource/asset/adminlte/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+				<img src="{:session('face')}" class="img-circle" alt="User Image">
 			</div>
 			<div class="pull-left info">
-				<p>Alexander Pierce</p>
+				<p>{:session('nickname')}</p>
 				<!-- Status -->
 				<a href="#"><i class="fa fa-circle text-success"></i> Online</a>
 			</div>
@@ -30,7 +30,7 @@
 		<!-- /.search form -->
 
 		<!-- Sidebar Menu -->
-		<ul class="sidebar-menu" id="main-menu" data-widget="tree">
+		<ul class="sidebar-menu" id="main-menu" data-widget="tree" data-menu='{:json_encode(isset($app["menu"]) ? $app["menu"] : [])}' data-checked='{:json_encode(isset($app["checked"]) ? $app["checked"] : [])}'>
 			<li class="treeview header">HEADER</li>
 			<!-- Optionally, you can add icons to the links -->
 			<li class="treeview ">

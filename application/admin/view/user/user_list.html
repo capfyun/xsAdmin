@@ -1,0 +1,105 @@
+{extend name="layout/base" /}
+
+{block name="content"}
+<div id="search" class="box ">
+	<div class="box-body">
+		<form action="{:url()}" method="get" enctype="multipart/form-data" class="form-inline">
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">搜索</button>
+			</div>
+			<div class="form-group">
+				{include file="layout/search"/}
+				<input type="hidden" name="status" value="{:input('status','')}" />
+			</div>
+			<div class="form-group">
+				<select name="target" class="form-control"  >
+					<option value="nickname" {if condition="input('target')=='nickname'"}selected{/if}>昵称</option>
+					<option value="username" {if condition="input('target')=='username'"}selected{/if}>用户名</option>
+					<option value="mobile" {if condition="input('target')=='mobile'"}selected{/if}>手机号</option>
+				</select>
+				<input name="keyword"  value="{:input('keyword')}" type="text" class="form-control" placeholder="关键字">
+			</div>
+			<div class="form-group">
+				<label class="">状态</label>
+				<select name="status" class="form-control" >
+					<option value="">全部</option>
+					<option value="0" {if condition="input('status')=='0'"}selected{/if}>禁用</option>
+					<option value="1" {if condition="input('status')=='1'"}selected{/if}>启用</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label class="">权限</label>
+				<select name="is_auth" class="form-control" >
+					<option value="">全部</option>
+					<option value="0" {if condition="input('is_auth')=='0'"}selected{/if}>无</option>
+					<option value="1" {if condition="input('is_auth')=='1'"}selected{/if}>有</option>
+				</select>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div id="table" class="box" >
+	<div class="box-body">
+		<div class="row">
+			<div class="col-sm-12">
+				{include file="layout/menu_option"/}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table table-bordered table-striped table-hover" >
+					<thead>
+					<tr >
+						<th class="" width="5%">ID</th>
+						<th class="" width="12%">用户名</th>
+						<th class="" width="12%">昵称</th>
+						<th class="" width="12%">手机号</th>
+						<th class="" width="">权限</th>
+						<th class="" width="8%">状态</th>
+						<th class="" width="10%">登录次数</th>
+						<th class="" width="16%">最后登录时间</th>
+					</tr>
+					</thead>
+					<tbody>
+					{volist name="paging" id="vo" }
+					<tr data-id="{$vo.id}" >
+						<td>{$vo.id}</td>
+						<td>{$vo.username}</td>
+						<td>{$vo.nickname}</td>
+						<td>{$vo.mobile}</td>
+						<td>{$vo.auth_groups}</td>
+						<td>{$vo.status_format}</td>
+						<td>{$vo.login_num}</td>
+						<td>{$vo.last_login_time_format}</td>
+					</tr>
+					{/volist}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-4 hidden-xs">
+				<div class="dataTables_info">
+					<span class="table-checkall">全选</span> <span class="table-checkinvert">反选</span>
+					Total {$paging->total()} data
+				</div>
+			</div>
+			<div class="col-sm-8">
+				<div class="dataTables_paginate ">
+					{$paging->render()}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script>
+	$(function(){
+
+	});
+</script>
+{/block}

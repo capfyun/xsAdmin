@@ -1,11 +1,27 @@
 <?php
 /**
- * 父控制器
+ * 基类
  * @author 夏爽
  */
 namespace app\common\controller;
 
 class Base extends \think\Controller{
+	
+	/**
+	 * 初始化
+	 */
+	public function _initialize(){
+		parent::_initialize();
+		
+		//跨域
+		$allow_origin = [
+			'http://xs.local',
+			'http://admin.xs.local',
+		];
+		$origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+		in_array($origin, $allow_origin)
+			&& header('Access-Control-Allow-Origin:' . $origin);
+	}
 	
 	/**
 	 * XML编码

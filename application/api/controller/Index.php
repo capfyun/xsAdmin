@@ -5,7 +5,7 @@
  */
 namespace app\api\controller;
 
-class Index extends \app\common\controller\BaseApi{
+class Index extends \app\common\controller\ApiBase{
 	
 	public function index(){ }
 	

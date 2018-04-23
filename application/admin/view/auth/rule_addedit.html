@@ -8,20 +8,21 @@
 			<div class="box-header with-border">
 				<h3 class="box-title">{:input('id') ? '编辑' : '新增'}</h3>
 			</div>
-			<form id="page-form" class="form-horizontal" method="post" action="{:url()}" >
+			<form class="form-horizontal form-validator" method="post" action="{:url()}" >
 				<div class="box-body">
 					<input name="id" type="hidden" value="{:input('id')}" />
 					<div class="form-group">
 						<label class="col-sm-2 control-label">名称</label>
 						<div class="col-sm-10">
-							<input name="title" value="{$info.title}" type="text"  class="form-control" placeholder=""
-								data-bv-notempty minlength="1" maxlength="10">
+							<input name="title" value="{$info.title ?? ''}" type="text"  class="form-control" placeholder=""
+								   required minlength="1" maxlength="20">
 						</div>
 					</div>
 					<div class="form-group">
 						<label  class="col-sm-2 control-label">链接地址</label>
 						<div class="col-sm-10">
-							<input name="name"  value="{$info.name}" type="text" class="form-control" placeholder="">
+							<input name="name"  value="{$info.name ?? ''}" type="text" class="form-control" placeholder=""
+								   minlength="1" maxlength="50">
 						</div>
 					</div>
 					<div class="form-group">
@@ -39,12 +40,11 @@
 						<div class="col-sm-10">
 							<div class="box box-solid ">
 								<div class="box-body" style="overflow: auto; width: auto; height: 250px;">
-									{volist name=":db('adminlte_icon')->select()" id="vo"}
+									{volist name=":db('font_awesome')->select()" id="vo"}
 									<label class="radio-inline">
-										<input type="radio" name="icon" value="{$vo.name}" {if condition="isset($info->icon)&&$info->icon == $vo['name']"}checked{/if} >
+										<input type="radio" name="icon" value="{$vo.name}" {if condition="isset($info->icon) && $info->icon==$vo['name']"}checked{/if} >
 										<span class="fa {$vo.name}"></span>
 									</label>
-
 									{/volist}
 								</div>
 							</div>
@@ -55,18 +55,18 @@
 						<label  class="col-sm-2 control-label">类型</label>
 						<div class="col-sm-10">
 							<label class="radio-inline">
-								<input name="menu_type" type="radio" value="0"
-									{if condition="isset($info->menu_type)&&$info->menu_type eq '0'"}checked{/if}>
+								<input name="menu_type" type="radio" value="0" required
+									{if condition="!isset($info->menu_type) || $info->menu_type=='0'"}checked{/if}>
 								隐藏
 							</label>
 							<label class="radio-inline">
-								<input name="menu_type" type="radio" value="1"
-									{if condition="isset($info->menu_type)&&$info->menu_type eq '1'"}checked{/if}>
+								<input name="menu_type" type="radio" value="1" required
+									{if condition="isset($info->menu_type) && $info->menu_type=='1'"}checked{/if}>
 								菜单
 							</label>
 							<label class="radio-inline">
-								<input name="menu_type" type="radio" value="2"
-									{if condition="isset($info->menu_type)&&$info->menu_type eq '2'"}checked{/if}>
+								<input name="menu_type" type="radio" value="2" required
+									{if condition="isset($info->menu_type) && $info->menu_type=='2'"}checked{/if}>
 								选项
 							</label>
 						</div>
@@ -76,13 +76,13 @@
 						<label  class="col-sm-2 control-label">请求类型</label>
 						<div class="col-sm-10">
 							<label class="radio-inline">
-								<input name="request_type" type="radio" value="0"
-									{if condition="isset($info->request_type)&&$info->request_type eq '0'"}checked{/if}>
+								<input name="request_type" type="radio" value="0" required
+									{if condition="!isset($info->request_type) || $info->request_type=='0'"}checked{/if}>
 								普通
 							</label>
 							<label class="radio-inline">
-								<input name="request_type" type="radio" value="1"
-									{if condition="isset($info->request_type)&&$info->request_type eq '1'"}checked{/if}>
+								<input name="request_type" type="radio" value="1" required
+									{if condition="isset($info->request_type) && $info->request_type=='1'"}checked{/if}>
 								AJAX
 							</label>
 						</div>
@@ -92,13 +92,13 @@
 						<label  class="col-sm-2 control-label">状态</label>
 						<div class="col-sm-10">
 							<label class="radio-inline">
-								<input name="status" type="radio" value="0"
-									{if condition="isset($info->status)&&$info->status eq '0'"}checked{/if}>
+								<input name="status" type="radio" value="0" required
+									{if condition="isset($info->status) && $info->status=='0'"}checked{/if}>
 								禁用
 							</label>
 							<label class="radio-inline">
-								<input name="status" type="radio" value="1"
-									{if condition="isset($info->status)&&$info->status eq '1'"}checked{/if}>
+								<input name="status" type="radio" value="1" required
+									{if condition="!isset($info->status) || $info->status=='1'"}checked{/if}>
 								启用
 							</label>
 						</div>
@@ -107,15 +107,16 @@
 					<div class="form-group">
 						<label  class="col-sm-2 control-label">排序</label>
 						<div class="col-sm-10">
-							<input name="sort"  value="{$info.sort}" class="form-control" placeholder="">
+							<input name="sort"  value="{$info.sort ?? ''}" type="number" class="form-control" placeholder=""
+								min="0" max="999">
 						</div>
 					</div>
-					<fieldset id="option-fieldset" {$info.menu_type != 2 ? 'disabled' : ''} >
+					<fieldset id="option-fieldset" {if condition="isset($info->menu_type) && $info->menu_type!='2'"} disabled {/if}>
 						<legend>参数</legend>
 						<div class="form-group">
 							<label  class="col-sm-2 control-label">名称</label>
 							<div class="col-sm-10">
-								<input name="param_name"  value="{$info.param_name}" class="form-control" placeholder="不填默认为id">
+								<input name="param_name" value="{$info.param_name ?? ''}" class="form-control" placeholder="不填默认为id">
 							</div>
 						</div>
 						<div class="form-group">
@@ -123,9 +124,9 @@
 							<div class="col-sm-10">
 								<select name="param_num" class="form-control">
 									<option value="0" >0个</option>
-									<option value="1" {if condition="isset($info->param_num)&&$info->param_num eq '1'"} selected {/if}>1个</option>
-									<option value="2" {if condition="isset($info->param_num)&&$info->param_num eq '2'"} selected {/if}>1个以上</option>
-									<option value="3" {if condition="isset($info->param_num)&&$info->param_num eq '3'"} selected {/if}>0个或1个</option>
+									<option value="1" {if condition="isset($info->param_num) && $info->param_num=='1'"} selected {/if}>1个</option>
+									<option value="2" {if condition="isset($info->param_num) && $info->param_num=='2'"} selected {/if}>1个以上</option>
+									<option value="3" {if condition="isset($info->param_num) && $info->param_num=='3'"} selected {/if}>0个或1个</option>
 								</select>
 							</div>
 						</div>
@@ -142,15 +143,12 @@
 
 <script type="text/javascript">
 	$(function(){
-		//表单校验
-		$("#page-form").bootstrapValidator();
-
 		//选项切换
 		$('input[name=menu_type]').on('change',page.optionShow);
 
 		//权限列表
-		var $rule_list = JSON.parse('{:json_encode($rule_list)}');
-		$('#rule_treeview').html(app.auth.treeview($rule_list,"{$info.parent_id}","{$info.id}"));
+		var $rule_list = $.parseJSON('{:json_encode($rule_list)}');
+		$('#rule_treeview').html(app.auth.treeview($rule_list,"{$info.parent_id ?? ''}","{$info.id ?? ''}"));
 	});
 
 	var page = {
@@ -161,9 +159,6 @@
 			$radio.val()==2 ? $option.prop('disabled',false) : $option.prop('disabled',true);
 		},
 	};
-
-
-
 
 </script>
 {/block}

@@ -1,11 +1,10 @@
 <?php
 /**
- * 控制器-基类-api
+ * api基类
  * @author 夏爽
  */
 namespace app\common\controller;
 
-use think\exception\HttpResponseException;
 
 class ApiBase extends Base{
 	//返回的接口数据
@@ -23,6 +22,8 @@ class ApiBase extends Base{
 	 * 构造
 	 */
 	public function _initialize(){
+		parent::_initialize();
+		
 		/* API错误信息 */
 		$this->api_code = model('Api')->getErrorCode();
 	}
@@ -55,24 +56,10 @@ class ApiBase extends Base{
 	/**
 	 * 数据安全校验
 	 * @param array $rule 预定义接口参数
-	 * @param bool $encode 是否加密
-	 * @return array
+	 * @return array|false
 	 */
 	protected function param($rule){
-		//获取接口信息
-		if($this->request->param('getapiinfo')==='1'){
-			$result = [
-				'code' => 0,
-				'msg'  => 'ok',
-				'data' => [
-					'param'      => $rule,
-					'is_encrypt' => $this->is_encrypt ? 1 : 0,
-				]];
-			abort($this->apiReturn($result));
-		}
-		
 		$param = $this->request->param();
-		
 		//校验加密
 		if($this->is_encrypt){
 			$param = model('Api')->decrypt($param);
@@ -82,13 +69,18 @@ class ApiBase extends Base{
 			}
 		}
 		//校验数据
-		$result = $this->validate($param, $rule, $this->api_message);
+		$result = $this->validate($param, array_filter($rule), $this->api_message);
 		if($result!==true){
 			$result = ['code' => 1002, 'msg' => $result];
 			abort($this->apiReturn($result));
 		}
-		$this->api_param = $param;
-		return $param;
+		$data = [];
+		foreach($rule as $k => $v){
+			list($key) = explode('|', $k);
+			$data[$key] = isset($param[$key]) ? $param[$key] : null;
+		}
+		$this->api_param = $data;
+		return $data;
 	}
 	
 	/**

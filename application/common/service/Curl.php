@@ -1,17 +1,17 @@
 <?php
 /**
- * 服务层-请求
+ * 请求
  * @author 夏爽
  */
 namespace app\common\service;
 
 class Curl extends Base{
 	//连接资源句柄的信息
-	public $info = [];
+	private $curl_info = [];
 	//错误信息
-	public $error = '';
+	private $curl_error = '';
 	//错误编号
-	public $errno = 0;
+	private $curl_errno = 0;
 	//默认配置
 	private $option = [
 		CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_0, //强制使用 HTTP/1.0
@@ -34,7 +34,7 @@ class Curl extends Base{
 	 * @param array $option 配置参数
 	 * @return string|false 失败返回false
 	 */
-	public function curl($url, $body = [], $method = 'POST', $option = []){
+	public function request($url, $body = [], $method = 'POST', $option = []){
 		//初始化curl会话
 		$ch = curl_init();
 		/* Curl 设置参数 */
@@ -64,124 +64,46 @@ class Curl extends Base{
 		//执行会话
 		$response = curl_exec($ch);
 		//保存会话信息
-		$this->requestInfo($ch);
+		$this->record($ch);
 		//关闭curl会话
 		curl_close($ch);
 		return $response;
 	}
 	
 	/**
-	 * 保存会话信息
+	 * 获取最后一次会话信息
+	 * @return array
 	 */
-	private function requestInfo($ch){
-		$this->info  = curl_getinfo($ch);
-		$this->error = curl_error($ch);
-		$this->errno = curl_errno($ch);
+	public function getLastInfo(){
+		return $this->curl_error;
+	}
+	public function getLastError(){
+		return $this->curl_error;
+	}
+	public function getLastErrno(){
+		return $this->curl_errno;
 	}
 	
 	/**
-	 * 判断远程文件是否存在
-	 * @param string $url 远程文件路径
-	 * @return boolean 存在返回true
+	 * 判断远程地址是否可访问
+	 * @param string $url 远程地址
+	 * @return boolean
 	 */
-	public function fileExist($url){
-		$this->curl($url, [], 'GET', [
+	public function ping($url){
+		$this->request($url, [], 'GET', [
 			CURLOPT_RETURNTRANSFER => true, //文件流的形式返回，而不是直接输出
 			CURLOPT_NOBODY         => true, //不取回数据
 			CURLOPT_CONNECTTIMEOUT => 5, //最长等待时间
 		]);
-		return isset($this->info['http_code']) && $this->info['http_code']==200 ? true : false;
+		return isset($this->curl_info['http_code']) && $this->curl_info['http_code']==200 ? true : false;
 	}
 	
 	/**
-	 * 下载文件并记录
-	 * @param string $url 远程文件地址
-	 * @param string $type 文件类型
-	 * @return bool|string
+	 * 保存会话信息
 	 */
-	public function download($url, $type = 'file'){
-		/* 下载文件 */
-		$path = $this->downloadFile($url);
-		if(!$path) return $path;
-		/* 上传到接口 */
-		$response = $this->uploadFile('.'.$path, $type);
-		/* 删除临时图片 */
-		@unlink('.'.$path);
-		/* 处理结果 */
-		$response = json_decode($response, true);
-		if($response['code']!=0){
-			$this->error = $response['msg'];
-			return false;
-		}
-		return $response['data'];
+	private function record($ch){
+		$this->curl_info  = curl_getinfo($ch);
+		$this->curl_error = curl_error($ch);
+		$this->curl_errno = curl_errno($ch);
 	}
-	
-	/**
-	 * 下载文件
-	 * @param $url
-	 * @param string $savePath
-	 * @return bool|string
-	 * @author Zou Yiliang
-	 */
-	public function downloadFile($url, $save_path = './static/upload/tmp/'){
-		$response = $this->curl($url, [], 'GET', [
-			CURLOPT_RETURNTRANSFER => true, //文件流的形式返回，而不是直接输出
-			CURLOPT_NOBODY         => false, //不取回数据
-			CURLOPT_HEADER         => true, //需要response header
-		]);
-		
-		if($this->info['http_code']!=200){
-			$this->error = '访问失败';
-			return false;
-		}
-		
-		//分离header与body
-		$header = substr($response, 0, $this->info['header_size']);
-		$body   = substr($response, $this->info['header_size']);
-		
-		//文件名
-		$arr = [];
-		if(!preg_match('/filename="(.*?)"/', $header, $arr)){
-			$this->error = '文件不存在';
-			return false;
-		}
-		$file_name = $arr[1]; //文件名
-		$full_name = rtrim($save_path, '/').'/'.$file_name; //完整路径
-		
-		//创建目录并设置权限
-		if(!file_exists($save_path)){
-			@mkdir($save_path, 0777, true);
-			@chmod($save_path, 0777);
-		}
-		
-		if(!file_put_contents($full_name, $body)){
-			$this->error = '写入失败';
-			return false;
-		}
-		return ltrim($full_name, '.');
-	}
-	
-	/**
-	 * 上传到本地（通过接口）
-	 * @param string $path 文件路径
-	 * @param string $type 上传键名
-	 * @return false|string
-	 */
-	public function uploadFile($path, $type = 'file'){
-		if(!is_file(realpath($path))){
-			$this->error = '文件不存在';
-			return false;
-		}
-		$url = url('transmit/upload', '', false, true);
-		\think\Session::boot();
-		$result = $this->curl($url, [
-			$type => new \CURLFile(realpath($path)),
-		], 'POST', [
-			CURLOPT_USERPWD        => 'joe:secret', //账号密码（按需配置）
-			CURLOPT_HEADER         => false,
-			CURLOPT_RETURNTRANSFER => true,
-		]);
-		return $result;
-	}
-	
 }

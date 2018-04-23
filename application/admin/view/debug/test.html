@@ -1,0 +1,52 @@
+{extend name="layout/base" /}
+
+{block name="content"}
+
+
+<form action="{:url()}" enctype="multipart/form-data" method="post">
+	<input  name="type[]" type="text" value="2">
+	<input name="type[]" type="text" value="1">
+	<button type="submit">提交</button>
+
+</form>
+
+<button onclick="page.button();">弹窗</button>
+<button onclick="page.button1();">弹窗1</button>
+
+
+
+<script>
+
+	var page = {
+
+		button: function(){
+			app.alert('提示内容',{
+				code:300,
+				prompt:true,
+				button:{
+					'确认':function(data,a,b){
+						console.log('确认',data,a,b);
+					}
+				},
+				onHidden : function(a,b,c){
+					console.log('hidden',a,b,c);
+				},
+			});
+		},
+		button1 : function(){
+			app.alert('提示内容',{
+				code:100,
+				onHide : function(){
+					console.log('成功了');
+				},
+			});
+		},
+
+	};
+
+
+
+</script>
+
+
+{/block}}

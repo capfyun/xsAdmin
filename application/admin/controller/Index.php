@@ -1,6 +1,6 @@
 <?php
 /**
- * 控制器-首页
+ * 首页
  * @author 夏爽
  */
 namespace app\admin\controller;

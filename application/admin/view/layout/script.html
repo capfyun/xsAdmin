@@ -1,13 +1,6 @@
-<!--<script src="/resource/asset/js/jquery-3.3.1.js"></script>-->
+
 <script type="text/javascript">
 	$(function(){
-		//select2插件
-		$(".select2").select2();
-
-		//bootstrap validator init
-		$.extend($.fn.bootstrapValidator.DEFAULT_OPTIONS, {
-//			live : 'disabled',
-		});
 
 		app.run();
 	});
@@ -23,32 +16,36 @@
 			//表单
 			app.table.init();
 
+			//select2
+			app.select2.init();
+
+			//validator
+			app.validator.init();
 		},
 		/**
 		 * 菜单
 		 */
 		menu : {
-			//菜单路径
-			checked_menu : null,
 			//初始化
 			init : function(){
-				//主菜单
-				this.checked_menu = JSON.parse('{:json_encode($app["checked"])}');
-				var main_menu = JSON.parse('{:json_encode($app["menu"])}');
-				var $html = this.treeview(main_menu);
-				$('#main-menu').html('<li class="treeview header">HEADER</li>' + $html);
+				var $menu = $('#main-menu');
+				var $data_menu = JSON.parse($menu.attr('data-menu'));
+				var $data_checked = JSON.parse($menu.attr('data-checked'));
+				var $html = this.treeview($data_menu,$data_checked);
+				$menu.html($html);
+				$menu.attr('data-checked','').attr('data-menu','');
 			},
 			/**
 			 * 主菜单初始化
 			 * @param {object} data
 			 */
-			treeview : function(data){
+			treeview : function(data,checked){
 				var $this = this;
 				var $function = function(data){
 					var $string = '';
 					for(var k in data){
 						var is_child = data[k]['child'].length > 0;
-						var is_checked = $this.checked_menu[data[k]['id']] ? 1 : 0;
+						var is_checked = checked[data[k]['id']] ? 1 : 0;
 						$string += '<li class="' + (is_child ? 'treeview' : '') + (is_checked ? ' menu_open active' : '')+'  " >'
 								+ '	<a href="' + (data[k].name ? '/' + data[k].name : '#') + '">'
 								+ '		<i class="fa ' + (data[k].icon ? data[k].icon : 'fa-link') + ' "></i>'
@@ -66,7 +63,7 @@
 					}
 					return $string;
 				};
-				return $function(data);
+				return '<li class="treeview header">HEADER</li>'+$function(data);
 			},
 		},
 
@@ -196,7 +193,7 @@
 				var $this = this;
 				$this.table.find('a.menu-option').on('click',function(){
 					var $action = $(this);
-					var $param = [];
+					var $param = {};
 					var $trs = $this.getParam();
 					//请求参数
 					var $name = $action.attr('data-param-name') ? $action.attr('data-param-name') : 'id';
@@ -214,7 +211,7 @@
 						//1个
 						case '1':
 							if($trs.length!=1){
-								alert('选择一条数据');
+								app.alert('选择1条数据');
 								return false;
 							}
 							$param[$name] = $value;
@@ -222,14 +219,14 @@
 						//多个
 						case '2':
 							if($trs.length<=0){
-								alert('至少选择一条数据');
+								app.alert('至少选择1条数据');
 								return false;
 							}
 							break;
 						//1个或无
 						case '3':
 							if($trs.length!=0 && $trs.length!=1){
-								alert('不选择或选择一条数据');
+								app.alert('不选择或选择1条数据');
 								return false;
 							}
 							break;
@@ -242,21 +239,20 @@
 							var $params = Object.keys($param).map(function (key) {
 								return encodeURIComponent(key) + "=" + encodeURIComponent($param[key]);
 							}).join("&");
-
 							window.location.href = $url+($params ? '?'+$params : '');
 							break;
 						//ajax提交
 						case '1':
-							if(!confirm('确定“'+$action.attr('data-title')+'”？')){
-								return false;
-							}
-							$.post($url,$param,function(data,status){
-								if(status == 'success'){
-									alert(data.msg);
-								}else{
-									alert('无响应');
-								}
-							});
+							var $button = {'确定' : function(){
+								$.post($url,$param,function(data,status){
+									if(status == 'success'){
+										data.code==0 ? app.alert(data.msg,{code:200}) : app.alert(data.msg,{code:400});
+									}else{
+										app.alert('无响应',{code:300});
+									}
+								});
+							}};
+							app.alert('确定“'+$action.attr('data-title')+'”？',{button : $button});
 							break;
 					}
 					return false;
@@ -288,15 +284,36 @@
 		auth : {
 			treeview : function(rule_list,parent_id,id){
 				var $this = this;
-				var $function = function(data){
+				var $function = function(data,is_examine){
 					var $string = '';
 					for(var k in data){
 						var is_child = data[k]['child'].length > 0;
 						var is_checked = parent_id==data[k]['id'] ? 1 : 0;
+						var is_self = is_examine || id==data[k]['id'];
 						$string += '<ul style="list-style:none;"><li style="list-style:none;"><label class="radio-inline">';
-						if(id!=data[k]['id']){
-							$string += '<input type="radio" name="parent_id" value="'+data[k]['id']+'" '+(is_checked ? 'checked' : '')+'>';
+						if(!is_self){
+							$string += '<input type="radio" name="parent_id" value="'+data[k]['id']+'" '+(is_checked ? 'checked' : '')+'> ';
 						}
+						$string += '<span class="fa '+(data[k]['icon'] ? data[k]['icon'] : 'fa-link')+'"></span> '+data[k]['title']+'</label></li>';
+						if(is_child){
+							$string += $function(data[k]['child'],is_self);
+						}
+						$string	+= '</ul>';
+					}
+					return $string;
+				};
+				return '<label class="radio-inline"><input type="radio" name="parent_id" value="0" '+(parent_id==0 ? 'checked' : '')+'><span class="fa fa-folder-open-o"></span> 根目录</label>'
+						+$function(rule_list);
+			},
+			checkTreeview : function(rule_list,checked_ids){
+				var $this = this;
+				var $function = function(data){
+					var $string = '';
+					for(var k in data){
+						var is_child = data[k]['child'].length > 0;
+						var is_checked = $.inArray(data[k]['id'].toString(), checked_ids) >= 0 ? 1 : 0;
+						$string += '<ul style="list-style:none;"><li style="list-style:none;"><label class="radio-inline">';
+						$string += '<input type="checkbox" name="rule_ids[]" value="'+data[k]['id']+'" '+(is_checked ? 'checked' : '')+'> ';
 						$string += '<span class="fa '+(data[k]['icon'] ? data[k]['icon'] : 'fa-link')+'"></span> '+data[k]['title']+'</label></li>';
 						if(is_child){
 							$string += $function(data[k]['child']);
@@ -305,11 +322,109 @@
 					}
 					return $string;
 				};
-				return '<label class="radio-inline"><input type="radio" name="parent_id" value="0" '+(parent_id==0 ? 'checked' : '')+'><span class="fa fa-link"></span> 根目录</label>'+$function(rule_list);
+				return $function(rule_list);
 			},
 		},
-
-
+		/**
+		 * 模态框
+		 * @param msg
+		 * @param option
+		 */
+		alert: function(msg,option){
+			//默认配置
+			var $option = {
+				code : 100, //状态码
+				msg : '', //消息内容
+				title : null, //标题
+				prompt : 0, //是否有输入框
+				button : {}, //操作按钮
+				size : 'sm', //尺寸
+				time : 0, //停留秒数，0为不限时
+				modal : $('#modal-alert'), //模态框jquery对象
+				input : function(){ //获取输入框内容
+					return this.modal.find('.modal-body').find('textarea').val();
+				},
+				onShow : null,
+				onShown : null,
+				onHide : null,
+				onHidden : null,
+				onLoaded : null,
+			};
+			if(typeof msg == "object"){
+				$.extend($option, msg);
+			}else{
+				$option.msg = msg;
+				option && $.extend($option, option);
+			}
+			//模态框
+			var $code= {
+				100 : '<i class="fa fa-bell-o"></i>',
+				200 : '<i class="fa fa-check text-green"></i>',
+				300 : '<i class="fa fa-exclamation-triangle text-yellow"></i>',
+				400 : '<i class="fa fa-close text-red"></i>',
+			};
+			//标题
+			var $title = ($code[$option.code] || $code[100])+($option.title===null ? '' : ' '+$option.title);
+			$option.modal.find('.modal-title').html($title);
+			//内容
+			$body = $option.msg;
+			if($option.prompt){
+				$body += '<textarea class="form-control" rows="4" placeholder="Enter ..." ></textarea>';
+			}
+			$option.modal.find('.modal-body').html($body);
+			//按钮
+			$option.modal.find('.modal-footer').html('<button type="button" class="btn btn-default " data-dismiss="modal">关闭</button>');
+			$.each($option.button,function(k,v){
+				var $button = $('<button type="button" class="btn btn-primary " data-dismiss="modal">'+k+'</button>');
+				v && $button.on('click',function(e){
+					setTimeout(function(){v($option,e);},500);
+				});
+				$option.modal.find('.modal-footer').append($button);
+			});
+			//大小
+			$option.modal.find('.modal-dialog').removeClass('modal-sm','modal-lg').addClass($option.size && 'modal-'+$option.size);
+			//事件
+			$option.modal.off();
+			$option.onShow && $option.modal.on('show.bs.modal',function(e){ $option.onShow($option,e);});
+			$option.onShown && $option.modal.on('shown.bs.modal',function(e){ $option.onShown($option,e);});
+			$option.onHide && $option.modal.on('hide.bs.modal',function(e){ $option.onHide($option,e);});
+			$option.onHidden && $option.modal.on('hidden.bs.modal',function(e){ $option.onHidden($option,e);});
+			$option.onLoaded && $option.modal.on('loaded.bs.modal',function(e){ $option.onLoaded($option,e);});
+			//定时消失
+			$option.time && setTimeout(function(){
+				$option.modal.modal('hide');
+			},$option.time*1000);
+			//显示模态框
+			$option.modal.modal();
+		},
+		/**
+		 * select2
+		 */
+		select2 : {
+			/**
+			 * 初始化
+			 */
+			init : function(){
+				//select2插件
+				$(".select2").select2();
+			},
+		},
+		/**
+		 * bootstrap-validator
+		 */
+		validator : {
+			/**
+			 * 初始化
+			 */
+			init : function (){
+				//bootstrap validator init
+				$.extend($.fn.bootstrapValidator.DEFAULT_OPTIONS, {
+					//live : 'disabled',
+				});
+				//表单校验
+				$(".form-validator").bootstrapValidator();
+			},
+		},
 	};
 
 

@@ -66,7 +66,7 @@ class Api extends Base{
 	 */
 	public function getApiUrl($url = ''){
 		return config('app_env')=='local'
-			? 'http://tap_api.local/'.trim($url, '/')
+			? 'http://xs.local/api/'.trim($url, '/')
 			: 'http://api.qifanfan.cn/'.trim($url, '/');
 	}
 	
@@ -74,14 +74,14 @@ class Api extends Base{
 	 * 更新数据
 	 */
 	public function apiUpdate($data = []){
-		/* 初始化 */
+		//初始化
 		if(isset($data['isinit']) && $data['isinit']==1){
 			//获取接口参数
 			$api_url = $this->getApiUrl($data['url']);
-			$result  = service('Curl')->curl($api_url, ['getapiinfo' => 1], 'post');
+			$result  = service('Curl')->request($api_url, ['getapiinfo' => 1], 'post');
 			$result  = json_decode($result, true);
 			if(!$result){
-				$this->error = '请求失败';
+				$this->error = '初始化失败';
 				return false;
 			}
 			if(isset($result['code']) && $result['code']==0 && isset($result['data']['param'])){
@@ -122,11 +122,11 @@ class Api extends Base{
 				$data['is_encrypt'] = $result['data']['is_encrypt'];
 			}
 		}
-		/* 执行更新 */
-		$is_update = isset($data['id']) ? true : false;
+		//执行更新
+		$is_update = isset($data['id'])&&$data['id'] ? true : false;
 		$result    = model('Api')->allowField(true)->isUpdate($is_update)->save($data);
 		if(!$result){
-			$this->error = model('Api')->getError() ? : '更新失败';
+			$this->error = model('Api')->getError() ? : '操作失败';
 			return false;
 		}
 		return true;
@@ -176,7 +176,7 @@ class Api extends Base{
 		
 		//调用接口
 		$api_url = $this->getApiUrl($api->url);
-		$result  = service('Curl')->curl($api_url, $post, 'post');
+		$result  = service('Curl')->request($api_url, $post, 'post');
 		
 		if(!$result){
 			$this->error = '请求失败';

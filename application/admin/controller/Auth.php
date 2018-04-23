@@ -9,18 +9,16 @@ class Auth extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 菜单-列表
-	 * @param int $pid 上级ID
+	 * @param int $parent_id 上级ID
 	 */
 	public function rule_list($parent_id = 0){
 		$keyword = [
-			'title' => ['title' => ['LIKE', '%'.input('search.keyword').'%']],
-			'name'  => ['name' => ['LIKE', '%'.input('search.keyword').'%']],
+			'title' => ['title' => ['LIKE', '%'.input('keyword').'%']],
+			'name'  => ['name' => ['LIKE', '%'.input('keyword').'%']],
 		];
 		$where   = ['parent_id' => $parent_id];
-		input('search.keyword')=='' || $where = array_merge($where, $keyword[input('search.keyword_type')]);
-		input('search.status')=='' || $where['status'] = input('search.status');
-		input('search.menu_type')=='' || $where['menu_type'] = input('search.menu_type');
-		input('search.request_type')=='' || $where['request_type'] = input('search.request_type');
+		input('keyword')!='' && isset($keyword[input('target')]) && $where = array_merge($where, $keyword[input('target')]);
+		input('status')!='' && $where['status'] = input('status');
 		
 		$paging = db('auth_rule')
 			->where($where)
@@ -34,8 +32,8 @@ class Auth extends \app\common\controller\AdminBase{
 				return $item;
 			});
 		
+		//视图
 		cookie('forward', request()->url());
-		/* 视图 */
 		return $this->fetch('', [
 			'paging'    => $paging,
 			'parent_id' => $parent_id ? db('auth_rule')->where(['id' => $parent_id])->value('parent_id') : 0,
@@ -45,29 +43,38 @@ class Auth extends \app\common\controller\AdminBase{
 	/**
 	 * 新增编辑菜单
 	 */
-	public function rule_addedit($id = 0){
-		if($this->request->isPost()){
-			if($id){
-				$result = model('AuthRule')->allowField(true)->save(input(), ['id' => $id]);
-			}else{
-				$result = model('AuthRule')->allowField(true)->save(input());
-			}
-			$result || $this->error();
-			$this->success('操作成功', cookie('forward'));
+	public function rule_addedit(){
+		if(!$this->request->isPost()){
+			$rule = model('authRule')->get(input('id'));
+			//权限列表
+			$rule_list = db('auth_rule')->order('sort DESC')->select();
+			$rule_list = service('Tool')->sortArrayRecursio($rule_list);
+			//视图
+			return $this->fetch('', [
+				'info'      => $rule,
+				'rule_list' => $rule_list,
+			]);
 		}
-		/* 权限详情 */
-		$rule = $id ? model('authRule')->get($id) : [];
-		
-		/* 权限列表 */
-		$rule_list = db('auth_rule')->order('sort DESC')->select();
-		//递归排序
-		$rule_list = service('Tool')->sortArrayRecursio($rule_list);
-		
-		/* 视图 */
-		return $this->fetch('', [
-			'info'      => $rule,
-			'rule_list' => $rule_list,
+		$param  = $this->param([
+			'id'                => ['number', 'min' => 0],
+			'title|名称'          => ['require', 'length' => '1,20'],
+			'name|链接地址'         => ['length' => '1,50'],
+			'parent_id|上级ID'    => ['require', 'number', 'min' => 0],
+			'icon'              => [],
+			'menu_type|类型'      => ['require', 'number', 'between' => '0,2'],
+			'request_type|请求类型' => ['require', 'number', 'between' => '0,1'],
+			'status|状态'         => ['require', 'number', 'between' => '0,1'],
+			'sort|排序'           => ['number', 'between' => '0,9999'],
+			'param_name|参数名'    => [],
+			'param_num|参数数量'    => ['number', 'between' => '0,3'],
 		]);
+		$param===false && $this->error($this->getError());
+		$result = model('AuthRule')
+			->allowField(true)
+			->isUpdate($param['id'] ? true : false)
+			->save($param);
+		$result || $this->error();
+		$this->success('操作成功', cookie('forward'));
 	}
 	
 	/**
@@ -75,11 +82,12 @@ class Auth extends \app\common\controller\AdminBase{
 	 */
 	public function group_list(){
 		$keyword = [
-			'title' => ['title' => ['LIKE', '%'.input('search.keyword').'%']],
+			'title' => ['title' => ['LIKE', '%'.input('keyword').'%']],
 		];
 		$where   = [];
-		input('search.status')=='' || $where['status'] = input('search.status');
-		input('search.keyword')=='' || $where = array_merge($where, $keyword[input('search.keyword_type')]);
+		input('keyword')!='' && isset($keyword[input('target')]) && $where = array_merge($where, $keyword[input('target')]);
+		input('status')!='' && $where['status'] = input('status');
+		
 		$paging = model('AuthGroup')
 			->where($where)
 			->order('sort DESC')
@@ -90,7 +98,8 @@ class Auth extends \app\common\controller\AdminBase{
 				return $item;
 			});
 		
-		/* 视图 */
+		//视图
+		cookie('forward', request()->url());
 		return $this->fetch('', [
 			'paging' => $paging,
 		]);
@@ -98,27 +107,37 @@ class Auth extends \app\common\controller\AdminBase{
 	
 	/**
 	 * 新增编辑权限组
-	 * @param array $rules 权限ID集
 	 */
-	public function group_addedit($id = 0, $rules = array()){
-		if($this->request->isPost()){
-			sort($rules);
-			$this->request->post(['rules' => implode(',', $rules)]);
-			$result = model('AuthGroup')->allowField(true)->save($this->request->post(), ['id' => $id]);
-			if(!$result) return $this->dwzReturn(300);
-			return $this->dwzReturn(200);
+	public function group_addedit(){
+		if(!$this->request->isPost()){
+			//用户组详情
+			$group = model('AuthGroup')->get(input('id'));
+			//权限列表
+			$rule_list = db('auth_rule')->order('sort DESC')->select();
+			$rule_list = service('Tool')->sortArrayRecursio($rule_list);
+			return $this->fetch('', [
+				'info'      => $group,
+				'rule_list' => $rule_list,
+			]);
 		}
-		/* 用户组详情 */
-		$info         = db('auth_group')->where(['id' => $id])->order('sort ASC')->find();
-		$rule_possess = explode(',', $info['rules']); //拥有的权限
-		/* 权限列表 */
-		$rule_list = db('auth_rule')->field('*')->order('sort ASC')->limit(1000)->select();
-		foreach($rule_list as $k => $v) $rule_list[$k]['isset'] = in_array($v['id'], $rule_possess) ? 1 : 0;
-		$rule_html = service('Auth')->getAuthRuleListToHtmlCheckbox(service('Tool')->sortArraySon($rule_list));//递归排序、换砖为html代码
-		return $this->fetch('', ['data' => [
-			'info'      => $info,
-			'rule_html' => $rule_html,
-		]]);
+		$param             = $this->param([
+			'id'             => ['number', 'min' => 0],
+			'title|名称'       => ['require', 'length' => '1,10'],
+			'description|描述' => [],
+			'sort|排序'        => ['number', 'between' => '0,9999'],
+			'status|参数名'     => ['require', 'number', 'between' => '0,1'],
+			'rule_ids|包含权限'  => ['array'],
+		]);
+		$param===false && $this->error($this->getError());
+		$param['rule_ids'] = $param['rule_ids'] ? : [];
+		sort($param['rule_ids']);
+		$param['rules'] = implode(',', $param['rule_ids']);
+		$result         = model('AuthGroup')
+			->allowField(true)
+			->isUpdate($param['id'] ? true : false)
+			->save($param);
+		$result || $this->error();
+		$this->success('操作成功', cookie('forward'));
 	}
 	
 }

@@ -139,15 +139,14 @@ class System extends \app\common\controller\AdminBase{
 		];
 		
 		/* 视图 */
-		return $this->fetch('', ['data' => [
+		return $this->fetch('', [
 			'server'      => $server,
 			'module'      => $module,
 			'php_config'  => $php_config,
 			'subassembly' => $subassembly,
 			'thirdparty'  => $thirdparty,
 			'database'    => $database,
-		
-		]]);
+		]);
 	}
 	
 	/**

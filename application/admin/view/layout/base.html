@@ -8,7 +8,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="renderer" content="webkit" />
-	<title>{:config('web_site_title')}{$app.current.title ? '-'.$app.current.title : ''}</title>
+	<title>{:config('web_title')}{$app.current.title ? '-'.$app.current.title : ''}</title>
 	<meta name="keywords" content="" />
 	<meta name="description" content="" />
 	<meta name="baidu-site-verification" content="RqxVzdPenO" />
@@ -23,7 +23,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 	{include file="layout/front"/}
 	{block name="front"}{/block}
-
 	{include file="layout/script"/}
 </head>
 <!--
@@ -46,7 +45,10 @@ desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
-<body class="hold-transition skin-blue sidebar-mini">
+<body class="hold-transition skin-blue sidebar-mini fixed">
+
+{include  file="layout/modal" /}
+
 <div class="wrapper">
 
 	<!-- Main Header -->

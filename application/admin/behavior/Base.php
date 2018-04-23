@@ -28,7 +28,7 @@ class Base {
 	 */
 	public function moduleInit(&$param){
 		/* 读取配置 */
-		service('Config')->saveCache(true);
+		model('Config')->load(true);
 	}
 	
 	/**
@@ -51,11 +51,6 @@ class Base {
 	 * @param $param
 	 */
 	public function appEnd(&$param){
-		/* 重置配置 */
-//		$url = ['config/config_add','config/config_edit','config/config_status_on','config/config_status_off','config/config_del'];
-//		if(Request::instance()->isPost() && in_array($this->url,$url)){
-//			service\Config::saveCache(true);
-//		}
 	}
 	
 	/**

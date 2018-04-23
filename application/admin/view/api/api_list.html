@@ -1,0 +1,94 @@
+{extend name="layout/base" /}
+
+{block name="content"}
+<div id="search" class="box ">
+	<div class="box-body">
+		<form action="{:url()}" method="get" enctype="multipart/form-data" class="form-inline">
+			<div class="form-group">
+				<button type="submit" class="btn btn-primary">搜索</button>
+			</div>
+			<div class="form-group">
+				{include file="layout/search"/}
+				<input type="hidden" name="status" value="{:input('status','')}" />
+			</div>
+			<div class="form-group">
+				<select name="target" class="form-control"  >
+					<option value="name" {if condition="input('target')=='name'"}selected{/if}>名称</option>
+					<option value="url" {if condition="input('target')=='url'"}selected{/if}>地址</option>
+				</select>
+				<input name="keyword"  value="{:input('keyword')}" type="text" class="form-control" placeholder="关键字">
+			</div>
+			<div class="form-group">
+				<label class="">状态</label>
+				<select name="status" class="form-control" >
+					<option value="">全部</option>
+					<option value="0" {if condition="input('status')=='0'"}selected{/if}>禁用</option>
+					<option value="1" {if condition="input('status')=='1'"}selected{/if}>启用</option>
+				</select>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div id="table" class="box" >
+	<div class="box-body">
+		<div class="row">
+			<div class="col-sm-12">
+				{include file="layout/menu_option"/}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table table-bordered table-striped table-hover" >
+					<thead>
+					<tr >
+						<th class="" width="5%">ID</th>
+						<th class="" width="20%">名称</th>
+						<th class="" width="20%">地址</th>
+						<th class="" width="">参数</th>
+						<th class="" width="5%">加密</th>
+						<th class="" width="10%">作者</th>
+						<th class="" width="10%">状态</th>
+					</tr>
+					</thead>
+					<tbody>
+					{volist name="paging" id="vo" }
+					<tr data-id="{$vo.id}" data-api_id="{$vo.id}">
+						<td>{$vo.id}</td>
+						<td>{$vo.name}</td>
+						<td>{$vo.url}</td>
+						<td>{$vo.param}</td>
+						<td>{$vo.is_encrypt_format}</td>
+						<td>{$vo.author}</td>
+						<td>{$vo.status_format}</td>
+					</tr>
+					{/volist}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-4 hidden-xs">
+				<div class="dataTables_info">
+					<span class="table-checkall">全选</span> <span class="table-checkinvert">反选</span>
+					Total {$paging->total()} data
+				</div>
+			</div>
+			<div class="col-sm-8">
+				<div class="dataTables_paginate ">
+					{$paging->render()}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<script>
+	$(function(){
+
+	});
+</script>
+{/block}
