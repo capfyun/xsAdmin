@@ -29,7 +29,7 @@ class Aes extends \app\common\service\Base{
 	 * $cipher_alg : 加密方式
 	 */
 	public function encrypt($string = ''){
-		return bin2hex(mcrypt_encrypt(
+		return bin2hex(@mcrypt_encrypt(
 			$this->cipher_alg,
 			$this->secret_key,
 			$string,
@@ -46,7 +46,7 @@ class Aes extends \app\common\service\Base{
 	 * $cipher_alg : 加密方式
 	 */
 	public function decrypt($string = ''){
-		return mcrypt_decrypt(
+		return @mcrypt_decrypt(
 			$this->cipher_alg,
 			$this->secret_key,
 			pack("H*", $string),
