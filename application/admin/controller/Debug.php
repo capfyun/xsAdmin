@@ -17,6 +17,21 @@ class Debug extends \app\common\controller\AdminBase{
 	 * 测试
 	 */
 	public function test(){
+		
+		$pid_file = "resource/image/abc";
+		$fp = fopen($pid_file, 'w+');
+		if(flock($fp, LOCK_EX | LOCK_NB)){
+			db_debug('ok');
+			echo "got the lock \n";
+			sleep(5); // long running process
+			flock($fp, LOCK_UN);  // 释放锁定
+		} else {
+			db_debug('no');
+			echo "Cannot get pid lock. The process is already up \n";
+		}
+		fclose($fp);
+		exit();
+		
 		$result = service('ExecLock')->open();
 		db_debug('open',$result);
 		
@@ -27,6 +42,51 @@ class Debug extends \app\common\controller\AdminBase{
 		
 		exit();
 		
+		
+		$lock = new \Yurun\Until\Lock\File('asd');
+		
+//		$lock->lock(); // 阻塞锁
+//// TODO:在这里做你的一些事情
+//		$lock->unlock(); // 解锁
+//
+//// 带回调的阻塞锁，防止并发锁处理重复执行
+//		$result = $lock->lock(
+//			function(){
+//				// TODO:在这里做你的加锁后处理的任务
+//
+//			},
+//			function(){
+//				// 判断是否其它并发已经处理过任务
+//				return false;
+//			}
+//		);
+//		switch($result)
+//		{
+//			case \Yurun\Until\Lock\LockConst::LOCK_RESULT_CONCURRENT_COMPLETE:
+//				// 其它请求已处理
+//				break;
+//			case \Yurun\Until\Lock\LockConst::LOCK_RESULT_CONCURRENT_UNTREATED:
+//				// 在当前请求处理
+//				break;
+//			case \Yurun\Until\Lock\LockConst::LOCK_RESULT_FAIL:
+//				// 获取锁失败
+//				break;
+//		}
+
+// 不阻塞锁，获取锁失败就返回false
+		if($lock->unblockLock())
+		{
+			db_debug('ok');
+			// TODO:在这里做你的一些事情
+		}
+		else
+		{
+			db_debug('no');
+			// 获取锁失败
+		}
+		
+		sleep(10);
+		exit();
 		
 		
 		if(request()->isPost()){
