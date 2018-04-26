@@ -24,6 +24,13 @@ class Base extends \think\Controller{
 	}
 	
 	/**
+	 * 空操作
+	 */
+	public function _empty(){
+		abort(404,'error');
+	}
+	
+	/**
 	 * XML编码
 	 * @param mixed $data 数据
 	 * @param string $root 根节点名

@@ -48,7 +48,7 @@ function db_debug(){
 //文件写入，快捷调试
 function file_debug($data, $file = 'debug.txt'){
 	$path    = $_SERVER['DOCUMENT_ROOT'].'/resource/debug/'.$file;
-	$content = var_export($data, true)."\r\n";
+	$content = (is_string($data) ? $data : var_export($data, true))."\r\n";
 	file_put_contents($path, $content, FILE_APPEND|LOCK_EX);
 }
 

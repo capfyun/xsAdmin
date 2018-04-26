@@ -1,17 +1,14 @@
 <?php
 /**
- * 服务层-程序锁
+ * 程序锁
  * @author 夏爽
  */
 namespace app\common\service;
 
-use think\Cache;
 
 class ExecLock extends Base{
 	//前缀
 	protected $prefix = '';
-	//最大锁定时间（秒）
-	protected $max_time = 10;
 	
 	/**
 	 * 初始化
@@ -19,25 +16,16 @@ class ExecLock extends Base{
 	public function __construct(){
 		parent::__construct();
 		//前缀
-		$this->prefix = config('app_env').'_execlock_';
-	}
-	
-	/**
-	 * 设置锁时长
-	 * @param int $time 时长（秒），0为永久
-	 * @return $this
-	 */
-	public function setTime($time = 10){
-		$this->max_time = $time;
-		return $this;
+		$this->prefix = config('app_env').'execlock';
 	}
 	
 	/**
 	 * 开启锁
 	 * @param string $tag 锁标签
+	 * @param int $time 时长（秒），0为永久
 	 * @return bool
 	 */
-	public function open($tag = ''){
+	public function open($tag = '', $time = 10){
 		//生成锁名
 		$name = $this->getName($tag);
 		//校验是否已锁
@@ -46,7 +34,7 @@ class ExecLock extends Base{
 			return false;
 		}
 		//上锁
-		$result = cache($name, 1, $this->max_time, 'execlock');
+		$result = cache($name, 1, $time, 'execlock');
 		if(!$result){
 			$this->error = '系统错误';
 			return false;
@@ -78,10 +66,11 @@ class ExecLock extends Base{
 	 */
 	protected function getName($tag = ''){
 		//生成名称
-		$name = request()->module().
-			request()->controller().
-			request()->action().
-			$tag;
+		$name = $this->prefix
+			.request()->module()
+			.request()->controller()
+			.request()->action()
+			.$tag;
 		return strtolower($name);
 	}
 }

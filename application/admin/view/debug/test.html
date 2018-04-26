@@ -34,12 +34,7 @@
 			});
 		},
 		button1 : function(){
-			app.alert('提示内容',{
-				code:100,
-				onHide : function(){
-					console.log('成功了');
-				},
-			});
+			$('#modal-shade').modal({backdrop: 'static', keyboard: false});
 		},
 
 	};

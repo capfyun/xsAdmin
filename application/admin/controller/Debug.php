@@ -5,6 +5,7 @@
  */
 namespace app\admin\controller;
 
+use DatabaseBackup\DatabaseBackup;
 use Uploader\Uploader;
 
 class Debug extends \app\common\controller\AdminBase{
@@ -16,16 +17,17 @@ class Debug extends \app\common\controller\AdminBase{
 	 * 测试
 	 */
 	public function test(){
+		$result = service('ExecLock')->open();
+		db_debug('open',$result);
 		
-		$a = 'http://img.7guoyouxi.com/file/2018-04-20/5ad9a133475a4.png';
-		$b = 'resource/file/2018-04-21/5adaeaaed22b8.jpg';
-		$c = 'http://img.7guoyouxi.com/file/2018-04-20/5ad9acce4f8e2.png';
-		$image = 'resource\image\w200h50/2a5117050ceb6e224140485eeafd4d89.png';
-		halt(getimagesize($c));
+		sleep(10);
+		
+		service('ExecLock')->close();
+		db_debug('close');
+		
+		exit();
 		
 		
-		$result = service('Image')->createThumb($c,200,50);
-		halt([$result,service('Image')]);
 		
 		if(request()->isPost()){
 			
@@ -44,7 +46,5 @@ class Debug extends \app\common\controller\AdminBase{
 		
 		return $this->fetch();
 	}
-	
-	
 	
 }

@@ -6,6 +6,8 @@
 	});
 
 	var app = {
+		//请求中标识
+		loading : false,
 		/**
 		 * 初始化
 		 */
@@ -236,6 +238,7 @@
 					switch($action.attr('data-request-type')){
 						//普通页面
 						case '0':
+							app.shade('show');
 							var $params = Object.keys($param).map(function (key) {
 								return encodeURIComponent(key) + "=" + encodeURIComponent($param[key]);
 							}).join("&");
@@ -244,12 +247,21 @@
 						//ajax提交
 						case '1':
 							var $button = {'确定' : function(){
+								if(app.loading == true){
+									app.alert('当前有请求还未完成，请等待...',{code:300});
+									return false;
+								}
+								app.shade('show');
+								app.loading = true;
 								$.post($url,$param,function(data,status){
-									if(status == 'success'){
+									if(status == 'success' && data.code!=undefined){
 										data.code==0 ? app.alert(data.msg,{code:200}) : app.alert(data.msg,{code:400});
 									}else{
-										app.alert('无响应',{code:300});
+										console.log(data);
+										app.alert('请求失败',{code:300});
 									}
+									app.loading = false;
+									app.shade('hide');
 								});
 							}};
 							app.alert('确定“'+$action.attr('data-title')+'”？',{button : $button});
@@ -353,7 +365,7 @@
 			if(typeof msg == "object"){
 				$.extend($option, msg);
 			}else{
-				$option.msg = msg;
+				$option.msg = msg ? msg : '';
 				option && $.extend($option, option);
 			}
 			//模态框
@@ -396,6 +408,13 @@
 			},$option.time*1000);
 			//显示模态框
 			$option.modal.modal();
+		},
+		/**
+		 * 遮罩层
+		 */
+		shade : function(option){
+			option = option || 'toggle';
+			$('#modal-shade').modal(option);
 		},
 		/**
 		 * select2
