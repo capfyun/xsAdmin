@@ -84,7 +84,7 @@ class User extends \app\common\controller\AdminBase{
 			$result  = model('User')->register($param['username'], $param['password']);
 			$user_id = $result;
 		}
-		$result || $this->error();
+		$result || $this->error(model('User')->getError());
 		//权限
 		db('auth_group_access')->where(['user_id' => $user_id])->delete();
 		if($param['group_ids']){

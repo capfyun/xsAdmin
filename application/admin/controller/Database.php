@@ -133,7 +133,7 @@ class Database extends \app\common\controller\AdminBase{
 		//程序锁
 		$result = service('ExecLock')->open('',60*60);
 		if(!$result){
-			return json(['code' => 1000, 'msg' => '检测到有一个还原任务正在执行，请稍后再试！']);
+			return json(['code' => 1000, 'msg' => '检测到有一个备份任务正在执行，请稍后再试！']);
 		}
 		//开始备份
 		$backup = new DatabaseBackup([

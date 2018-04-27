@@ -7,6 +7,11 @@ namespace app\common\behavior;
 
 class Base {
 	
+	public function __construct(){
+		$this->url = strtolower(\think\Request::instance()->controller().'/'.\think\Request::instance()->action()); //当前请求地址
+		
+	}
+	
 	/**
 	 * 默认入口
 	 */
@@ -23,6 +28,7 @@ class Base {
 	 * 应用开始
 	 */
 	public function appBegin(&$param){
+		
 	}
 	
 	/**
@@ -30,6 +36,11 @@ class Base {
 	 * @param $param
 	 */
 	public function moduleInit(&$param){
+		
+		
+		//读取并挂载插件
+		model('Plugin')->load(true);
+		model('Plugin')->mount();
 	}
 	
 	/**

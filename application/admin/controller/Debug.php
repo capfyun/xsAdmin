@@ -18,6 +18,11 @@ class Debug extends \app\common\controller\AdminBase{
 	 */
 	public function test(){
 		
+		$a = new Uploader();
+		
+		halt($a);
+		
+		
 		$pid_file = "resource/image/abc";
 		$fp = fopen($pid_file, 'w+');
 		if(flock($fp, LOCK_EX | LOCK_NB)){
@@ -33,9 +38,14 @@ class Debug extends \app\common\controller\AdminBase{
 		exit();
 		
 		$result = service('ExecLock')->open();
-		db_debug('open',$result);
+		if($result){
+			echo '这是成功的';
+			sleep(10);
+		}else{
+			
+			echo '这是失败的';
+		}
 		
-		sleep(10);
 		
 		service('ExecLock')->close();
 		db_debug('close');
