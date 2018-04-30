@@ -42,13 +42,10 @@ class Config extends Base{
 	 * @return array 配置数组
 	 */
 	public function configList(){
-		$list = db('config')->where(['status' => 1])->select();
-		
+		$list   = db('config')->where(['status' => 1])->select();
 		$config = [];
-		if($list && is_array($list)){
-			foreach($list as $v){
-				$config[$v['name']] = $this->parse($v['type'], $v['value']);
-			}
+		foreach($list as $v){
+			$config[$v['name']] = $this->parse($v['type'], $v['value']);
 		}
 		return $config;
 	}

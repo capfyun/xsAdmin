@@ -32,7 +32,7 @@ class Open extends \app\common\controller\AdminBase{
 		if(!$result){
 			return json(['code' => 1000, 'msg' => model('User')->getError()]);
 		}
-		//成功，记入session
+		//成功，后置操作
 		model('User')->loginAfter($user_id);
 		model('User')->loginUpdate($user_id);
 		return json(['code' => 0, 'msg' => '登录成功！', 'data' => ['url' => url('index/index')]]);

@@ -5,7 +5,7 @@
  */
 namespace app\common\validate;
 
-class Base extends \think\Validate{
+abstract class Base extends \think\Validate{
 	
 	
 	

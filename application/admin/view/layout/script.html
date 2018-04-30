@@ -36,6 +36,7 @@
 				var $html = this.treeview($data_menu,$data_checked);
 				$menu.html($html);
 				$menu.attr('data-checked','').attr('data-menu','');
+				$menu.find('a.menu-item').on('click',this.ajax);
 			},
 			/**
 			 * 主菜单初始化
@@ -49,7 +50,9 @@
 						var is_child = data[k]['child'].length > 0;
 						var is_checked = checked[data[k]['id']] ? 1 : 0;
 						$string += '<li class="' + (is_child ? 'treeview' : '') + (is_checked ? ' menu_open active' : '')+'  " >'
-								+ '	<a href="' + (data[k].name ? '/' + data[k].name : '#') + '">'
+								+ '	<a class="menu-item" href="' + (data[k].name ? '/' + data[k].name : '#') + '" '
+								+ ' data-title="'+data[k].title+'" '
+								+ ' data-request-type="'+data[k].request_type+'" >'
 								+ '		<i class="fa ' + (data[k].icon ? data[k].icon : 'fa-link') + ' "></i>'
 								+ '		<span>' + data[k].title + '</span>';
 						if(is_child){
@@ -67,6 +70,40 @@
 				};
 				return '<li class="treeview header">HEADER</li>'+$function(data);
 			},
+			/**
+			 * 菜单ajax请求
+			 */
+			ajax : function(){
+				var $action = $(this);
+				if($action.attr('data-request-type')==1){
+					var $button = {'确定' : function(){
+						if(app.loading == true){
+							app.alert('当前有请求还未完成，请稍后再试...',{code:1002});
+							return false;
+						}
+						app.shade('show');
+						app.loading = true;
+						$.post($action.attr('href'),{},function(data,status){
+							if(status == 'success' && data.code!=undefined){
+								if(data.code==0){
+									app.alert(data.msg,{code:0,onHidden:function(){
+										window.location.reload();
+									}});
+								}else{
+									app.alert(data.msg,{code:1000});
+								}
+							}else{
+								console.log(data);
+								app.alert('请求失败',{code:1002});
+							}
+							app.loading = false;
+							app.shade('hide');
+						});
+					}};
+					app.alert('确定“'+$action.attr('data-title')+'”？',{button:$button,code:1001});
+					return false;
+				}
+			}
 		},
 
 		/**
@@ -248,23 +285,29 @@
 						case '1':
 							var $button = {'确定' : function(){
 								if(app.loading == true){
-									app.alert('当前有请求还未完成，请等待...',{code:300});
+									app.alert('当前有请求还未完成，请稍后再试...',{code:1002});
 									return false;
 								}
 								app.shade('show');
 								app.loading = true;
 								$.post($url,$param,function(data,status){
 									if(status == 'success' && data.code!=undefined){
-										data.code==0 ? app.alert(data.msg,{code:200}) : app.alert(data.msg,{code:400});
+										if(data.code==0){
+											app.alert(data.msg,{code:0,onHidden:function(){
+												window.location.reload();
+											}});
+										}else{
+											app.alert(data.msg,{code:1000});
+										}
 									}else{
 										console.log(data);
-										app.alert('请求失败',{code:300});
+										app.alert('请求失败',{code:1002});
 									}
 									app.loading = false;
 									app.shade('hide');
 								});
 							}};
-							app.alert('确定“'+$action.attr('data-title')+'”？',{button : $button});
+							app.alert('确定“'+$action.attr('data-title')+'”？',{button:$button,code:1001});
 							break;
 					}
 					return false;
@@ -345,7 +388,7 @@
 		alert: function(msg,option){
 			//默认配置
 			var $option = {
-				code : 100, //状态码
+				code : 1000, //状态码
 				msg : '', //消息内容
 				title : null, //标题
 				prompt : 0, //是否有输入框
@@ -370,13 +413,13 @@
 			}
 			//模态框
 			var $code= {
-				100 : '<i class="fa fa-bell-o"></i>',
-				200 : '<i class="fa fa-check text-green"></i>',
-				300 : '<i class="fa fa-exclamation-triangle text-yellow"></i>',
-				400 : '<i class="fa fa-close text-red"></i>',
+				0 : '<i class="fa fa-check text-green"></i>',
+				1000 : '<i class="fa fa-close text-red"></i>',
+				1001 : '<i class="fa fa-bell-o"></i>',
+				1002 : '<i class="fa fa-exclamation-triangle text-yellow"></i>',
 			};
 			//标题
-			var $title = ($code[$option.code] || $code[100])+($option.title===null ? '' : ' '+$option.title);
+			var $title = ($code[$option.code] || $code[1000])+($option.title===null ? '' : ' '+$option.title);
 			$option.modal.find('.modal-title').html($title);
 			//内容
 			$body = $option.msg;

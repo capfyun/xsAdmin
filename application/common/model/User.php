@@ -75,7 +75,7 @@ class User extends Base{
 		//事务
 		db()->startTrans();
 		//生成用户
-		$result = model('User')
+		$result = $this
 			->allowField(true)
 			->isUpdate(false)
 			->save([
@@ -90,7 +90,7 @@ class User extends Base{
 			return false;
 		}
 		//生成用户详情
-		$result = model('User')->userInfo()->save([]);
+		$result = $this->userInfo()->save([]);
 		if(!$result){
 			$this->error = '用户注册失败';
 			db()->rollback();
@@ -98,7 +98,7 @@ class User extends Base{
 		}
 		//提交
 		db()->commit();
-		return model('User')->id;
+		return $this->id;
 	}
 	
 	/**
@@ -114,7 +114,7 @@ class User extends Base{
 			return false;
 		}
 		/* 获取用户信息 */
-		$user = model('user')->get([$type => $username]);
+		$user = $this->get([$type => $username]);
 		//登陆校验
 		if(!$user){
 			$this->error = '用户不存在';
@@ -192,7 +192,7 @@ class User extends Base{
 	 * @return bool
 	 */
 	public function checkPassword($user_id, $password){
-		$user = model('user')->get(['id' => $user_id]);
+		$user = $this->get(['id' => $user_id]);
 		//密码校验
 		if($user->password!=$this->encode($password)){
 			$this->error = '密码错误';

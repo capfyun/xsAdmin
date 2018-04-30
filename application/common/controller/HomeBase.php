@@ -6,7 +6,7 @@
 namespace app\common\controller;
 
 
-class HomeBase extends Base{
+abstract class HomeBase extends Base{
 	
 	
 }

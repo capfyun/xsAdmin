@@ -5,7 +5,7 @@
  */
 namespace app\common\controller;
 
-class AdminBase extends Base{
+abstract class AdminBase extends Base{
 	//当前用户ID
 	protected $user_id = 0;
 	//当前操作地址
@@ -21,31 +21,12 @@ class AdminBase extends Base{
 		/* 定义属性 */
 		//当前请求地址
 		$this->url = strtolower(
-			ltrim(service('Tool')->humpToLine($this->request->controller()), '_')
+			service('Tool')->convertHump($this->request->controller())
 			.'/'.$this->request->action()
 		);
 		
 		//当前用户ID
 		$this->user_id = model('User')->isLogin() ? : model('User')->cookieLogin();
-		
-		
-		//管理员帐号，不需要任何验证
-		if(!$this->isAdministrator($this->user_id)){
-			//校验IP
-			$result = $this->checkLoginIp();
-			$result || abort(404, '您的IP禁止操作');
-			
-			//权限验证
-			if(!$this->isExempt()){
-				if($this->user_id<=0){
-					$this->redirect(url('open/login'));
-				}
-				$result = service('Auth')->check($this->url, $this->user_id);
-				if(!$result){
-					abort(404, '未授权');
-				}
-			}
-		}
 		
 		//模板赋值
 		$checked = $this->getCheckedMenu();
@@ -88,40 +69,6 @@ class AdminBase extends Base{
 		return $data;
 	}
 	
-	/**
-	 * 是否不需要验证
-	 */
-	private function isExempt(){
-		//开放地址
-		if(!config('open_url') || !is_array(config('open_url'))){
-			return false;
-		}
-		foreach(config('open_url') as $v){
-			if($v==$this->url){
-				return true;
-			}
-			if(preg_match('/\/*$/',$v) && strpos($this->url,rtrim($v,'*'))===0){
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * 校验IP是否允许登录
-	 */
-	private function checkLoginIp(){
-		$ip = service('Tool')->getClientIp();
-		//黑名单IP
-		if(config('admin_ban_ip') && in_array($ip,config('admin_ban_ip'))){
-			return false;
-		}
-		//白名单IP
-		if(config('admin_allow_ip') && !in_array($ip,config('admin_allow_ip'))){
-			return false;
-		}
-		return true;
-	}
 	
 	/**
 	 * 是否管理员用户

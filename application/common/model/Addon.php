@@ -7,14 +7,15 @@ namespace app\common\model;
 
 use think\Hook;
 
-class Plugin extends Base{
+class Addon extends Base{
 	
 	/* 自动完成 */
 	//写入（包含新增、更新）时自动完成
 	protected $auto = [];
 	//新增时自动完成
 	protected $insert = [
-		'status' => 1, //状态[0禁用-1启用]
+		'status' => 0, //状态[0禁用-1启用]
+		'sort'   => 500,
 	];
 	//更新时自动完成
 	protected $update = [
@@ -43,7 +44,7 @@ class Plugin extends Base{
 		//重置缓存
 		if(!$plugin || $is_enforce){
 			$plugin = $this->where(['status' => 1])->order('sort DESC')->select();
-			cache('db_plugin_data', $plugin->toArray());
+			cache('db_addon_data', $plugin->toArray());
 		}
 	}
 	
@@ -51,30 +52,16 @@ class Plugin extends Base{
 	 * 挂载插件
 	 */
 	public function mount(){
-		//当前请求地址
-		$action = strtolower(
-			request()->module()
-			.'/'.request()->controller()
-			.'/'.request()->action()
-		);
-		$plugin = cache('db_plugin_data');
-		if(!$plugin){
+		$addon = cache('db_addon_data');
+		if(!$addon){
 			return false;
 		}
-		db_debug($plugin);
-		
-		//绑定事件
-		foreach($plugin as $k => $v){
-			if(!$v['hook'] || ($v['action'] && strtolower($v['action'])!=$action)){
-				continue;
-			}
+		//注册插件
+		foreach($addon as $k => $v){
 			$class = $this->getClass($v['name']);
-			db_debug($class,class_exists($class));
-			if(!class_exists($class)){
-				continue;
-			}
-			db_debug($v['hook'],$class);
-			Hook::add($v['hook'], $class);
+			if(!class_exists($class))
+				throw new \Exception("插件类不存在：{$class}");
+			$class::register();
 		}
 		return true;
 	}
@@ -85,7 +72,7 @@ class Plugin extends Base{
 	 * @return string
 	 */
 	public function getClass($name){
-		$class = "plugin\\{$name}\\{$name}";
+		$class = "addon\\{$name}\\{$name}";
 		return $class;
 	}
 	

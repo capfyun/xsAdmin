@@ -6,7 +6,7 @@
 namespace app\admin\controller;
 
 use DatabaseBackup\DatabaseBackup;
-use Uploader\Uploader;
+
 
 class Debug extends \app\common\controller\AdminBase{
 	
@@ -18,9 +18,21 @@ class Debug extends \app\common\controller\AdminBase{
 	 */
 	public function test(){
 		
-		$a = new Uploader();
+		if($this->request->isAjax()){
+			db_debug('ajax request');
+			return json('success');
+		}
 		
-		halt($a);
+		
+		halt('adsssd');
+		
+		$a = service('Tool')->parseName('abc_def',1,false);
+		$b = service('Tool')->parseName('DbcTdef');
+		
+		halt([
+			$a,
+			$b
+		]);
 		
 		
 		$pid_file = "resource/image/abc";

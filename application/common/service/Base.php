@@ -5,7 +5,7 @@
  */
 namespace app\common\service;
 
-class Base{
+abstract class Base{
 	
 	/**
 	 * 构造

@@ -78,16 +78,12 @@
 		</div>
 
 		<div class="row">
-			<div class="col-sm-4 hidden-xs">
-				<div class="dataTables_info">
-					<span class="table-checkall">全选</span> <span class="table-checkinvert">反选</span>
-					Total {$paging->total()} data
-				</div>
+			<div class="col-lg-4 visible-lg-block">
+				<span class="table-checkall">全选</span> <span class="table-checkinvert">反选</span>
+				Total {$paging->total()} data
 			</div>
-			<div class="col-sm-8">
-				<div class="dataTables_paginate ">
-					{$paging->render()}
-				</div>
+			<div class="col-lg-8 col-md-12 text-right">
+				{$paging->render()}
 			</div>
 		</div>
 	</div>

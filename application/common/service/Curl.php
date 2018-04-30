@@ -27,6 +27,12 @@ class Curl extends Base{
 	];
 	
 	/**
+	 * 构造
+	 */
+	public function __construct(){
+	}
+	
+	/**
 	 * 请求url
 	 * @param string $url 请求地址
 	 * @param array $body 传输内容

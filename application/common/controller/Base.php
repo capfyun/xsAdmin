@@ -5,7 +5,7 @@
  */
 namespace app\common\controller;
 
-class Base extends \think\Controller{
+abstract class Base extends \think\Controller{
 	
 	/**
 	 * 初始化
@@ -26,8 +26,31 @@ class Base extends \think\Controller{
 	/**
 	 * 空操作
 	 */
-	public function _empty(){
-		abort(404,'error');
+//	public function _empty(){
+//		abort(404,'error');
+//	}
+	
+	/**
+	 * 返回接口数据
+	 * @param array $data
+	 */
+	protected function apiReturn($data = []){
+		$result = array_merge([
+			'code'    => 1000,
+			'msg'     => '系统错误',
+			'url'     => url('', '', false),
+			'time'    => $this->request->server('REQUEST_TIME'),
+			'explain' => '',
+			'page'    => [
+				'current' => 1,
+				'last'    => 0,
+			],
+			'data'    => new \stdClass(),
+		], $data);
+		//TODO：记录接口调用
+		
+		//返回
+		abort(json($result));
 	}
 	
 	/**

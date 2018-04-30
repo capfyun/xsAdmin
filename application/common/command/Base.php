@@ -6,7 +6,7 @@
 namespace app\common\command;
 
 
-class Base extends \think\console\Command{
+abstract class Base extends \think\console\Command{
 	
 	//当前模块
 	protected $module = 'common';

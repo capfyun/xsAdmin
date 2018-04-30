@@ -5,14 +5,11 @@
  */
 namespace app\common\controller;
 
-
-class ApiBase extends Base{
+abstract class ApiBase extends Base{
 	//返回的接口数据
 	protected $api_param = [];
 	//错误码
 	protected $api_code = [];
-	//接口验证hash
-	protected $api_hash = '';
 	//接口验证hash
 	protected $api_message = '';
 	//是否加密
@@ -28,30 +25,7 @@ class ApiBase extends Base{
 		$this->api_code = model('Api')->getErrorCode();
 	}
 	
-	/**
-	 * 返回JSON数据
-	 * @param array $data
-	 */
-	protected function apiReturn($data = []){
-		/* 参数 */
-		$result = array_merge([
-			'code'    => -1,
-			'msg'     => '系统错误',
-			'url'     => url('', '', false),
-			'time'    => date('Y-m-d H:i:s'),
-			'hash'    => $this->api_hash,
-			'explain' => '',
-			'page'    => [
-				'current' => 1,
-				'last'    => 0,
-			],
-			'data'    => new \stdClass(),
-		], $data);
-		//TODO：记录接口调用
-		
-		/* 返回参数 */
-		return json($result);
-	}
+	
 	
 	/**
 	 * 数据安全校验
@@ -102,6 +76,5 @@ class ApiBase extends Base{
 		$this->is_encrypt = $is_encode;
 		return $this;
 	}
-	
 	
 }

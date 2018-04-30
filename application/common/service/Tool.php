@@ -333,30 +333,6 @@ class Tool extends Base{
 	}
 	
 	/**
-	 * 下划线转驼峰
-	 * @param string $str 字符串
-	 * @return string
-	 */
-	public function lineToHump($str){
-		$str = preg_replace_callback('/([-_]+([a-z]{1}))/i', function($matches){
-			return strtoupper($matches[2]);
-		}, $str);
-		return $str;
-	}
-	
-	/*
-	 * 驼峰转下划线
-	 * @param string $str 字符串
-	 * @return string
-	 */
-	public function humpToLine($str){
-		$str = preg_replace_callback('/([A-Z]{1})/', function($matches){
-			return '_'.strtolower($matches[0]);
-		}, $str);
-		return $str;
-	}
-	
-	/**
 	 * 手机号格式验证
 	 */
 	public function isMobile($mobile, $type = array()){
@@ -450,4 +426,20 @@ class Tool extends Base{
 		return $data;
 	}
 	
+	/**
+	 * 字符串命名风格转换
+	 * @param  string $name 字符串
+	 * @param  integer $type 转换类型 type 0 将 Java 风格转换为 C 的风格 1 将 C 风格转换为 Java 的风格
+	 * @param  bool $ucfirst 首字母是否大写（驼峰规则）
+	 * @return string
+	 */
+	public function convertHump($name, $type = 0, $ucfirst = true){
+		if($type){
+			$name = preg_replace_callback('/_([a-zA-Z])/', function($match){
+				return strtoupper($match[1]);
+			}, $name);
+			return $ucfirst ? ucfirst($name) : lcfirst($name);
+		}
+		return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
+	}
 }

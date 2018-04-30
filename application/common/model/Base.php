@@ -5,6 +5,6 @@
  */
 namespace app\common\model;
 
-class Base extends \think\Model{
+abstract class Base extends \think\Model{
 	
 }

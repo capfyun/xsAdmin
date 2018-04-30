@@ -11,14 +11,13 @@
 
 // 应用公共文件
 /**
- * 实例化service
- * @param string $name Model名称
- * @param string $layer 业务层名称
- * @param bool $appendSuffix 是否添加类名后缀
- * @return Object
+ * 实例化服务层
+ * @param mixed $string 第一个参数是类名，第二个开始都是构造函数的参数
+ * @return object
  */
-function service($name = '', $layer = 'service', $appendSuffix = false){
-	return \think\Loader::model($name, $layer, $appendSuffix);
+function service(){
+	$arguments  = func_get_args();
+	return call_user_func_array(['\loader\Loader','service'],$arguments);
 }
 
 /**
@@ -28,13 +27,14 @@ function service($name = '', $layer = 'service', $appendSuffix = false){
  * @param bool $force 是否强制重新连接
  * @return \think\db\Query
  */
-function mongo($name = '',$config = [], $force = false){
-	$config = array_merge(config('mongo'),$config);
+function mongo($name = '', $config = [], $force = false){
+	$config = array_merge(config('mongo'), $config);
 	return \think\Db::connect($config, $force)->name($name);
 }
 
-//====================调试====================
-//数据库写入，快捷调试
+/**
+ * 数据库写入，快捷调试
+ */
 function db_debug(){
 	$data = func_get_args();
 	//写入数据库
@@ -45,7 +45,11 @@ function db_debug(){
 	]);
 }
 
-//文件写入，快捷调试
+/**
+ * 文件写入，快捷调试
+ * @param mixed $data
+ * @param string $file
+ */
 function file_debug($data, $file = 'debug.txt'){
 	$path    = $_SERVER['DOCUMENT_ROOT'].'/resource/debug/'.$file;
 	$content = (is_string($data) ? $data : var_export($data, true))."\r\n";

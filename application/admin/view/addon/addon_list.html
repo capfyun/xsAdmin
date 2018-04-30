@@ -1,0 +1,53 @@
+{extend name="layout/base" /}
+
+{block name="content"}
+
+<div id="table" class="box" >
+	<div class="box-body">
+		<div class="row">
+			<div class="col-sm-12">
+				{include file="layout/menu_option"/}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table table-bordered table-striped table-hover" >
+					<thead>
+					<tr >
+						<th class="" width="15%">package</th>
+						<th class="" width="15%">名称</th>
+						<th class="" width="">描述</th>
+						<th class="" width="8%">作者</th>
+						<th class="" width="8%">版本</th>
+						<th class="" width="6%">排序</th>
+						<th class="" width="16%">状态</th>
+					</tr>
+					</thead>
+					<tbody>
+					{volist name="paging" id="vo" }
+					<tr data-name="{$vo.name}">
+						<td>{$vo.name}</td>
+						<td>{$vo.title}</td>
+						<td>{$vo.description}</td>
+						<td>{$vo.author}</td>
+						<td>{$vo.version}</td>
+						<td>{$vo.sort}</td>
+						<td>{$vo.status_format}</td>
+					</tr>
+					{/volist}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+<script>
+	$(function(){
+
+	});
+</script>
+{/block}

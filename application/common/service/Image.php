@@ -24,9 +24,13 @@ class Image extends Base{
 	 * @param int $height 图片高度
 	 * @return string WEB图片路径名称
 	 */
-	public function createThumb($path = '', $width = 100, $height = 100){
+	public function createThumb($path, $width = 0, $height = 0){
 		if($path=='' || $width<=0 || $height<=0){
 			$this->error = '参数错误';
+			return false;
+		}
+		if(!class_exists('\think\Image')){
+			$this->error = '缺少\think\Image类库';
 			return false;
 		}
 		//缩略图文件名

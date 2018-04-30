@@ -11,43 +11,12 @@
 
 // 应用行为扩展定义文件
 return [
-	/* 应用初始化 */
-	'app_init'     => [
-		'app\\common\\behavior\\Base',
-	],
-	
-	/* 应用开始 */
-	'app_begin'    => [
-		'app\\common\\behavior\\Base',
-	],
-	
-	/* 模块初始化 */
+	//模块初始化
 	'module_init'  => [
-		'app\\common\\behavior\\Base',
+		//配置
+		'app\\common\\behavior\\Config',
+		//插件
+		'app\\common\\behavior\\Addon',
 	],
 	
-	/* 操作开始执行 */
-	'action_begin' => [
-		'app\\common\\behavior\\Base',
-	],
-	
-	/* 视图内容过滤 */
-	'view_filter'  => [
-		'app\\common\\behavior\\Base',
-	],
-	
-	/* 日志写入 */
-	'log_write'    => [
-		'app\\common\\behavior\\Base',
-	],
-	
-	/* 应用结束 */
-	'app_end'      => [
-		'app\\common\\behavior\\Base',
-	],
-	
-	/* 输出结束 */
-	'response_end' => [
-		'app\\common\\behavior\\Base',
-	],
 ];

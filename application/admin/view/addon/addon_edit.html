@@ -1,0 +1,163 @@
+
+{extend name="layout/base" /}
+
+{block name="content"}
+<div class="row">
+	<div class="col-md-12">
+		<div class="box ">
+			<div class="box-header with-border">
+				<h3 class="box-title">配置</h3>
+			</div>
+			<form class="form-horizontal form-validator" method="post" action="{:url()}" >
+				<div class="box-body">
+					<input name="id" type="hidden" value="{$info.id ?? ''}" />
+					<div class="form-group">
+						<label class="col-sm-2 control-label">package</label>
+						<div class="col-sm-10">
+							<input name="" value="{$info.name ?? ''}" type="text"  class="form-control" readonly placeholder="">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="col-sm-2 control-label">名称</label>
+						<div class="col-sm-10">
+							<input name="title" value="{$info.title ?? ''}" type="text"  class="form-control" placeholder=""
+								   required minlength="1" maxlength="50">
+						</div>
+					</div>
+					<div class="form-group">
+						<label  class="col-sm-2 control-label">描述</label>
+						<div class="col-sm-10">
+							<textarea name="description" class="form-control" rows="3" placeholder="Enter ...">{$info.description ?? ''}</textarea>
+						</div>
+					</div>
+					<div class="form-group">
+						<label  class="col-sm-2 control-label">作者</label>
+						<div class="col-sm-10">
+							<input name="author" value="{$info.author ?? ''}" type="text"  class="form-control" placeholder=""
+								   maxlength="50">
+						</div>
+					</div>
+					<div class="form-group">
+						<label  class="col-sm-2 control-label">版本</label>
+						<div class="col-sm-10">
+							<input name="version" value="{$info.version ?? ''}" type="text"  class="form-control" placeholder=""
+								   maxlength="50">
+						</div>
+					</div>
+					<div class="form-group">
+						<label  class="col-sm-2 control-label">排序</label>
+						<div class="col-sm-10">
+							<input name="sort" value="{$info.sort ?? ''}" type="number"  class="form-control" placeholder=""
+								   min="0" max="9999">
+						</div>
+					</div>
+					<div class="form-group">
+						<label  class="col-sm-2 control-label">状态</label>
+						<div class="col-sm-10">
+							<label class="radio-inline">
+								<input name="status" type="radio" value="0" required
+									   {if condition="isset($info->status) && $info->status=='0'"}checked{/if}>
+								禁用
+							</label>
+							<label class="radio-inline">
+								<input name="status" type="radio" value="1" required
+									   {if condition="!isset($info->status) || $info->status=='1'"}checked{/if}>
+								启用
+							</label>
+						</div>
+					</div>
+					{if condition="$option"}
+					<fieldset >
+						<legend>配置</legend>
+						{volist name="$option" id="vo"}
+						{php} if(!isset($vo['type']))continue; $k = $key; {/php}
+						<div class="form-group">
+							<label class="col-sm-2 control-label">{$vo.name ?? ''}</label>
+							<div class="col-sm-10">
+								{switch name="vo.type"}
+									{case value="text"}
+									<textarea name="config[{$k}]" class="form-control" rows="3" placeholder="Enter...">{:isset($config[$k]) ? $config[$k] : (isset($vo['value']) ? $vo['value'] : '') }</textarea>
+									{/case}
+
+									{case value="radio"}
+										{if condition="isset($vo['value']) && is_array($vo['value'])"}
+										{volist name="$vo.value" id="vo1" }
+											<label class="radio-inline">
+												<input name="config[{$k}]" type="radio" value="{$vo1}"
+													   {if condition="isset($config[$k]) && $config[$k]==$vo1"}checked{/if}>
+												{$key}
+											</label>
+										{/volist}
+										{else/}
+										<span class="help-block text-red">参数配置错误，请检查</span>
+										{/if}
+									{/case}
+
+									{case value="checkbox"}
+										{if condition="isset($vo['value']) && is_array($vo['value'])"}
+										{volist name="$vo.value" id="vo1" }
+										<label class="checkbox-inline">
+											<input name="config[{$k}][]" type="checkbox" value="{$vo1}"
+												   {if condition="isset($config[$k]) && is_array($config[$k]) && in_array($vo1,$config[$k])"}checked{/if}>
+											{$key}
+										</label>
+										{/volist}
+										{else/}
+										<span class="help-block text-red">参数配置错误，请检查</span>
+										{/if}
+									{/case}
+
+									{case value="select"}
+										{if condition="isset($vo['value']) && is_array($vo['value'])"}
+										<select name="config[{$k}]" class="form-control select2" >
+											{volist name="$vo.value" id="vo1" }
+											<option value="{$vo1}" {if condition="isset($config[$k]) && $vo1==$config[$k]"}selected{/if}>{$key}</option>
+											{/volist}
+										</select>
+										{else/}
+										<span class="help-block text-red">参数配置错误，请检查</span>
+										{/if}
+									{/case}
+
+									{case value="selects"}
+										{if condition="isset($vo['value']) && is_array($vo['value'])"}
+										<select name="config[{$k}][]" class="form-control select2" multiple>
+											{volist name="$vo.value" id="vo1" }
+											<option value="{$vo1}" {if condition="isset($config[$k]) && is_array($config[$k]) && in_array($vo1,$config[$k])"}selected{/if}>{$key}</option>
+											{/volist}
+										</select>
+										{else/}
+										<span class="help-block text-red">参数配置错误，请检查</span>
+										{/if}
+									{/case}
+
+									{default/}
+								<textarea name="config[{$k}]" class="form-control" rows="3" placeholder="Enter...">{$vo.value ?? ''}</textarea>
+								{/switch}
+								<span class="help-block">{$vo.explain ?? ''}</span>
+							</div>
+						</div>
+						{/volist}
+					</fieldset>
+					{/if}
+
+				</div>
+				<div class="box-footer">
+					<button type="submit" class="btn btn-primary">Submit</button>
+					<button type="button" class="btn btn-default" onclick="window.history.back();" >Cancel</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	$(function(){
+
+	});
+
+	var page = {
+	};
+
+</script>
+{/block}
