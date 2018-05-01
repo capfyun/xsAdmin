@@ -15,12 +15,6 @@ return [
 	],
 	//管理员用户id
 	'administrator_id'      => [1],
-	//免校验地址
-	'open_url'              => [
-		'transmit/upload',
-		'debug/test',
-		'open/*'
-	],
 	
 	//跳转模版
 	'dispatch_success_tmpl' => 'layout/dispatch_jump',

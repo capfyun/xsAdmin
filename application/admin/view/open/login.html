@@ -35,54 +35,68 @@
     <script src="{$Think.config.asset}/adminlte/js/respond.min.js"></script>
     <![endif]-->
 </head>
-<body class="hold-transition login-page">
-<div class="login-box">
-    <div class="login-logo">
-        <a href="/">{:config('web_title')}</a>
-    </div>
-    <!-- /.login-logo -->
-    <div class="login-box-body">
-        <p class="login-box-msg">帐号登录</p>
-
-        <form action="{:url('')}" method="post" onsubmit="return page.login(this);">
-            <div class="form-group has-feedback">
-                <input name="username" type="text" required class="form-control" placeholder="">
-                <span class="glyphicon glyphicon-user form-control-feedback"></span>
-            </div>
-            <div class="form-group has-feedback">
-                <input name="password" type="password" required class="form-control" placeholder="">
-                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
-            </div>
-            <div class="row">
-                <div class="col-xs-8">
-                    <div class="checkbox icheck">
-                        <label>
-                            <input type="checkbox"> 记住帐号
-                        </label>
-                    </div>
-                </div>
-                <!-- /.col -->
-                <div class="col-xs-4">
-                    <button type="submit" class="btn btn-primary btn-block btn-flat">登录</button>
-                </div>
-                <!-- /.col -->
-            </div>
-        </form>
-
-        <div class="social-auth-links text-center">
-            <p>- OR -</p>
-            <a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-qq"></i> 使用QQ登陆</a>
-            <a href="#" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-wechat"></i> 使用微信登录</a>
+<body class="hold-transition " style="background-color: #d2d6de;">
+<div class="row" style="width:400px;margin:2% auto;">
+    <div class="col-md-12">
+        <div style="font-size: 35px; text-align: center; margin-bottom: 25px; font-weight: 300;">
+            <a href="/" style="color:#444;">{:config('web_title')}</a>
         </div>
-        <!-- /.social-auth-links -->
+        <div class="box ">
+            <form class="form-horizontal form-validator" method="post" action="{:url()}" >
+                <div class="box-body">
+                    <p style="text-align: center;margin:5% auto;">帐号登录</p>
+                    <div class="form-group has-feedback">
+                        <div class="col-sm-12">
+                            <input name="username" value="" type="text"  class="form-control" placeholder=""
+                                   required minlength="1" maxlength="20">
+                            <span class="glyphicon glyphicon-user form-control-feedback"></span>
 
-        <a href="#">忘记密码</a>
-        <a href="#" class="text-center">注册新帐号</a>
+                        </div>
+                    </div>
+                    <div class="form-group has-feedback">
+                        <div class="col-sm-12">
+                            <input name="password" value="" type="password"  class="form-control" placeholder=""
+                                   required minlength="1" maxlength="20">
+                            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+                        </div>
+                    </div>
 
+                    <div class="form-group has-feedback">
+                        <div class="col-sm-12" style="margin-bottom:10px;">
+                            <input name="captcha" value="" type="text"  class="form-control" placeholder="填写下图所示字符">
+                            <span class="glyphicon glyphicon-tag form-control-feedback"></span>
+                        </div>
+                        <div class="col-sm-7">
+                            <img src="/open/image/i/2" width="200" class="img-responsive img-thumbnail" alt="">
+                        </div>
+                        <div class="col-sm-5">
+                            看不清？<a href="">换一张</a>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <div class="checkbox">
+                                <label>
+                                    <input name="remember" value="1" type="checkbox"> 记住帐号
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-info pull-right">登录</button>
+
+                        </div>
+                    </div>
+
+                </div>
+            </form>
+        </div>
     </div>
-    <!-- /.login-box-body -->
 </div>
-<!-- /.login-box -->
 
 <script>
     $(function () {

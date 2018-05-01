@@ -91,9 +91,9 @@ class Addon extends \app\common\controller\AdminBase{
 		}
 		$param = $this->param([
 			'id'             => ['require', 'number', 'min' => 0],
-			'title|名称'       => ['require', 'max' => 5],
-			'author|作者'      => ['max' => 5],
-			'version|版本'     => ['max' => 5],
+			'title|名称'       => ['require', 'max' => 50],
+			'author|作者'      => ['max' => 50],
+			'version|版本'     => ['max' => 50],
 			'description|描述' => [],
 			'sort|排序'        => ['between' => '0,9999'],
 			'status|状态'      => ['require', 'number', 'between' => '0,1'],
@@ -112,6 +112,8 @@ class Addon extends \app\common\controller\AdminBase{
 				isset($v['validate'])
 					&& $validate[$k.(isset($v['name']) ? '|'.$v['name'] : '')] = $v['validate'];
 			}
+			
+//			halt([$param['config'], $validate]);
 			$result = $this->validate($param['config'], $validate);
 			$result!==true && $this->error($result);
 		}

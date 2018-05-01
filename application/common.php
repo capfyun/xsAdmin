@@ -17,7 +17,7 @@
  */
 function service(){
 	$arguments  = func_get_args();
-	return call_user_func_array(['\loader\Loader','service'],$arguments);
+	return call_user_func_array([\Loader::class,'service'],$arguments);
 }
 
 /**
@@ -57,6 +57,44 @@ function file_debug($data, $file = 'debug.txt'){
 }
 
 
-
+class Loader extends \think\Loader{
+	/**
+	 * 实例化（分层）模型
+	 * @param mixed $string 第一个参数是类名，第二个开始都是构造函数的参数
+	 * @return object
+	 * @throws \think\exception\ClassNotFoundException
+	 */
+	public static function service(){
+		$arguments = func_get_args();
+		$name      = array_shift($arguments);
+		//业务层名称
+		$layer = 'service';
+		$uid   = $name.$layer;
+		if(isset(self::$instance[$uid])){
+			return self::$instance[$uid];
+		}
+		//是否添加类名后缀
+		$appendSuffix = false;
+		//公共模块名
+		$common = 'common';
+		
+		list($module, $class) = self::getModuleAndClass($name, $layer, $appendSuffix);
+		
+		if(class_exists($class)){
+			$reflection = new \ReflectionClass($class);
+			$service    = $reflection->newInstanceArgs($arguments);
+		}else{
+			$class = str_replace('\\'.$module.'\\', '\\'.$common.'\\', $class);
+			if(class_exists($class)){
+				$reflection = new \ReflectionClass($class);
+				$service    = $reflection->newInstanceArgs($arguments);
+			}else{
+				throw new \think\exception\ClassNotFoundException('class not exists:'.$class, $class);
+			}
+		}
+		
+		return self::$instance[$uid] = $service;
+	}
+}
 
 

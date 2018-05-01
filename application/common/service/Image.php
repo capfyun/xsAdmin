@@ -1,6 +1,6 @@
 <?php
 /**
- * 服务层-图片
+ * 图片
  * @author 夏爽
  */
 namespace app\common\service;

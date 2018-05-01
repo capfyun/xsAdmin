@@ -66,6 +66,7 @@ desired effect
 				<small>{$app.current.name ?? ''}</small>
 			</h1>
 			<ol class="breadcrumb">
+				{if condition="isset($app['checked']) && is_array($app['checked'])"}
 				{volist name=":array_reverse($app['checked'])" id="vo"}
 				<li >
 					<a href="javascript:;">
@@ -73,6 +74,7 @@ desired effect
 					</a>
 				</li>
 				{/volist}
+				{/if}
 			</ol>
 		</section>
 

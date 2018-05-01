@@ -146,7 +146,6 @@
 				app.alert('上传失败', {code: 400, time: 1});
 				return false;
 			}
-			console.log(data.response);
 			$('input[name=face]').val(data.response.data[0].id).next('img').attr('src', data.response.data[0].url);
 		});
 

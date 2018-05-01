@@ -17,6 +17,8 @@ return [
 		'app\\common\\behavior\\Config',
 		//插件
 		'app\\common\\behavior\\Addon',
+		//模块开始钩子
+		'app\\common\\behavior\\ModuleBegin'
 	],
 	
 ];

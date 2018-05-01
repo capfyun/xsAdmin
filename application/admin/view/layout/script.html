@@ -51,8 +51,7 @@
 						var is_checked = checked[data[k]['id']] ? 1 : 0;
 						$string += '<li class="' + (is_child ? 'treeview' : '') + (is_checked ? ' menu_open active' : '')+'  " >'
 								+ '	<a class="menu-item" href="' + (data[k].name ? '/' + data[k].name : '#') + '" '
-								+ ' data-title="'+data[k].title+'" '
-								+ ' data-request-type="'+data[k].request_type+'" >'
+								+ ' data-request-type="'+(data[k].request_type ? data[k].request_type : 0)+'" >'
 								+ '		<i class="fa ' + (data[k].icon ? data[k].icon : 'fa-link') + ' "></i>'
 								+ '		<span>' + data[k].title + '</span>';
 						if(is_child){

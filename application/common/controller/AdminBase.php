@@ -5,6 +5,8 @@
  */
 namespace app\common\controller;
 
+use think\Hook;
+
 abstract class AdminBase extends Base{
 	//当前用户ID
 	protected $user_id = 0;
@@ -30,6 +32,8 @@ abstract class AdminBase extends Base{
 		
 		//模板赋值
 		$checked = $this->getCheckedMenu();
+		//创建选中路径之后
+		Hook::listen('create_checked_after',$checked);
 		$current = $checked ? current($checked) : [];
 		$this->assign([
 			'app' => [
@@ -82,7 +86,7 @@ abstract class AdminBase extends Base{
 	 * @return string
 	 */
 	private function getMainMenu(){
-		/* 权限列表 */
+		//权限列表
 		$where = [
 			'menu_type' => 1, //menu[0隐藏-1主菜单-2按钮]
 			'status'    => 1,
@@ -94,7 +98,8 @@ abstract class AdminBase extends Base{
 			->where($where)
 			->order('sort DESC')
 			->select();
-		
+		//创建菜单之后
+		Hook::listen('create_menu_after',$rule_list);
 		//进行递归排序
 		return service('Tool')->sortArrayRecursio($rule_list);
 	}
@@ -121,7 +126,8 @@ abstract class AdminBase extends Base{
 			->where($where)
 			->order('sort DESC')
 			->select();
-		
+		//创建选项之后
+		Hook::listen('create_option_after',$result);
 		return $result;
 	}
 	

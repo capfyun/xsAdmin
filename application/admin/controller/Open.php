@@ -7,6 +7,10 @@ namespace app\admin\controller;
 
 class Open extends \app\common\controller\AdminBase{
 	
+	public function login1(){
+		return $this->fetch();
+	}
+	
 	/**
 	 * 后台用户登录
 	 */
@@ -19,23 +23,21 @@ class Open extends \app\common\controller\AdminBase{
 			'username|用户名' => ['require', 'length' => '2,16'],
 			'password|密码'  => ['require', 'length' => '6,16'],
 		]);
-		if($param===false){
-			return json(['code' => 1000, 'msg' => $param]);
-		}
+		$param===false && $this->apiReturn(['code' => 1000, 'msg' => $this->getError()]);
+		
 		//登录
 		$user_id = model('User')->login($param['username'], 'username');
-		if(!$user_id){
-			return json(['code' => 1000, 'msg' => model('User')->getError()]);
-		}
+		!$user_id && $this->apiReturn(['code' => 1000, 'msg' => model('User')->getError()]);
+		
 		//校验密码
 		$result = model('User')->checkPassword($user_id, $param['password']);
-		if(!$result){
-			return json(['code' => 1000, 'msg' => model('User')->getError()]);
-		}
+		!$result && $this->apiReturn(['code' => 1000, 'msg' => model('User')->getError()]);
+		
 		//成功，后置操作
 		model('User')->loginAfter($user_id);
 		model('User')->loginUpdate($user_id);
-		return json(['code' => 0, 'msg' => '登录成功！', 'data' => ['url' => url('index/index')]]);
+		
+		$this->apiReturn(['code' => 0, 'msg' => '登录成功！', 'data' => ['url' => url('index/index')]]);
 	}
 	
 	/**
@@ -60,10 +62,9 @@ class Open extends \app\common\controller\AdminBase{
 	public function thread(){
 		//执行多线程任务
 		$result = service('Thread')->portal();
-		if(!$result){
-			return json(['code' => 1000, 'msg' => service('Thread')->getError()]);
-		}
-		return json(['code' => 0, 'msg' => 'ok']);
+		!$result && $this->apiReturn(['code' => 1000, 'msg' => service('Thread')->getError()]);
+		
+		$this->apiReturn(['code' => 0, 'msg' => 'ok']);
 	}
 	
 	/**
@@ -78,7 +79,7 @@ class Open extends \app\common\controller\AdminBase{
 	 * 图片浏览
 	 */
 	public function image($i = 0, $w = 0, $h = 0){
-		$i || service('Image')->printi(config('default_image'),'image/png');
+		$i || service('Image')->printi(config('default_image'), 'image/png');
 		$name = "image_i{$i}w{$w}h{$h}";
 		$etag = cache($name);
 		
@@ -89,7 +90,7 @@ class Open extends \app\common\controller\AdminBase{
 		}
 		//查询数据库
 		$file = model('File')->get($i);
-		(!$file || strpos($file['type'], 'image/')!==0) && service('Image')->printi(config('default_image'),'image/png');
+		(!$file || strpos($file['type'], 'image/')!==0) && service('Image')->printi(config('default_image'), 'image/png');
 		
 		$image = model('File')->url($i);
 		$image = trim($image, '/');
@@ -97,7 +98,7 @@ class Open extends \app\common\controller\AdminBase{
 		//缩略图
 		if($w && $h){
 			$image = service('Image')->createThumb($image, $w, $h);
-			$image || service('Image')->printi(config('default_image'),'image/png');
+			$image || service('Image')->printi(config('default_image'), 'image/png');
 		}
 		
 		//缓存
@@ -109,7 +110,7 @@ class Open extends \app\common\controller\AdminBase{
 		header('Expires: '.$pass_mtime);
 		header("Etag: ".$etag);
 		//打印图片
-		service('Image')->printi($image,$file['type']);
+		service('Image')->printi($image, $file['type']);
 	}
 	
 }
