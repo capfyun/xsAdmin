@@ -44,7 +44,7 @@ class Addon extends Base{
 		//重置缓存
 		if(!$plugin || $is_enforce){
 			$plugin = $this->where(['status' => 1])->order('sort DESC')->select();
-			cache('db_addon_data', $plugin->toArray());
+			cache('db_addon_data', $plugin);
 		}
 	}
 	

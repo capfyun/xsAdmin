@@ -13,14 +13,12 @@ class Transmit extends \app\common\controller\AdminBase{
 	public function upload(){
 		//进行上传
 		$data = model('File')->upload();
-		if(!$data){
-			return json(['code' => 1000, 'msg' => model('File')->getError()]);
-		}
+		!$data && $this->apiReturn(['code' => 1000, 'msg' => model('File')->getError()]);
 		foreach($data as $k => $v){
 			$data[$k]['url'] = model('File')->url($v['id']);
 		}
 		//上传成功
-		return json(['code' => 0, 'msg' => '上传成功！', 'data' => $data]);
+		$this->apiReturn(['code' => 0, 'msg' => '上传成功！', 'data' => $data]);
 	}
 	
 	/**
@@ -28,7 +26,7 @@ class Transmit extends \app\common\controller\AdminBase{
 	 */
 	public function download(){
 		$result = model('File')->download(input('name'));
-		$result || abort(404,model('File')->getError());
+		$result || abort(404, model('File')->getError());
 	}
 	
 }

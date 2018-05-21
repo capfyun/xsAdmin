@@ -5,6 +5,9 @@
  */
 namespace app\common\model;
 
+use think\Cookie;
+use think\Session;
+
 class User extends Base{
 	/* 自动完成 */
 	//写入（包含新增、更新）时自动完成
@@ -129,27 +132,6 @@ class User extends Base{
 	}
 	
 	/**
-	 * 登录后置操作
-	 * @param int $user 用户ID
-	 */
-	public function loginAfter($user_id){
-		$user = $this->get($user_id);
-		//记录登录SESSION和COOKIES
-		$auth = [
-			'user_id'         => $user->id,
-			'username'        => $user->username,
-			'last_login_time' => $user->last_login_time,
-		];
-		session('user_id', $user->id);
-		session('user', $auth);
-		session('user_sign', service('Tool')->sign($auth));
-		session('nickname', $user->nickname);
-		session('face', url('open/image', ['i' => $user->face, 'w' => 150, 'h' => 150]));
-		cookie(service('Tool')->sign('username'), service('Aes')->encrypt($user->username), 7*24*60*60);
-		cookie(service('Tool')->sign('password'), service('Aes')->encrypt($user->password), 7*24*60*60);
-	}
-	
-	/**
 	 * 登录记录
 	 * @param int $user 用户ID
 	 */
@@ -162,13 +144,46 @@ class User extends Base{
 	}
 	
 	/**
+	 * 登录后置操作
+	 * @param int $user_id 用户ID
+	 */
+	public function loginAfter($user_id){
+		$user = $this->get($user_id);
+		//记录登录SESSION
+		$auth = [
+			'user_id'         => $user->id,
+			'username'        => $user->username,
+			'last_login_time' => $user->last_login_time,
+			'last_login_ip'   => $user->last_login_ip,
+		];
+		Session::set('user_id', $user->id);
+		Session::set('user', $auth);
+		Session::set('user_sign', service('Tool')->sign($auth));
+		Session::set('nickname', $user->nickname);
+		Session::set('face', url('open/image', ['i' => $user->face, 'w' => 150, 'h' => 150]));
+	}
+	
+	/**
+	 * 登录后保存cookie
+	 * @param int $user_id 用户ID
+	 */
+	public function loginAfterCookie($user_id){
+		$user = $this->get($user_id);
+		Cookie::set(
+			service('Tool')->sign('cookie_login'),
+			service('Aes')->encrypt($user->username.'||'.$user->password),
+			7*24*60*60
+		);
+	}
+	
+	/**
 	 * 注销当前用户
 	 * @return void
 	 */
 	public function logout(){
 		//清空session、cookie
-		session(null);
-		cookie(null,null);
+		Session::clear();
+		Cookie::clear();
 	}
 	
 	/**
@@ -176,9 +191,9 @@ class User extends Base{
 	 * @return int 用户ID，失败时返回false
 	 */
 	public function isLogin(){
-		$user = session('user');
+		$user = Session::get('user');
 		if(!$user
-			|| session('user_sign')!=service('Tool')->sign($user)
+			|| Session::get('user_sign')!=service('Tool')->sign($user)
 		){
 			return 0;
 		}
@@ -214,32 +229,31 @@ class User extends Base{
 	 * @return int 用户ID
 	 */
 	public function cookieLogin(){
-		$cookie_username = cookie(service('Tool')->sign('username'));
-		$cookie_password = cookie(service('Tool')->sign('password'));
+		$cookie_login = cookie(service('Tool')->sign('cookie_login'));
 		
-		if(!$cookie_username || !$cookie_password){
-			$this->logout();
+		if(!$cookie_login){
+			return 0;
+		}
+		$cookie = service('Aes')->decrypt($cookie_login);
+		if(!$cookie || strpos($cookie, '||')===false){
 			return 0;
 		}
 		//解密帐号密码
-		$username = service('Aes')->decrypt($cookie_username);
-		$password = service('Aes')->decrypt($cookie_password);
+		list($username, $password) = explode('||', $cookie);
 		$username = htmlspecialchars(strip_tags($username));
 		//登录
 		$user_id = $this->login($username, 'username');
 		if(!$user_id){
-			$this->logout();
 			return 0;
 		}
 		//校验密码
 		$user = $this->get($user_id);
 		if($user->password!=$password){
-			$this->logout();
 			return 0;
 		}
 		//成功，记入session
-		$this->loginAfter($user_id);
 		$this->loginUpdate($user_id);
+		$this->loginAfter($user_id);
 		return $user_id;
 	}
 	

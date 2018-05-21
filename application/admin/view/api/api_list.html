@@ -5,7 +5,7 @@
 	<div class="box-body">
 		<form action="{:url()}" method="get" enctype="multipart/form-data" class="form-inline">
 			<div class="form-group">
-				<button type="submit" class="btn btn-primary">搜索</button>
+				<button type="submit" class="btn btn-primary"><i class="fa fa-fw fa-search"></i></button>
 			</div>
 			<div class="form-group">
 				{include file="layout/search"/}
@@ -13,8 +13,8 @@
 			</div>
 			<div class="form-group">
 				<select name="target" class="form-control"  >
-					<option value="name" {if condition="input('target')=='name'"}selected{/if}>名称</option>
-					<option value="url" {if condition="input('target')=='url'"}selected{/if}>地址</option>
+					<option value="name" {if input('target')=='name'} selected {/if}>名称</option>
+					<option value="url" {if input('target')=='url'} selected {/if}>地址</option>
 				</select>
 				<input name="keyword"  value="{:input('keyword')}" type="text" class="form-control" placeholder="关键字">
 			</div>
@@ -22,8 +22,8 @@
 				<label class="">状态</label>
 				<select name="status" class="form-control" >
 					<option value="">全部</option>
-					<option value="0" {if condition="input('status')=='0'"}selected{/if}>禁用</option>
-					<option value="1" {if condition="input('status')=='1'"}selected{/if}>启用</option>
+					<option value="0" {if input('status')=='0'} selected {/if}>禁用</option>
+					<option value="1" {if input('status')=='1'} selected {/if}>启用</option>
 				</select>
 			</div>
 		</form>
@@ -34,7 +34,7 @@
 	<div class="box-body">
 		<div class="row">
 			<div class="col-sm-12">
-				{include file="layout/menu_option"/}
+				{include file="layout/option"/}
 			</div>
 		</div>
 
@@ -53,17 +53,17 @@
 					</tr>
 					</thead>
 					<tbody>
-					{volist name="paging" id="vo" }
-					<tr data-id="{$vo.id}" data-api_id="{$vo.id}">
-						<td>{$vo.id}</td>
-						<td>{$vo.name}</td>
-						<td>{$vo.url}</td>
-						<td>{$vo.param}</td>
-						<td>{$vo.is_encrypt_format}</td>
-						<td>{$vo.author}</td>
-						<td>{$vo.status_format}</td>
+					{foreach $paging as $v }
+					<tr data-id="{$v.id}" data-api_id="{$v.id}">
+						<td>{$v.id}</td>
+						<td>{$v.name}</td>
+						<td>{$v.url}</td>
+						<td>{$v.param}</td>
+						<td>{$v.is_encrypt_format}</td>
+						<td>{$v.author}</td>
+						<td>{$v.status_format}</td>
 					</tr>
-					{/volist}
+					{/foreach}
 					</tbody>
 				</table>
 			</div>

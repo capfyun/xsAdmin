@@ -27,11 +27,12 @@ class Auth {
 		//当前用户ID
 		$user_id = model('User')->isLogin() ? : model('User')->cookieLogin();
 		
+		//校验IP
+		$result = $this->checkLoginIp();
+		$result || abort(404, '您的IP禁止操作');
+		
 		//管理员帐号，不需要任何验证
 		if(!$this->isAdministrator($user_id)){
-			//校验IP
-			$result = $this->checkLoginIp();
-			$result || abort(404, '您的IP禁止操作');
 			
 			//权限验证
 			if(!$this->isExempt()){
@@ -40,7 +41,9 @@ class Auth {
 				}
 				$result = service('Auth')->check($this->url, $user_id);
 				if(!$result){
-					abort(404, '未授权');
+					request()->isAjax()
+						? abort(404, '未授权')
+						: abort(redirect('open/login'));
 				}
 			}
 		}

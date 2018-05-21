@@ -28,14 +28,15 @@ class User extends \app\common\controller\AdminBase{
 			->group('m.id')
 			->where($where)
 			->order('m.id DESC')
-			->paginate()
-			->each(function($item, $key){
-				$status_format                  = [0 => '禁用', 1 => '启用'];
-				$item['last_login_time_format'] = $item['last_login_time'] ? date('Y-m-d H:i', $item['last_login_time']) : '未登录过';
-				$item['last_login_ip_format']   = long2ip($item['last_login_ip']);
-				$item['status_format']          = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '-';
-				return $item;
-			});
+			->paginate();
+		
+		$status_format = [0 => '禁用', 1 => '启用'];
+		foreach($paging as $k => $v){
+			$v['last_login_time_format'] = $v['last_login_time'] ? date('Y-m-d H:i', $v['last_login_time']) : '未登录过';
+			$v['last_login_ip_format']   = long2ip($v['last_login_ip']);
+			$v['status_format']          = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '-';
+			$paging->offsetSet($k, $v);
+		}
 		
 		//视图
 		cookie('forward', request()->url());
@@ -137,8 +138,8 @@ class User extends \app\common\controller\AdminBase{
 			->save($param, ['user_id' => $this->user_id]);
 		$result || $this->error(model('UserInfo')->getError());
 		//更新session
-		session('nickname',$param['nickname']);
-		session('face',model('File')->url($param['face']));
+		session('nickname', $param['nickname']);
+		session('face', model('File')->url($param['face']));
 		$this->success('操作成功');
 	}
 	

@@ -1,8 +1,15 @@
 <?php
-/**
- * 权限验证
- * @author 夏爽
- */
+// +----------------------------------------------------------------------
+// | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
+// +----------------------------------------------------------------------
+// | Copyright (c) 2011 http://thinkphp.cn All rights reserved.
+// +----------------------------------------------------------------------
+// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
+// +----------------------------------------------------------------------
+// | Author: luofei614 <weibo.com/luofei614>
+// +----------------------------------------------------------------------
+// | 修改者: anuo (本权限类在原3.2.3的基础上修改过来的)
+// +----------------------------------------------------------------------
 namespace app\admin\service;
 
 class Auth{
@@ -22,12 +29,12 @@ class Auth{
 	
 	//默认配置
 	public $config = [
-		'auth_on'                => true, // 认证开关
-		'auth_type'              => 1, // 认证方式，1为实时认证；2为登录认证。
-		'auth_rule'              => 'auth_rule', // 权限规则表
-		'auth_group'             => 'auth_group', // 用户组数据表名
-		'auth_group_access'      => 'auth_group_access', // 用户-用户组关系表
-		'auth_user'              => 'user', //用户表
+		'auth_on'           => true, // 认证开关
+		'auth_type'         => 1, // 认证方式，1为实时认证；2为登录认证。
+		'auth_rule'         => 'auth_rule', // 权限规则表
+		'auth_group'        => 'auth_group', // 用户组数据表名
+		'auth_group_access' => 'auth_group_access', // 用户-用户组关系表
+		'auth_user'         => 'user', //用户表
 	];
 	
 	/**
@@ -43,14 +50,14 @@ class Auth{
 	
 	/**
 	 * 检查权限
-	 * @param $name string|array 需要验证的规则列表,支持逗号分隔的权限规则或索引数组
-	 * @param $user_id  int  认证用户的id
-	 * @param $type int 权限类型
+	 * @param $name string|array 验证的规则，多个使用逗号分隔或支数组
+	 * @param int $user_id 认证用户的id
+	 * @param string $module 所属模块
 	 * @param string $mode 执行check的模式
 	 * @param relation string 如果为 'or' 表示满足任一条规则即通过验证;如果为 'and'则表示需满足所有规则才能通过验证
 	 * @return boolean 通过验证返回true;失败返回false
 	 */
-	public function check($name, $user_id, $type = 1, $mode = 'url', $relation = 'or'){
+	public function check($name, $user_id, $module = 'admin', $mode = 'url', $relation = 'or'){
 		//总开关
 		if(!$this->config['auth_on']){
 			return true;
@@ -63,9 +70,9 @@ class Auth{
 		//保存验证通过的规则名
 		$authorize_list = [];
 		//获取用户需要验证的所有有效规则列表
-		$auth_list = $this->getAuthList($user_id, $type);
+		$auth_list = $this->getAuthList($user_id, $module);
 		foreach($auth_list as $auth){
-			if($mode=='url' && $auth != $query = preg_replace('/^.+\?/U', '', $auth)){
+			if($mode=='url' && $auth!=$query = preg_replace('/^.+\?/U', '', $auth)){
 				//url模式，且含参数
 				parse_str($query, $param); //解析规则中的param
 				$REQUEST   = unserialize(strtolower(serialize($_REQUEST))); //接收到的参数
@@ -79,45 +86,47 @@ class Auth{
 				$authorize_list[] = $auth;
 			}
 		}
-		
 		//多规则验证方式
-		$relation = strtolower($relation);
-		if($relation=='or' and !empty($authorize_list)){
-			return true;
+		switch(strtolower($relation)){
+			case 'and':
+				if(empty(array_diff($name, $authorize_list)))
+					return true;
+				break;
+			case 'or':
+			default:
+				if(!empty($authorize_list))
+					return true;
 		}
-		// if($relation=='and' and empty(array_diff($name, $authorize_list))){
-		// 	return true;
-		// }
 		return false;
 	}
 	
 	/**
 	 * 获得权限列表
 	 * @param integer $user_id 用户id
-	 * @param integer $type
+	 * @param string $module 模块
 	 */
-	public function getAuthList($user_id, $type = 1){
+	public function getAuthList($user_id, $module = 'admin'){
 		//保存用户验证通过的权限列表
 		static $_auth_list = [];
-		$t = implode(',', (array)$type);
-		if(isset($_auth_list[$user_id.$t])){
-			return $_auth_list[$user_id.$t];
+		$key = $user_id.$module;
+		if(isset($_auth_list[$key])){
+			return $_auth_list[$key];
 		}
 		//登录认证
-		if($this->config['auth_type']==2 && isset($_SESSION['_AUTH_LIST_'.$user_id.$t])){
-			return $_SESSION['_AUTH_LIST_'.$user_id.$t];
+		if($this->config['auth_type']==2 && isset($_SESSION['_AUTH_LIST_'.$key])){
+			return $_SESSION['_AUTH_LIST_'.$key];
 		}
 		
 		//读取用户所有权限ID集合
 		$ids = $this->getAuthIds($user_id);
 		if(empty($ids)){
-			$_auth_list[$user_id.$t] = [];
+			$_auth_list[$key] = [];
 			return [];
 		}
 		
 		//读取用户组所有权限规
 		$rules = db($this->config['auth_rule'])
-			->where(['id' => ['in', $ids], 'type' => $type, 'status' => 1,])
+			->where(['id' => ['in', $ids], 'module' => $module, 'status' => 1,])
 			->field('condition,name')
 			->select();
 		
@@ -140,11 +149,11 @@ class Auth{
 			}
 		}
 		//去重
-		$auth_list               = array_unique($auth_list);
-		$_auth_list[$user_id.$t] = $auth_list;
+		$auth_list        = array_unique($auth_list);
+		$_auth_list[$key] = $auth_list;
 		//规则列表结果保存到session
 		if($this->config['auth_type']==2){
-			$_SESSION['_AUTH_LIST_'.$user_id.$t] = $auth_list;
+			$_SESSION['_AUTH_LIST_'.$key] = $auth_list;
 		}
 		return $auth_list;
 	}
@@ -210,7 +219,5 @@ class Auth{
 		$users[$user_id] = $user_info ? : [];
 		return $users[$user_id];
 	}
-	
-	
 	
 }

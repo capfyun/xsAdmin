@@ -84,7 +84,7 @@
 										{volist name="$vo.value" id="vo1" }
 											<label class="radio-inline">
 												<input name="config[{$k}]" type="radio" value="{$vo1}"
-													   {if condition="isset($config[$k]) && $config[$k]==$vo1"}checked{/if}>
+													   {if condition="(isset($config[$k]) && $config[$k]==$vo1) || (!isset($config[$k]) && $i==1) "}checked{/if}>
 												{$key}
 											</label>
 										{/volist}
@@ -111,7 +111,7 @@
 										{if condition="isset($vo['value']) && is_array($vo['value'])"}
 										<select name="config[{$k}]" class="form-control select2" >
 											{volist name="$vo.value" id="vo1" }
-											<option value="{$vo1}" {if condition="isset($config[$k]) && $vo1==$config[$k]"}selected{/if}>{$key}</option>
+											<option value="{$vo1}" {if condition="(isset($config[$k]) && $vo1==$config[$k])  || (!isset($config[$k]) && $i==1)"}selected{/if}>{$key}</option>
 											{/volist}
 										</select>
 										{else/}

@@ -12,12 +12,12 @@
 			</tr>
 			</thead>
 			<tbody>
-			{volist name="list" id="vo" }
-			<tr data-id="{$key}" >
-				<td>{$key}</td>
-				<td>{$vo}</td>
+			{foreach $list as $k => $v }
+			<tr data-id="{$k}" >
+				<td>{$k}</td>
+				<td>{$v}</td>
 			</tr>
-			{/volist}
+			{/foreach}
 			</tbody>
 		</table>
 	</div>

@@ -23,14 +23,15 @@ class Auth extends \app\common\controller\AdminBase{
 		$paging = db('auth_rule')
 			->where($where)
 			->order(input('order') ? : 'sort DESC')
-			->paginate(['query' => array_filter(input()),])
-			->each(function($item, $key){
-				$menu_type_format         = [0 => '隐藏', 1 => '菜单', 2 => '选项'];
-				$status_format            = [0 => '禁用', 1 => '启用'];
-				$item['menu_type_format'] = isset($menu_type_format[$item['menu_type']]) ? $menu_type_format[$item['menu_type']] : '';
-				$item['status_format']    = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '';
-				return $item;
-			});
+			->paginate(['query' => array_filter(input()),]);
+		
+		$type_format   = [0 => '隐藏', 1 => '菜单', 2 => '选项'];
+		$status_format = [0 => '禁用', 1 => '启用'];
+		foreach($paging as $k => $v){
+			$v['type_format']   = isset($type_format[$v['type']]) ? $type_format[$v['type']] : '';
+			$v['status_format'] = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '';
+			$paging->offsetSet($k, $v);
+		}
 		
 		//视图
 		cookie('forward', request()->url());
@@ -55,25 +56,31 @@ class Auth extends \app\common\controller\AdminBase{
 				'rule_list' => $rule_list,
 			]);
 		}
-		$param  = $this->param([
-			'id'                => ['number', 'min' => 0],
-			'title|名称'          => ['require', 'length' => '1,20'],
-			'name|链接地址'         => ['length' => '1,50'],
-			'parent_id|上级ID'    => ['require', 'number', 'min' => 0],
-			'icon'              => [],
-			'menu_type|类型'      => ['require', 'number', 'between' => '0,2'],
-			'request_type|请求类型' => ['require', 'number', 'between' => '0,1'],
-			'status|状态'         => ['require', 'number', 'between' => '0,1'],
-			'sort|排序'           => ['number', 'between' => '0,9999'],
-			'param_name|参数名'    => [],
-			'param_num|参数数量'    => ['number', 'between' => '0,3'],
+		$param = $this->param([
+			'id'               => ['number', 'min' => 0],
+			'title|名称'         => ['require', 'length' => '1,20'],
+			'name|链接地址'        => ['length' => '1,50'],
+			'parent_id|上级ID'   => ['require', 'number', 'min' => 0],
+			'icon'             => [],
+			'type|类型'          => ['require', 'number', 'between' => '0,2'],
+			'request|请求类型'     => ['require', 'number', 'between' => '0,1'],
+			'status|状态'        => ['require', 'number', 'between' => '0,1'],
+			'sort|排序'          => ['number', 'between' => '0,9999'],
+			'param_name|参数名'   => ['length' => '1,20'],
+			'param_num|参数数量'   => ['number', 'between' => '0,3'],
+			'label_color|标签颜色' => ['length' => '1,20'],
+			'label_value|标签内容' => ['length' => '1,20'],
 		]);
 		$param===false && $this->error($this->getError());
-		$result = model('AuthRule')
+		$param['param'] = $param['param_num']
+			? $param['param_name'].':'.$param['param_num'] : '';
+		$param['label'] = $param['label_value']
+			? $param['label_color'].':'.$param['label_value'] : '';
+		$result         = model('AuthRule')
 			->allowField(true)
 			->isUpdate($param['id'] ? true : false)
 			->save($param);
-		$result || $this->error();
+		$result || $this->error('操作失败');
 		$this->success('操作成功', cookie('forward'));
 	}
 	
@@ -91,12 +98,13 @@ class Auth extends \app\common\controller\AdminBase{
 		$paging = model('AuthGroup')
 			->where($where)
 			->order('sort DESC')
-			->paginate()
-			->each(function($item, $key){
-				$status_format         = [0 => '禁用', 1 => '启用'];
-				$item['status_format'] = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '-';
-				return $item;
-			});
+			->paginate();
+		
+		$status_format = [0 => '禁用', 1 => '启用'];
+		foreach($paging as $k => $v){
+			$v['status_format'] = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '-';
+			$paging->offsetSet($k, $v);
+		}
 		
 		//视图
 		cookie('forward', request()->url());
@@ -120,7 +128,7 @@ class Auth extends \app\common\controller\AdminBase{
 				'rule_list' => $rule_list,
 			]);
 		}
-		$param             = $this->param([
+		$param = $this->param([
 			'id'             => ['number', 'min' => 0],
 			'title|名称'       => ['require', 'length' => '1,10'],
 			'description|描述' => [],
@@ -136,7 +144,7 @@ class Auth extends \app\common\controller\AdminBase{
 			->allowField(true)
 			->isUpdate($param['id'] ? true : false)
 			->save($param);
-		$result || $this->error();
+		$result || $this->error('操作失败');
 		$this->success('操作成功', cookie('forward'));
 	}
 	

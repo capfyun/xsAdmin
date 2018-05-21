@@ -20,22 +20,26 @@ class Open extends \app\common\controller\AdminBase{
 			return $this->fetch();
 		}
 		$param = $this->param([
-			'username|用户名' => ['require', 'length' => '2,16'],
-			'password|密码'  => ['require', 'length' => '6,16'],
+			'username|用户名'  => ['require', 'length' => '2,16'],
+			'password|密码'   => ['require', 'length' => '6,16'],
+			'remember|记住帐号' => ['number', 'between' => '0,1'],
 		]);
 		$param===false && $this->apiReturn(['code' => 1000, 'msg' => $this->getError()]);
 		
 		//登录
 		$user_id = model('User')->login($param['username'], 'username');
 		!$user_id && $this->apiReturn(['code' => 1000, 'msg' => model('User')->getError()]);
-		
 		//校验密码
 		$result = model('User')->checkPassword($user_id, $param['password']);
 		!$result && $this->apiReturn(['code' => 1000, 'msg' => model('User')->getError()]);
 		
 		//成功，后置操作
-		model('User')->loginAfter($user_id);
 		model('User')->loginUpdate($user_id);
+		model('User')->loginAfter($user_id);
+		//记住帐号
+		if($param['remember']){
+			model('User')->loginAfterCookie($user_id);
+		}
 		
 		$this->apiReturn(['code' => 0, 'msg' => '登录成功！', 'data' => ['url' => url('index/index')]]);
 	}

@@ -5,7 +5,7 @@
 	<div class="box-body">
 		<form action="{:url()}" method="get" enctype="multipart/form-data" class="form-inline">
 			<div class="form-group">
-				<button type="submit" class="btn btn-primary">搜索</button>
+				<button type="submit" class="btn btn-primary"><i class="fa fa-fw fa-search"></i></button>
 			</div>
 			<div class="form-group">
 				{include file="layout/search"/}
@@ -13,8 +13,8 @@
 			</div>
 			<div class="form-group">
 				<select name="target" class="form-control"  >
-					<option value="title" {if condition="input('target') eq 'title'"}selected{/if}>名称</option>
-					<option value="name" {if condition="input('target') eq 'name'"}selected{/if}>键</option>
+					<option value="title" {if input('target')=='title'} selected {/if}>名称</option>
+					<option value="name" {if input('target')=='name'} selected {/if}>键</option>
 				</select>
 				<input name="keyword"  value="{:input('keyword')}" type="text" class="form-control" placeholder="关键字">
 			</div>
@@ -22,8 +22,8 @@
 				<label class="">状态</label>
 				<select name="status" class="form-control" >
 					<option value="">全部</option>
-					<option value="0" {if condition="input('status') eq '0'"}selected{/if}>禁用</option>
-					<option value="1" {if condition="input('status') eq '1'"}selected{/if}>启用</option>
+					<option value="0" {if input('status')=='0'} selected {/if}>禁用</option>
+					<option value="1" {if input('status')=='1'} selected {/if}>启用</option>
 				</select>
 			</div>
 		</form>
@@ -34,7 +34,7 @@
 	<div class="box-body">
 		<div class="row">
 			<div class="col-sm-12">
-				{include file="layout/menu_option"/}
+				{include file="layout/option"/}
 			</div>
 		</div>
 
@@ -54,18 +54,18 @@
 					</tr>
 					</thead>
 					<tbody>
-					{volist name="paging" id="vo" }
-					<tr data-id="{$vo.id}" >
-						<td>{$vo.id}</td>
-						<td>{$vo.title}</td>
-						<td>{$vo.name}</td>
-						<td>{$vo.value}</td>
-						<td>{$vo.group_format}</td>
-						<td>{$vo.type_format}</td>
-						<td>{$vo.status_format}</td>
-						<td>{$vo.sort}</td>
+					{foreach $paging as $v }
+					<tr data-id="{$v.id}" >
+						<td>{$v.id}</td>
+						<td>{$v.title}</td>
+						<td>{$v.name}</td>
+						<td>{$v.value}</td>
+						<td>{$v.group_format}</td>
+						<td>{$v.type_format}</td>
+						<td>{$v.status_format}</td>
+						<td>{$v.sort}</td>
 					</tr>
-					{/volist}
+					{/foreach}
 					</tbody>
 				</table>
 			</div>

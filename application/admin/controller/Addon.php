@@ -55,15 +55,16 @@ class Addon extends \app\common\controller\AdminBase{
 		//排序
 		array_multisort(array_column($list, 'sort'), SORT_DESC, $list);
 		//异常插件
-		model('Addon')
+		$addons = model('Addon')
 			->where(['name' => ['NOT IN', $has_class]])
 			->order('sort DESC')
-			->select()
-			->each(function($item) use (&$list){
-				$item['status_format'] = '包不存在【异常】';
-				$list[]                = $item;
-				return $item;
-			});
+			->select();
+		
+		foreach($addons as $k => $v){
+			$v['status_format'] = '包不存在【异常】';
+			$list[] = $v;
+		}
+		
 		//视图
 		cookie('forward', request()->url());
 		return $this->fetch('', [

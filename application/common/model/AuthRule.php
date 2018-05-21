@@ -12,7 +12,6 @@ class AuthRule extends Base{
 	//新增时自动完成
 	protected $insert = [
 		'module' => 'admin', //模块
-		'type'   => 1, //类型
 		'status' => 1, //状态[0禁用-1启用]
 	];
 	//更新时自动完成

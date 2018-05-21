@@ -1,0 +1,15 @@
+
+{foreach $app['option'] as $v }
+	<a class="btn btn-app menu-option "
+	    href="{:url($v['name'],isset($extra) ? $extra : [],false)}"
+	   	data-title="{$v.title ?? '操作'}"
+	   	data-request="{$v.request ?? 0}"
+		data-param="{$v.param ?? ''}"
+	>
+		{if strpos($v['label'],'{literal}:{/literal}')!==false}
+			<span class="badge {:strstr($v['label'],':',true) ? 'bg-'.strstr($v['label'],':',true) : ''}">{:ltrim(strstr($v['label'],':'),':')}</span>
+		{/if}
+		<i class="fa {:isset($v['icon'])&&$v['icon'] ? $v['icon'] : 'fa-link'} "></i>{$v.title ?? ''}
+	</a>
+{/foreach}
+

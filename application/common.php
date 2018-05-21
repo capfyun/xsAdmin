@@ -69,31 +69,38 @@ class Loader extends \think\Loader{
 		$name      = array_shift($arguments);
 		//业务层名称
 		$layer = 'service';
-		$uid   = $name.$layer;
-		if(isset(self::$instance[$uid])){
-			return self::$instance[$uid];
+		$guid = $name . $layer;
+		if (isset(static::$instance[$guid])) {
+			return static::$instance[$guid];
 		}
 		//是否添加类名后缀
 		$appendSuffix = false;
 		//公共模块名
 		$common = 'common';
-		
-		list($module, $class) = self::getModuleAndClass($name, $layer, $appendSuffix);
-		
-		if(class_exists($class)){
+		if (strpos($name, '\\')) {
+			$class = $name;
+		} else {
+			if (strpos($name, '/')) {
+				list($module, $name) = explode('/', $name, 2);
+			} else {
+				$module = \think\Request::instance()->module();
+			}
+			$class = static::parseClass($module, $layer, $name, $appendSuffix);
+		}
+		if (class_exists($class)) {
 			$reflection = new \ReflectionClass($class);
-			$service    = $reflection->newInstanceArgs($arguments);
-		}else{
-			$class = str_replace('\\'.$module.'\\', '\\'.$common.'\\', $class);
-			if(class_exists($class)){
+			$model    = $reflection->newInstanceArgs($arguments);
+		} else {
+			$class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
+			if (class_exists($class)) {
 				$reflection = new \ReflectionClass($class);
-				$service    = $reflection->newInstanceArgs($arguments);
-			}else{
-				throw new \think\exception\ClassNotFoundException('class not exists:'.$class, $class);
+				$model    = $reflection->newInstanceArgs($arguments);
+			} else {
+				throw new \think\exception\ClassNotFoundException('class not exists:' . $class, $class);
 			}
 		}
-		
-		return self::$instance[$uid] = $service;
+		static::$instance[$guid] = $model;
+		return $model;
 	}
 }
 

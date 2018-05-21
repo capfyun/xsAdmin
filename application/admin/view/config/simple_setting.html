@@ -7,12 +7,12 @@
 			<div class="form-group">
 				{volist name=":config('config_group')" id="vo"}
 					{if condition="input('group',1)==$key"}
-					<button type="button" class="btn btn-default disabled">
+					<button type="button" class="btn btn-primary disabled">
 						{$vo}
 					</button>
 					{else/}
 					<a href="{:url('',['group'=>$key])}">
-						<button type="button" class="btn btn-primary ">
+						<button type="button" class="btn btn-default ">
 							{$vo}
 						</button>
 					</a>
@@ -30,7 +30,10 @@
 			<input name="group" value="{:input('group',1)}" type="hidden">
 			{volist name="list" id="vo"}
 			<div class="form-group">
-				<label class="col-sm-2 control-label">{$vo.title}</label>
+				<label class="col-sm-2 control-label">
+					{$vo.title}
+					<span class="help-block" style="font-weight:normal;">{$vo.name}</span>
+				</label>
 				<div class="col-sm-10">
 					{switch name="vo.type"}
 
@@ -39,7 +42,26 @@
 					{/case}
 
 					{case value="2"}
-					<textarea name="config[{$vo.name}]" class="form-control" rows="3" placeholder="数组">{$vo.value}</textarea>
+
+					<dl class="simple-with-drop">
+						{foreach :service('Tool')->strToArray($vo['value']) as $k => $v}
+						<dd class="form-inline">
+							<input type="text" name="config[{$vo.name}][{$k}][key]" class="form-control" value="{:is_int($k) ? '' : $k}" size="10" placeholder="键">
+							<input type="text" name="config[{$vo.name}][{$k}][value]" class="form-control" value="{$v}" size="30" placeholder="值">
+							<span class="btn btn-sm btn-danger " onclick="$(this).parent('dd').remove();">
+								<i class="fa fa-times"></i>
+							</span>
+							<span class="btn btn-sm btn-primary btn-dragsort">
+								<i class="fa fa-arrows"></i>
+							</span>
+						</dd>
+						{/foreach}
+					</dl>
+					<div class="">
+						<a href="javascript:;" class="btn btn-sm btn-default" onclick="page.addDrop(this)">
+							<i class="fa fa-plus"></i> 添加
+						</a>
+					</div>
 					{/case}
 
 					{case value="3"}
@@ -57,6 +79,7 @@
 					<span class="help-block">{$vo.description}</span>
 				</div>
 			</div>
+			<hr/>
 			{/volist}
 		</div>
 		<div class="box-footer">
@@ -68,6 +91,27 @@
 
 <script>
 	$(function(){
+		$("dl.simple-with-drop").sortable({
+			group: 'no-drop',
+			handle: 'span.btn-dragsort',
+		}).disableSelection();
 	});
+
+	var page = {
+		drop_id : -1,
+		//添加选项
+		addDrop : function(button){
+			var $table = $(button).parent('div').parent('div').find('dl.simple-with-drop');
+			var $html = '<dd class="form-inline">'
+				+'<input type="text" name="config[{$vo.name}]['+page.drop_id+'][key]" class="form-control" value="" size="10" placeholder="键"> '
+				+'<input type="text" name="config[{$vo.name}]['+page.drop_id+'][value]" class="form-control" value="" size="30" placeholder="值"> '
+				+'<span class="btn btn-sm btn-danger " onclick="$(this).parent(\'dd\').remove();"> '
+				+'<i class="fa fa-times"></i></span> '
+				+'<span class="btn btn-sm btn-primary btn-dragsort">'
+				+'<i class="fa fa-arrows"></i></span> </dd>';
+			$table.append($html);
+		},
+	};
+
 </script>
 {/block}

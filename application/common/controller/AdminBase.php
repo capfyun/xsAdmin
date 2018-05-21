@@ -26,14 +26,20 @@ abstract class AdminBase extends Base{
 			service('Tool')->convertHump($this->request->controller())
 			.'/'.$this->request->action()
 		);
+
+//		halt([
+//			$this->request->module(),
+//			$this->request->controller(),
+//			$this->request->action()
+//		]);
 		
 		//当前用户ID
-		$this->user_id = model('User')->isLogin() ? : model('User')->cookieLogin();
+		$this->user_id = model('User')->isLogin();
 		
 		//模板赋值
 		$checked = $this->getCheckedMenu();
 		//创建选中路径之后
-		Hook::listen('create_checked_after',$checked);
+		Hook::listen('create_checked_after', $checked);
 		$current = $checked ? current($checked) : [];
 		$this->assign([
 			'app' => [
@@ -73,7 +79,6 @@ abstract class AdminBase extends Base{
 		return $data;
 	}
 	
-	
 	/**
 	 * 是否管理员用户
 	 */
@@ -86,20 +91,30 @@ abstract class AdminBase extends Base{
 	 * @return string
 	 */
 	private function getMainMenu(){
+		$badge = [
+			'addon/addon_list' => [
+				'red' => 'hot'
+			]
+		];
+		
 		//权限列表
 		$where = [
-			'menu_type' => 1, //menu[0隐藏-1主菜单-2按钮]
+			'type' => 1, //menu[0隐藏-1主菜单-2按钮]
 			'status'    => 1,
 		];
 		if(!$this->isAdministrator($this->user_id)){
-			$where['id'] = ['in', service('Auth')->getAuthIds($this->user_id)];
+			$where['id'] = ['in', service('Auth')->getAuthIds($this->user_id) ? : ''];
 		}
 		$rule_list = db('auth_rule')
 			->where($where)
 			->order('sort DESC')
 			->select();
+		foreach($rule_list as $k => $v){
+			$rule_list[$k]['badge'] = isset($badge[$v['name']]) ? $badge[$v['name']] : [];
+		}
+		
 		//创建菜单之后
-		Hook::listen('create_menu_after',$rule_list);
+		Hook::listen('create_menu_after', $rule_list);
 		//进行递归排序
 		return service('Tool')->sortArrayRecursio($rule_list);
 	}
@@ -116,18 +131,18 @@ abstract class AdminBase extends Base{
 		
 		$where = [
 			'parent_id' => $parent_id,
-			'menu_type' => 2, //menu[0隐藏-1主菜单-2按钮]
+			'type' => 2, //menu[0隐藏-1主菜单-2按钮]
 			'status'    => 1,
 		];
 		if(!$this->isAdministrator($this->user_id)){
-			$where['id'] = ['in', service('Auth')->getAuthIds($this->user_id)];
+			$where['id'] = ['in', service('Auth')->getAuthIds($this->user_id) ? : ''];
 		}
 		$result = db('auth_rule')
 			->where($where)
 			->order('sort DESC')
 			->select();
 		//创建选项之后
-		Hook::listen('create_option_after',$result);
+		Hook::listen('create_option_after', $result);
 		return $result;
 	}
 	
@@ -143,7 +158,7 @@ abstract class AdminBase extends Base{
 		$data     = [$rule['id'] => $rule];
 		$function = function($id) use (&$function, &$data){
 			$rule = db('auth_rule')
-				->where(['id' => $id, 'menu_type' => 1, 'status' => 1])
+				->where(['id' => $id, 'type' => 1, 'status' => 1])
 				->find();
 			if($rule){
 				$data[$rule['id']] = $rule;

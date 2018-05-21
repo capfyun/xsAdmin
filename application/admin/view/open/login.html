@@ -42,7 +42,7 @@
             <a href="/" style="color:#444;">{:config('web_title')}</a>
         </div>
         <div class="box ">
-            <form class="form-horizontal form-validator" method="post" action="{:url()}" >
+            <form action="{:url()}" class="form-horizontal form-validator" method="post" onsubmit="return page.login(this);">
                 <div class="box-body">
                     <p style="text-align: center;margin:5% auto;">帐号登录</p>
                     <div class="form-group has-feedback">
@@ -50,7 +50,6 @@
                             <input name="username" value="" type="text"  class="form-control" placeholder=""
                                    required minlength="1" maxlength="20">
                             <span class="glyphicon glyphicon-user form-control-feedback"></span>
-
                         </div>
                     </div>
                     <div class="form-group has-feedback">
@@ -61,24 +60,13 @@
                         </div>
                     </div>
 
-                    <div class="form-group has-feedback">
-                        <div class="col-sm-12" style="margin-bottom:10px;">
-                            <input name="captcha" value="" type="text"  class="form-control" placeholder="填写下图所示字符">
-                            <span class="glyphicon glyphicon-tag form-control-feedback"></span>
-                        </div>
-                        <div class="col-sm-7">
-                            <img src="/open/image/i/2" width="200" class="img-responsive img-thumbnail" alt="">
-                        </div>
-                        <div class="col-sm-5">
-                            看不清？<a href="">换一张</a>
-                        </div>
-                    </div>
+                    {php} $captcha=''; \think\Hook::listen('create_captcha',$captcha); echo $captcha; {/php}
 
                     <div class="form-group">
                         <div class="col-sm-12">
                             <div class="checkbox">
                                 <label>
-                                    <input name="remember" value="1" type="checkbox"> 记住帐号
+                                    <input name="remember" value="1" type="checkbox"> 7天内记住帐号
                                 </label>
                             </div>
                         </div>

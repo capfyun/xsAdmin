@@ -234,12 +234,14 @@ class Excel extends Base{
 		$data   = []; //数据
 		for($i = 1; $i<=$row; $i++){
 			for($ii=0; $ii<$column; $ii++){
+				$value = $excel->getActiveSheet()->getCell($this->getRowName($ii).$i)->getValue();
+				$value = trim($value);
 				if($i==1){
 					//读取表头
-					$header[$ii] =$excel->getActiveSheet()->getCell($this->getRowName($ii).$i)->getValue();
+					$header[$ii] = $value;
 				}else{
 					//读取数据
-					$data[$i][$header[$ii]] = $excel->getActiveSheet()->getCell($this->getRowName($ii).$i)->getValue();
+					$data[$i][$header[$ii]] = $value;
 				}
 			}
 		}

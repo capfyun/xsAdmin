@@ -22,16 +22,17 @@ class Config extends \app\common\controller\AdminBase{
 		$paging = model('Config')
 			->where($where)
 			->order(input('order') ? : 'sort DESC,id DESC')
-			->paginate(['query' => array_filter(input()),])
-			->each(function($item, $key){
-				$group_list            = config('config_group');
-				$type_format           = [1 => '字符串', 2 => '数组', 3 => '枚举'];
-				$status_format         = [0 => '禁用', 1 => '启用'];
-				$item['group_format']  = isset($group_list[$item['group']]) ? $group_list[$item['group']] : '-';
-				$item['type_format']   = isset($type_format[$item['type']]) ? $type_format[$item['type']] : '-';
-				$item['status_format'] = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '-';
-				return $item;
-			});
+			->paginate(['query' => array_filter(input()),]);
+		
+		$group_list    = config('config_group');
+		$type_format   = [1 => '字符串', 2 => '数组', 3 => '枚举'];
+		$status_format = [0 => '禁用', 1 => '启用'];
+		foreach($paging as $k => $v){
+			$v['group_format']  = isset($group_list[$v['group']]) ? $group_list[$v['group']] : '-';
+			$v['type_format']   = isset($type_format[$v['type']]) ? $type_format[$v['type']] : '-';
+			$v['status_format'] = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '-';
+			$paging->offsetSet($k, $v);
+		}
 		
 		//视图
 		cookie('forward', request()->url());
@@ -94,12 +95,23 @@ class Config extends \app\common\controller\AdminBase{
 		//更新
 		$sql = " CASE `name` ";
 		foreach($param['config'] as $k => $v){
-			$sql .= " WHEN '{$k}' THEN '{$v}' ";
+			$value = '';
+			if(is_array($v)){
+				$i = 0;
+				foreach($v as $k1 => $v1){
+					if(isset($v1['value']) && $v1['value']){
+						$value .= ($i++==0 ? '' : ',').(isset($v1['key']) && $v1['key'] ? $v1['key'].':' : '').$v1['value'];
+					}
+				}
+			}else{
+				$value = $v;
+			}
+			$sql .= " WHEN '{$k}' THEN '{$value}' ";
 		}
 		$sql .= " END ";
-		$result = model('config')
+		$result = model('Config')
 			->where(['name' => ['IN', array_keys($param['config'])]])
-			->update(['value' => ['exp', $sql]]);
+			->update(['value' => db()->raw($sql)]);
 		$result || $this->error('操作失败');
 		//初始化配置
 		model('Config')->load(true);

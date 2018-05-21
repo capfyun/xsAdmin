@@ -22,14 +22,15 @@ class Api extends \app\common\controller\AdminBase{
 		$paging = model('Api')
 			->where($where)
 			->order(input('order') ? : 'id DESC')
-			->paginate()
-			->each(function($item, $key){
-				$status_format             = [0 => '禁用', 1 => '启用'];
-				$is_encrypt_format         = [0 => '否', 1 => '是'];
-				$item['status_format']     = isset($status_format[$item['status']]) ? $status_format[$item['status']] : '-';
-				$item['is_encrypt_format'] = isset($is_encrypt_format[$item['is_encrypt']]) ? $is_encrypt_format[$item['is_encrypt']] : '-';
-				return $item;
-			});
+			->paginate();
+		
+		$status_format     = [0 => '禁用', 1 => '启用'];
+		$is_encrypt_format = [0 => '否', 1 => '是'];
+		foreach($paging as $k => $v){
+			$v['status_format']     = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '-';
+			$v['is_encrypt_format'] = isset($is_encrypt_format[$v['is_encrypt']]) ? $is_encrypt_format[$v['is_encrypt']] : '-';
+			$paging->offsetSet($k, $v);
+		}
 		
 		//视图
 		cookie('forward', request()->url());
@@ -49,7 +50,7 @@ class Api extends \app\common\controller\AdminBase{
 				'info' => $info,
 			]);
 		}
-		$param  = $this->param([
+		$param = $this->param([
 			'id'             => ['number', 'min' => 0],
 			'name|名称'        => ['require', 'length' => '1,20'],
 			'url|地址'         => ['require', 'length' => '1,50'],
