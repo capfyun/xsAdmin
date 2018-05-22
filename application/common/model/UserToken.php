@@ -77,7 +77,7 @@ class UserToken extends Base{
 		}
 		$user_token->save([
 			'play_time' => time(),
-			'check_num' => ['exp','`check_num`+1'],
+			'check_num' => db()->raw('`check_num`+1'),
 		]);
 		return $user_token->user_id;
 	}

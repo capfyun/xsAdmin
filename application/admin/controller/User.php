@@ -19,7 +19,7 @@ class User extends \app\common\controller\AdminBase{
 		$where   = [];
 		input('keyword')!='' && isset($keyword[input('target')]) && $where = array_merge($where, $keyword[input('target')]);
 		input('status')!='' && $where['m.status'] = input('status');
-		input('is_auth')!='' && $where['a.group_id'] = ['exp', 'IS '.(input('is_auth') ? 'NOT' : '').' NULL'];
+		input('is_auth')!='' && $where['a.group_id'] = db()->raw('IS '.(input('is_auth') ? 'NOT' : '').' NULL');
 		
 		$paging = db('user')->alias('m')
 			->join('auth_group_access a', 'a.user_id=m.id', 'LEFT')

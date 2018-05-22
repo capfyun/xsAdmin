@@ -139,7 +139,7 @@ class User extends Base{
 		$this->isUpdate(true)->save([
 			'last_login_time' => time(),
 			'last_login_ip'   => service('Tool')->getClientIp(1),
-			'login_num'       => ['exp', '`login_num`+1'],
+			'login_num'       => db()->raw('`login_num`+1'),
 		], ['id' => $user_id]);
 	}
 	
