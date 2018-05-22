@@ -20,6 +20,7 @@ return [
 	/* 域名路由 */
 	'__domain__'  => [
 		'admin.xs.local' => 'admin',
+		'c.7guoyouxi.com' => 'admin',
 		'api.xs.local'   => 'api',
 		// 泛域名规则
 	],
