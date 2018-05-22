@@ -69,8 +69,8 @@
 						<label  class="col-sm-2 control-label">ICON</label>
 						<div class="col-sm-10">
 							<div class="input-group">
-								<span class="input-group-addon"><i class="fa {$vo.icon ? : 'fa-link'}"></i></span>
-								<input name="icon" value="{$vo.icon ?? ''}" type="text" class="form-control" maxlength="30" placeholder="" onclick="page.changeIcon(this);">
+								<span class="input-group-addon"><i class="fa {$info.icon ? : 'fa-link'}"></i></span>
+								<input name="icon" value="{$info.icon ?? ''}" type="text" class="form-control" maxlength="30" placeholder="" onclick="page.changeIcon(this);">
 								<a href="javascript:;" class="btn-search-icon input-group-addon" data-toggle="modal" data-target="#modal-icon">查看图标</a>
 							</div>
 						</div>

@@ -25,11 +25,10 @@ class Config extends \app\common\controller\AdminBase{
 			->paginate(['query' => array_filter(input()),]);
 		
 		$group_list    = config('config_group');
-		$type_format   = [1 => '字符串', 2 => '数组', 3 => '枚举'];
 		$status_format = [0 => '禁用', 1 => '启用'];
 		foreach($paging as $k => $v){
 			$v['group_format']  = isset($group_list[$v['group']]) ? $group_list[$v['group']] : '-';
-			$v['type_format']   = isset($type_format[$v['type']]) ? $type_format[$v['type']] : '-';
+			$v['type_format']   = model('Config')->typeAttr($v['type']);
 			$v['status_format'] = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '-';
 			$paging->offsetSet($k, $v);
 		}
@@ -57,7 +56,7 @@ class Config extends \app\common\controller\AdminBase{
 			'title|名称'       => ['require', 'length' => '1,20'],
 			'name|键'         => ['require', 'length' => '1,50', 'unique:config'],
 			'group|分组'       => ['require', 'number', 'min' => 0],
-			'type|键类型'       => ['require', 'number', 'between' => '1,3'],
+			'type|键类型'       => ['require', 'in' => array_keys(model('Config')->typeAttr())],
 			'value|值'        => [],
 			'extra|额外参数'     => [],
 			'description|描述' => [],

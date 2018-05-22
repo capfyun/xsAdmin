@@ -69,62 +69,62 @@
 					{if condition="$option"}
 					<fieldset >
 						<legend>配置</legend>
-						{volist name="$option" id="vo"}
-						{php} if(!isset($vo['type']))continue; $k = $key; {/php}
+						{foreach $option as $k => $v}
+						{php} if(!isset($v['type']))continue;{/php}
 						<div class="form-group">
-							<label class="col-sm-2 control-label">{$vo.name ?? ''}</label>
+							<label class="col-sm-2 control-label">{$v.name ?? ''}</label>
 							<div class="col-sm-10">
-								{switch name="vo.type"}
-									{case value="text"}
-									<textarea name="config[{$k}]" class="form-control" rows="3" placeholder="Enter...">{:isset($config[$k]) ? $config[$k] : (isset($vo['value']) ? $vo['value'] : '') }</textarea>
+								{switch $v.type}
+									{case text}
+									<textarea name="config[{$k}]" class="form-control" rows="3" placeholder="Enter...">{:isset($config[$k]) ? $config[$k] : (isset($v['value']) ? $v['value'] : '') }</textarea>
 									{/case}
 
-									{case value="radio"}
-										{if condition="isset($vo['value']) && is_array($vo['value'])"}
-										{volist name="$vo.value" id="vo1" }
+									{case radio}
+										{if isset($v['value']) && is_array($v['value'])}
+										{foreach $v['value'] as $k1 => $v1 }
 											<label class="radio-inline">
-												<input name="config[{$k}]" type="radio" value="{$vo1}"
-													   {if condition="(isset($config[$k]) && $config[$k]==$vo1) || (!isset($config[$k]) && $i==1) "}checked{/if}>
-												{$key}
+												<input name="config[{$k}]" type="radio" value="{$v1}" required
+													   {if isset($config[$k]) && $config[$k]==$v1} checked {/if}>
+												{$k1}
 											</label>
-										{/volist}
+										{/foreach}
 										{else/}
 										<span class="help-block text-red">参数配置错误，请检查</span>
 										{/if}
 									{/case}
 
-									{case value="checkbox"}
-										{if condition="isset($vo['value']) && is_array($vo['value'])"}
-										{volist name="$vo.value" id="vo1" }
+									{case checkbox}
+										{if isset($v['value']) && is_array($v['value'])}
+										{foreach $v['value'] as $k1 => $v1}
 										<label class="checkbox-inline">
-											<input name="config[{$k}][]" type="checkbox" value="{$vo1}"
-												   {if condition="isset($config[$k]) && is_array($config[$k]) && in_array($vo1,$config[$k])"}checked{/if}>
-											{$key}
+											<input name="config[{$k}][]" type="checkbox" value="{$v1}"
+												   {if isset($config[$k]) && is_array($config[$k]) && in_array($v1,$config[$k])} checked {/if}>
+											{$k1}
 										</label>
-										{/volist}
+										{/foreach}
 										{else/}
 										<span class="help-block text-red">参数配置错误，请检查</span>
 										{/if}
 									{/case}
 
-									{case value="select"}
-										{if condition="isset($vo['value']) && is_array($vo['value'])"}
+									{case select}
+										{if isset($v['value']) && is_array($v['value'])}
 										<select name="config[{$k}]" class="form-control select2" >
-											{volist name="$vo.value" id="vo1" }
-											<option value="{$vo1}" {if condition="(isset($config[$k]) && $vo1==$config[$k])  || (!isset($config[$k]) && $i==1)"}selected{/if}>{$key}</option>
-											{/volist}
+											{foreach $v['value'] as $k1 => $v1}
+											<option value="{$v1}" {if isset($config[$k]) && $v1==$config[$k] }selected {/if}>{$k1}</option>
+											{/foreach}
 										</select>
 										{else/}
 										<span class="help-block text-red">参数配置错误，请检查</span>
 										{/if}
 									{/case}
 
-									{case value="selects"}
-										{if condition="isset($vo['value']) && is_array($vo['value'])"}
+									{case selects}
+										{if isset($v['value']) && is_array($v['value'])}
 										<select name="config[{$k}][]" class="form-control select2" multiple>
-											{volist name="$vo.value" id="vo1" }
-											<option value="{$vo1}" {if condition="isset($config[$k]) && is_array($config[$k]) && in_array($vo1,$config[$k])"}selected{/if}>{$key}</option>
-											{/volist}
+											{foreach $v['value'] as $k1 => $v1}
+											<option value="{$v1}" {if isset($config[$k]) && is_array($config[$k]) && in_array($v1,$config[$k])} selected {/if}>{$k1}</option>
+											{/foreach}
 										</select>
 										{else/}
 										<span class="help-block text-red">参数配置错误，请检查</span>
@@ -132,12 +132,12 @@
 									{/case}
 
 									{default/}
-								<textarea name="config[{$k}]" class="form-control" rows="3" placeholder="Enter...">{$vo.value ?? ''}</textarea>
+								<textarea name="config[{$k}]" class="form-control" rows="3" placeholder="Enter...">{$v.value ?? ''}</textarea>
 								{/switch}
-								<span class="help-block">{$vo.explain ?? ''}</span>
+								<span class="help-block">{$v.explain ?? ''}</span>
 							</div>
 						</div>
-						{/volist}
+						{/foreach}
 					</fieldset>
 					{/if}
 

@@ -30,31 +30,20 @@
 						<div class="col-sm-10">
 							<select name="group" class="form-control">
 								<option value="0">无</option>
-								{volist name=":config('config_group')" id="vo"}
-								<option value="{$key}"
-										{if condition="isset($info->group) && $info->group==$key"}selected{/if}>{$vo}</option>
-								{/volist}
+								{foreach :config('config_group') as $k => $v}
+								<option value="{$k}" {if isset($info->group) && $info->group==$k} selected {/if}>{$v}</option>
+								{/foreach}
 							</select>
 						</div>
 					</div>
 					<div class="form-group">
 						<label  class="col-sm-2 control-label">值类型</label>
 						<div class="col-sm-10">
-							<label class="radio-inline">
-								<input name="type" type="radio" value="1" required
-									   {if condition="!isset($info->type) || $info->type=='1'"}checked{/if}>
-								字符串
-							</label>
-							<label class="radio-inline">
-								<input name="type" type="radio" value="2" required
-									   {if condition="isset($info->type) && $info->type=='2'"}checked{/if}>
-								数组
-							</label>
-							<label class="radio-inline">
-								<input name="type" type="radio" value="3" required
-									   {if condition="isset($info->type) && $info->type=='3'"}checked{/if}>
-								枚举
-							</label>
+							<select name="type" class="form-control select2">
+								{foreach :model('Config')->typeAttr() as $k => $v}
+								<option value="{$k}" {if isset($info->type) && $info->type==$k} selected {/if}>{$v}</option>
+								{/foreach}
+							</select>
 						</div>
 					</div>
 					<div class="form-group">
@@ -88,12 +77,12 @@
 						<div class="col-sm-10">
 							<label class="radio-inline">
 								<input name="status" type="radio" value="0" required
-									   {if condition="isset($info->status) && $info->status=='0'"}checked{/if}>
+									   {if isset($info->status) && $info->status=='0'} checked {/if}>
 								禁用
 							</label>
 							<label class="radio-inline">
 								<input name="status" type="radio" value="1" required
-									   {if condition="!isset($info->status) || $info->status=='1'"}checked{/if}>
+									   {if !isset($info->status) || $info->status=='1'} checked {/if}>
 								启用
 							</label>
 						</div>

@@ -61,14 +61,14 @@ desired effect
 				<small>{$app.current.name ?? ''}</small>
 			</h1>
 			<ol class="breadcrumb">
-				{if condition="isset($app['checked']) && is_array($app['checked'])"}
-				{volist name=":array_reverse($app['checked'])" id="vo"}
+				{if isset($app['checked']) && is_array($app['checked'])}
+				{foreach :array_reverse($app['checked']) as $k => $v}
 				<li >
 					<a href="javascript:;">
-					<i class="fa {$vo['icon'] ? : 'fa-link'}"></i>{$vo['title']}
+					<i class="fa {$v['icon'] ? : 'fa-link'}"></i>{$v['title']}
 					</a>
 				</li>
-				{/volist}
+				{/foreach}
 				{/if}
 			</ol>
 		</section>

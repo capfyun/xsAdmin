@@ -22,6 +22,27 @@ class Config extends Base{
 	protected $readonly = [];    //模型中定义readonly属性，配置指定只读字段
 	
 	/**
+	 * 类型属性
+	 */
+	public function typeAttr($key = null){
+		$attr = [
+			'string'   => '字符串',
+			'number'   => '数值',
+			'array'    => '数组',
+			'radio'    => '单选',
+			'checkbox' => '多选',
+			'select'   => '列表',
+			'selects'  => '列表（多选）',
+			'text'     => '文本',
+			'editor'   => '编辑器',
+			'time'     => '时间',
+			'date'     => '日期',
+			'datetime' => '日期时间',
+		];
+		return $key===null ? $attr : (isset($attr[$key]) ? $attr[$key] : '');
+	}
+	
+	/**
 	 * 获取并缓存配置
 	 * @param bool $is_enforce 是否强制初始化
 	 */
@@ -57,7 +78,8 @@ class Config extends Base{
 	 */
 	private function parse($type, $value){
 		switch($type){
-			case 2: //解析数组
+			//数组
+			case 'array':
 				$value = $this->strToArray($value);
 				break;
 		}
