@@ -1,7 +1,7 @@
 <?php
 /**
  * home基类
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\controller;
 

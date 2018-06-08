@@ -1,34 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>slimScroll插件使用例子</title>
-</head>
-<body>
+<form action="{:url()}" method="post" enctype="multipart/form-data">
 
-<div class="superDiv">
-	<div id="innerDiv">
-		<p>xxxxxxxxxxxxxx</p>
-	</div>
-</div>
+	<input type="file" name="aa" >
+	<button type="submit">submit</button>
 
 
-<script src="{$Think.config.asset}/jquery/jquery-3.3.1.js"></script>
-<script src="{$Think.config.asset}/jquery-slimscroll/jquery.slimscroll.js"></script>
-<script>
-
-	$(function(){
-		$('#innerDiv').slimScroll({
-			height: '250px'
-		});
-
-		$('#innerDiv').slimScroll().bind('slimscroll', function(e, pos){
-			if(pos=='bottom'){
-				// 执行其他逻辑
-			}
-		});
-	});
-
-</script>
-</body>
-</html>
+</form>

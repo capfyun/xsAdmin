@@ -1,7 +1,7 @@
 <?php
 /**
  * 模型-权限列
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\model;
 

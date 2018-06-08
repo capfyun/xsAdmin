@@ -1,7 +1,7 @@
 <?php
 /**
  * 接口
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\controller;
 
@@ -51,12 +51,12 @@ class Api extends \app\common\controller\AdminBase{
 			]);
 		}
 		$param = $this->param([
-			'id'             => ['number', 'min' => 0],
+			'id'             => ['integer', 'egt' => 0],
 			'name|名称'        => ['require', 'length' => '1,20'],
 			'url|地址'         => ['require', 'length' => '1,50'],
 			'author|作者'      => ['length' => '1,16'],
-			'description|描述' => ['length' => '6,16'],
-			'init|初始化'       => [],
+			'description|描述' => [],
+			'init|初始化'       => ['integer', 'between' => '0,1'],
 		]);
 		$param===false && $this->error($this->getError());
 		$result = model('Api')->apiUpdate($param);

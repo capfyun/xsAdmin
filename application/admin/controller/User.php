@@ -1,7 +1,7 @@
 <?php
 /**
  * 用户
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\controller;
 
@@ -62,7 +62,7 @@ class User extends \app\common\controller\AdminBase{
 			]);
 		}
 		$param = $this->param([
-			'id'            => ['number', 'min' => 0],
+			'id'            => ['integer', '>=' => 0],
 			'username|用户名'  => ['require', 'length' => '6,16'],
 			'nickname|昵称'   => ['require', 'length' => '2,16'],
 			'status|状态'     => ['require', 'between' => '0,1'],
@@ -114,12 +114,12 @@ class User extends \app\common\controller\AdminBase{
 		}
 		$param = $this->param([
 			'nickname|昵称'          => ['require', 'length' => '2,16'],
-			'face|头像'              => ['number', 'min' => 0],
-			'gender|性别'            => ['number', 'between' => '0,2'],
-			'age|年龄'               => ['number', 'between' => '0,100'],
+			'face|头像'              => ['integer', '>=' => 0],
+			'gender|性别'            => ['integer', 'between' => '0,2'],
+			'age|年龄'               => ['integer', 'between' => '0,100'],
 			'old_password|密码'      => ['length' => '6,16'],
 			'new_password|新密码'     => ['length' => '6,16'],
-			'verify_password|重复密码' => ['length' => '6,16'],
+			'verify_password|重复密码' => ['length' => '6,16', 'confirm' => 'new_password'],
 		]);
 		$param===false && $this->error($this->getError());
 		//修改密码
@@ -127,7 +127,6 @@ class User extends \app\common\controller\AdminBase{
 			model('User')->checkPassword($this->user_id, $param['old_password'])
 			|| $this->error(model('User')->getError());
 			$param['new_password'] || $this->error('请填写新密码');
-			$param['new_password']!=$param['verify_password'] && $this->error('两次密码输入不相同');
 			$param['password'] = $param['new_password'];
 		}
 		//修改信息
@@ -139,7 +138,7 @@ class User extends \app\common\controller\AdminBase{
 		$result || $this->error(model('UserInfo')->getError());
 		//更新session
 		session('nickname', $param['nickname']);
-		session('face', model('File')->url($param['face']));
+		session('face', url('open/image', ['i' => $param['face'], 'w' => 150, 'h' => 150]));
 		$this->success('操作成功');
 	}
 	

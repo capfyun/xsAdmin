@@ -1,7 +1,7 @@
 <?php
 /**
  * 开放
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\controller;
 
@@ -83,38 +83,36 @@ class Open extends \app\common\controller\AdminBase{
 	 * 图片浏览
 	 */
 	public function image($i = 0, $w = 0, $h = 0){
-		$i || service('Image')->printi(config('default_image'), 'image/png');
-		$name = "image_i{$i}w{$w}h{$h}";
-		$etag = cache($name);
-		
-		//http 304缓存
-		if(isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH']==$etag){
-			header("HTTP/1.1 304 Not Modified");
-			exit;
-		}
-		//查询数据库
-		$file = model('File')->get($i);
-		(!$file || strpos($file['type'], 'image/')!==0) && service('Image')->printi(config('default_image'), 'image/png');
-		
-		$image = model('File')->url($i);
-		$image = trim($image, '/');
-		
-		//缩略图
-		if($w && $h){
-			$image = service('Image')->createThumb($image, $w, $h);
-			$image || service('Image')->printi(config('default_image'), 'image/png');
-		}
+		$i || service('Image')->output(config('default_image'), 'image/png');
 		
 		//缓存
 		$cache_time = 7*24*60*60;
 		$pass_mtime = gmdate('D, d M Y H:i:s', time()+$cache_time).' GMT';
-		cache($name, md5($name), $cache_time, 'image');
+		$etag       = md5("image_i{$i}w{$w}h{$h}");
+		
+		//http 304缓存
+		if(isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH']==$etag){
+			return response('', 304)
+				->cacheControl('');
+		}
+		dbDebug('imageThumb');
+		//查询数据库
+		$file = model('File')->get($i);
+		(!$file || strpos($file['type'], 'image/')!==0) && service('Image')->output(config('default_image'), 'image/png');
+		$image = trim(model('File')->url($i), '/');
+		
+		//缩略图
+		if($w && $h){
+			$image = service('Image')->createThumb($image, $w, $h);
+			$image || service('Image')->output(config('default_image'), 'image/png');
+		}
+		
 		header('Pragma: cache');
 		header('Cache-Control: max-age='.$cache_time);
 		header('Expires: '.$pass_mtime);
-		header("Etag: ".$etag);
+		header('Etag: '.$etag);
 		//打印图片
-		service('Image')->printi($image, $file['type']);
+		return service('Image')->output($image, $file['type']);
 	}
 	
 }

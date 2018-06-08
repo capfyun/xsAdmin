@@ -1,7 +1,7 @@
 <?php
 /**
  * 程序锁
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\service;
 

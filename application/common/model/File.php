@@ -1,12 +1,11 @@
 <?php
 /**
  * 文件
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\model;
 
-use Downloader\Downloader;
-use Uploader\Uploader;
+use xs\Upload;
 
 class File extends Base{
 	
@@ -46,7 +45,7 @@ class File extends Base{
 			'callback'    => [$this, 'isExist'],
 			'removeTrash' => [$this, 'removeTrash'],
 		], config('upload_config'), $config);
-		$uploader = new Uploader($config, $driver, $driver_config);
+		$uploader = new Upload($config, $driver, $driver_config);
 		//上传
 		$data = $uploader->upload($files);
 		if(!$data){
@@ -60,7 +59,8 @@ class File extends Base{
 				continue;
 			}
 			//文件入库
-			$result = $this->allowField(true)->isUpdate(false)->save($v);
+			$this->id = null;
+			$result   = $this->allowField(true)->isUpdate(false)->save($v);
 			if(!$result){
 				//TODO: 文件上传成功，但是记录文件信息失败，需记录日志
 				unset($data[$k]);
@@ -72,30 +72,39 @@ class File extends Base{
 	
 	/**
 	 * 抓取网络资源保存到本地
+	 * @param string|array $urls 文件远程地址，支持多文件
+	 * @param array $config 配置
+	 * @return array|false
 	 */
-	public function grab($url = '', $config = []){
+	public function grab($urls, $config = [], $driver = 'Local', $driver_config = null){
 		//初始化
-		$config     = array_merge([
+		$config   = array_merge([
 			'callback'    => [$this, 'isExist'],
 			'removeTrash' => [$this, 'removeTrash'],
 		], config('upload_config'), $config);
-		$downloader = new Downloader($config);
-		$file       = $downloader->download($url);
+		$uploader = new Upload($config, $driver, $driver_config);
+		$data     = $uploader->upload($urls, 'remote');
 		
-		if(!$file){
-			$this->error = $downloader->getError();
+		if(!$data){
+			$this->error = $uploader->getError();
 			return false;
 		}
-		//文件入库
-		if(!isset($file['id'])){
-			$result = $this->allowField(true)->isUpdate(false)->save($file);
-			if(!$result){
-				$this->error = '入库失败';
-				return false;
+		//文件上传成功，记录文件信息
+		foreach($data as $k => $v){
+			//已经存在文件记录
+			if(isset($v['id']) && is_numeric($v['id'])){
+				continue;
 			}
+			//文件入库
+			$this->id = null;
+			$result   = $this->allowField(true)->isUpdate(false)->save($v);
+			if(!$result){
+				//TODO: 文件上传成功，但是记录文件信息失败，需记录日志
+				unset($data[$k]);
+			}
+			$data[$k]['id'] = $this->id;
 		}
-		
-		return $this;
+		return $data; //文件上传成功
 	}
 	
 	/**
@@ -177,7 +186,8 @@ class File extends Base{
 			throw new \Exception('缺少参数:md5');
 		}
 		//查找文件
-		return $this->where(['md5' => $file['md5'], 'sha1' => $file['sha1']])->find();
+		$file = $this->where(['md5' => $file['md5'], 'sha1' => $file['sha1']])->find();
+		return $file ? $file->toArray() : false;
 	}
 	
 	/**

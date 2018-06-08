@@ -1,7 +1,7 @@
 <?php
 /**
  * 服务层-WebSocket
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\service;
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * 模型-公告
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\model;
 

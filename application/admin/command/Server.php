@@ -1,7 +1,7 @@
 <?php
 /**
  * 命令行-服务器
- * @auth 夏爽
+ * @auth xs
  */
 namespace app\admin\command;
 

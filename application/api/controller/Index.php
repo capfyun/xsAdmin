@@ -1,7 +1,7 @@
 <?php
 /**
  * 控制器-首页
- * @author 夏爽
+ * @author xs
  */
 namespace app\api\controller;
 

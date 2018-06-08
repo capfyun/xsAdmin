@@ -1,9 +1,12 @@
 <?php
 /**
  * 权限
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\behavior;
+
+use think\Config;
+use xs\Helper;
 
 class Auth {
 	
@@ -15,7 +18,7 @@ class Auth {
 	public function __construct(){
 		//当前请求地址
 		$this->url = strtolower(
-			service('Tool')->convertHump(request()->controller())
+			Helper::convertHump(request()->controller())
 			.'/'.request()->action()
 		);
 	}
@@ -39,7 +42,8 @@ class Auth {
 				if($user_id<=0){
 					redirect(url('open/login'));
 				}
-				$result = service('Auth')->check($this->url, $user_id);
+				$auth = \xs\Auth::instance(Config::get('auth_config'));
+				$result = $auth->check($this->url, $user_id);
 				if(!$result){
 					request()->isAjax()
 						? abort(404, '未授权')
@@ -53,7 +57,7 @@ class Auth {
 	 * 是否管理员用户
 	 */
 	private function isAdministrator($user_id){
-		return in_array($user_id, config('administrator_id'));
+		return in_array($user_id, Config::get('administrator_id') ? : []);
 	}
 	
 	/**
@@ -61,13 +65,20 @@ class Auth {
 	 */
 	private function checkLoginIp(){
 		$ip = service('Tool')->getClientIp();
-		//黑名单IP
-		if(config('admin_ban_ip') && in_array($ip,config('admin_ban_ip'))){
-			return false;
-		}
-		//白名单IP
-		if(config('admin_allow_ip') && !in_array($ip,config('admin_allow_ip'))){
-			return false;
+		switch(Config::get('admin_id_type')){
+			//禁止模式
+			case '1':
+				if(in_array($ip,Config::get('admin_ip_list') ? : [])){
+					return false;
+				}
+				break;
+			//允许模式
+			case '2':
+				if(!in_array($ip,Config::get('admin_ip_list') ? : [])){
+					return false;
+				}
+				break;
+			default:
 		}
 		return true;
 	}
@@ -77,10 +88,10 @@ class Auth {
 	 */
 	private function isExempt(){
 		//开放地址
-		if(!config('open_url') || !is_array(config('open_url'))){
+		if(!Config::get('open_url') || !is_array(Config::get('open_url'))){
 			return false;
 		}
-		foreach(config('open_url') as $v){
+		foreach(Config::get('open_url') as $v){
 			if($v==$this->url){
 				return true;
 			}

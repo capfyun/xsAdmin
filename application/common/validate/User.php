@@ -1,7 +1,7 @@
 <?php
 /**
  * 验证器-用户
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\validate;
 

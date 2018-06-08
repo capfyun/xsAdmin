@@ -1,11 +1,16 @@
 <?php
 /**
  * 调试
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\controller;
 
 
+
+use think\Validate;
+use xs\auth\Auth;
+use xs\Rsa;
+use xs\Upload;
 
 class Debug extends \app\common\controller\AdminBase{
 	
@@ -16,6 +21,10 @@ class Debug extends \app\common\controller\AdminBase{
 	 * 测试
 	 */
 	public function test(){
+		
+		$a = Rsa::publics('../openssl/rsa_public_key.pem')->encrypt('asdasd');
+		
+		halt($a);
 		
 		return $this->fetch();
 	}

@@ -1,7 +1,7 @@
 <?php
 /**
  * 服务层-聊天室
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\service;
 

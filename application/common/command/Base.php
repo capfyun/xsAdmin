@@ -1,7 +1,7 @@
 <?php
 /**
  * 命令行-基类
- * @auth 夏爽
+ * @auth xs
  */
 namespace app\common\command;
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * RSA加密
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\service;
 

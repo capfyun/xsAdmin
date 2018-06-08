@@ -1,7 +1,7 @@
 <?php
 /**
  * 工具
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\service;
 
@@ -82,6 +82,9 @@ class Tool extends Base{
 	 * @return string
 	 */
 	public function msubstr($str, $start = 0, $length, $charset = "utf-8", $suffix = true){
+		if(mb_strlen($str)<=$length){
+			return $str;
+		}
 		if(function_exists("mb_substr"))
 			$slice = mb_substr($str, $start, $length, $charset);
 		elseif(function_exists('iconv_substr')){

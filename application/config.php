@@ -16,7 +16,7 @@ return [
 	// +----------------------------------------------------------------------
 	
 	//当前应用环境
-	'app_env'                => \think\Env::get('app_env', 'local'),
+	'app_env'                => Env::get('app_env', 'local'),
 	
 	//数据加密KEY
 	'data_secret_key'        => 'k+_b}yC2Hx~:uZ/O=a9g-0{6^B|LhfwFlG@I?1MY',
@@ -53,7 +53,7 @@ return [
 	// 应用命名空间
 	'app_namespace'          => 'app',
 	// 应用调试模式
-	'app_debug'              => Env::get('app_debug', true),
+	'app_debug'              => Env::get('app_env', 'local')=='local' ? true : false,
 	// 应用Trace
 	'app_trace'              => false,
 	// 应用模式状态
@@ -79,7 +79,7 @@ return [
 	// 是否开启多语言
 	'lang_switch_on'         => false,
 	// 默认全局过滤方法 用逗号分隔多个
-	'default_filter'         => '',
+	'default_filter'         => 'htmlspecialchars',
 	// 默认语言
 	'default_lang'           => 'zh-cn',
 	// 应用类库后缀

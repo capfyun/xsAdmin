@@ -1,107 +1,70 @@
 <?php
-// +----------------------------------------------------------------------
-// | ThinkPHP [ WE CAN DO IT JUST THINK ]
-// +----------------------------------------------------------------------
-// | Copyright (c) 2006-2016 http://thinkphp.cn All rights reserved.
-// +----------------------------------------------------------------------
-// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
-// +----------------------------------------------------------------------
-// | Author: 流年 <liu21st@gmail.com>
-// +----------------------------------------------------------------------
-
-// 应用公共文件
 /**
- * 实例化服务层
- * @param mixed $string 第一个参数是类名，第二个开始都是构造函数的参数
- * @return object
+ * 应用公共文件
+ * @author xs
  */
-function service(){
-	$arguments  = func_get_args();
-	return call_user_func_array([\Loader::class,'service'],$arguments);
-}
 
-/**
- * 实例化mongo数据库
- * @param string $name 操作的数据表名称（不含前缀）
- * @param array|string $config 数据库配置参数
- * @param bool $force 是否强制重新连接
- * @return \think\db\Query
- */
-function mongo($name = '', $config = [], $force = false){
-	$config = array_merge(config('mongo'), $config);
-	return \think\Db::connect($config, $force)->name($name);
-}
-
-/**
- * 数据库写入，快捷调试
- */
-function db_debug(){
-	$data = func_get_args();
-	//写入数据库
-	db('log_debug')->insert([
-		'data' => json_encode($data),
-		'date' => date('Y-m-d H:i:s'),
-		'url'  => request()->module().'/'.request()->controller().'/'.request()->action(),
-	]);
-}
-
-/**
- * 文件写入，快捷调试
- * @param mixed $data
- * @param string $file
- */
-function file_debug($data, $file = 'debug.txt'){
-	$path    = $_SERVER['DOCUMENT_ROOT'].'/resource/debug/'.$file;
-	$content = (is_string($data) ? $data : var_export($data, true))."\r\n";
-	file_put_contents($path, $content, FILE_APPEND|LOCK_EX);
-}
+\think\Loader::addNamespace('xs', ROOT_PATH.'xs'.DS);
+// 插件
+define('ADDON_PATH', ROOT_PATH.'addon'.DS);
+is_dir(ADDON_PATH) || @mkdir(ADDON_PATH, 0777, true);
+\think\Loader::addNamespace('addon', ADDON_PATH);
 
 
-class Loader extends \think\Loader{
+if(!function_exists('service')){
 	/**
-	 * 实例化（分层）模型
+	 * 实例化服务层
 	 * @param mixed $string 第一个参数是类名，第二个开始都是构造函数的参数
 	 * @return object
-	 * @throws \think\exception\ClassNotFoundException
 	 */
-	public static function service(){
-		$arguments = func_get_args();
-		$name      = array_shift($arguments);
-		//业务层名称
-		$layer = 'service';
-		$guid = $name . $layer;
-		if (isset(static::$instance[$guid])) {
-			return static::$instance[$guid];
-		}
-		//是否添加类名后缀
-		$appendSuffix = false;
-		//公共模块名
-		$common = 'common';
-		if (strpos($name, '\\')) {
-			$class = $name;
-		} else {
-			if (strpos($name, '/')) {
-				list($module, $name) = explode('/', $name, 2);
-			} else {
-				$module = \think\Request::instance()->module();
-			}
-			$class = static::parseClass($module, $layer, $name, $appendSuffix);
-		}
-		if (class_exists($class)) {
-			$reflection = new \ReflectionClass($class);
-			$model    = $reflection->newInstanceArgs($arguments);
-		} else {
-			$class = str_replace('\\' . $module . '\\', '\\' . $common . '\\', $class);
-			if (class_exists($class)) {
-				$reflection = new \ReflectionClass($class);
-				$model    = $reflection->newInstanceArgs($arguments);
-			} else {
-				throw new \think\exception\ClassNotFoundException('class not exists:' . $class, $class);
-			}
-		}
-		static::$instance[$guid] = $model;
-		return $model;
+	function service($name = '', $layer = 'service', $appendSuffix = false){
+		return \think\Loader::model($name, $layer, $appendSuffix);
 	}
 }
+
+if(!function_exists('mongo')){
+	/**
+	 * 实例化mongo数据库
+	 * @param string $name 操作的数据表名称（不含前缀）
+	 * @param array|string $config 数据库配置参数
+	 * @param bool $force 是否强制重新连接
+	 * @return \think\db\Query
+	 */
+	function mongo($name = '', $config = [], $force = false){
+		$config = array_merge(config('mongo'), $config);
+		return \think\Db::connect($config, $force)->name($name);
+	}
+}
+
+if(!function_exists('dbDebug')){
+	/**
+	 * 数据库写入，快捷调试
+	 */
+	function dbDebug(){
+		$data = func_get_args();
+		//写入数据库
+		db('debug_log')->insert([
+			'data' => json_encode($data),
+			'date' => date('Y-m-d H:i:s'),
+			'url'  => request()->module().'/'.request()->controller().'/'.request()->action(),
+		]);
+	}
+}
+
+if(!function_exists('fileDebug')){
+	/**
+	 * 文件写入，快捷调试
+	 * @param mixed $data
+	 * @param string $file
+	 */
+	function fileDebug($data, $file = 'debug.txt'){
+		$path = RUNTIME_PATH.'debug'.DS;
+		is_dir($path) || @mkdir($path, 0777, true);
+		$content = (is_string($data) ? $data : var_export($data, true))."\r\n";
+		file_put_contents($path.$file, $content, FILE_APPEND|LOCK_EX);
+	}
+}
+
+
 
 

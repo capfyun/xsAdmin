@@ -1,7 +1,7 @@
 <?php
 /**
  * 用户令牌
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\model;
 

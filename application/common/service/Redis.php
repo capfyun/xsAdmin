@@ -1,7 +1,7 @@
 <?php
 /**
- * 服务层-Redis
- * @author 夏爽
+ * Redis
+ * @author xs
  */
 namespace app\common\service;
 

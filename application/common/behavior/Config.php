@@ -1,7 +1,7 @@
 <?php
 /**
  * 配置
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\behavior;
 
@@ -15,6 +15,6 @@ class Config {
 	 */
 	public function run(&$param){
 		//读取配置
-		model('Config')->load(true);
+		\xs\Config::load(\think\Config::get('app_debug'));
 	}
 }

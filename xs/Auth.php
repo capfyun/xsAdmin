@@ -8,13 +8,17 @@
 // +----------------------------------------------------------------------
 // | Author: luofei614 <weibo.com/luofei614>
 // +----------------------------------------------------------------------
-// | 修改者: anuo (本权限类在原3.2.3的基础上修改过来的)
+// | Author: xs：修改基于TP3.2/Auth
 // +----------------------------------------------------------------------
-namespace app\admin\service;
+
+namespace xs;
+
+use think\Db;
 
 class Auth{
 	/**
 	 * 权限认证类
+	 * 单例模式
 	 * 功能特性：
 	 * 1，是对规则进行认证，不是对节点进行认证。用户可以把节点当作规则名称实现对节点进行认证。
 	 *      $auth=new Auth();  $auth->check('规则名称','用户id')
@@ -26,6 +30,8 @@ class Auth{
 	 * 4，支持规则表达式。
 	 *      在think_auth_rule 表中定义一条规则时，如果type为1， condition字段就可以定义规则表达式。 如定义{score}>5  and {score}<100  表示用户的分数在5-100之间时这条规则才会通过。
 	 */
+	//对象实例
+	protected static $instance;
 	
 	//默认配置
 	public $config = [
@@ -40,12 +46,18 @@ class Auth{
 	/**
 	 * 初始化
 	 */
-	public function __construct(){
-		$auth_config = config('auth_config');
-		if($auth_config){
-			//可设置配置项 auth_config, 此配置项为数组。
-			$this->config = array_merge($this->config, $auth_config);
-		}
+	private function __construct($config = []){
+		$config && $this->config = array_merge($this->config, $config);
+	}
+	
+	/**
+	 * 实例
+	 * @param array $config 参数
+	 * @return Auth
+	 */
+	public static function instance($config = []){
+		is_null(self::$instance) && self::$instance = new static($config);
+		return self::$instance;
 	}
 	
 	/**
@@ -125,7 +137,7 @@ class Auth{
 		}
 		
 		//读取用户组所有权限规
-		$rules = db($this->config['auth_rule'])
+		$rules = Db::name($this->config['auth_rule'])
 			->where(['id' => ['in', $ids], 'module' => $module, 'status' => 1,])
 			->field('condition,name')
 			->select();
@@ -193,11 +205,11 @@ class Auth{
 			return $groups[$user_id];
 		}
 		
-		$user_groups      = db($this->config['auth_group_access'])->alias('a')
+		$user_groups      = Db::name($this->config['auth_group_access'])->alias('a')
 			->join($this->config['auth_group'].' g', 'a.group_id=g.id')
 			->where("a.user_id='$user_id' and g.status='1'")
 			->field('a.user_id,a.group_id,g.title,g.rules')
-			->fetchSql(false)->select();
+			->select();
 		$groups[$user_id] = $user_groups ? : [];
 		return $groups[$user_id];
 	}
@@ -213,7 +225,7 @@ class Auth{
 			return $users[$user_id];
 		}
 		
-		$user_info       = db($this->config['auth_user'])
+		$user_info       = Db::name($this->config['auth_user'])
 			->where(['id' => $user_id])
 			->find();
 		$users[$user_id] = $user_info ? : [];

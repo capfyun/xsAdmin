@@ -1,7 +1,7 @@
 <?php
 /**
  * admin模块配置文件
- * @auth 夏爽
+ * @auth xs
  */
 return [
 	//权限
@@ -13,8 +13,8 @@ return [
 		'auth_group_access' => 'auth_group_access', // 用户-用户组关系表
 		'auth_user'         => 'user', //用户表
 	],
-	//管理员用户id
-	'administrator_id'      => [1],
+	// 是否开启多语言
+	'lang_switch_on'        => false,
 	
 	//跳转模版
 	'dispatch_success_tmpl' => 'layout/dispatch_jump',
@@ -26,5 +26,4 @@ return [
 		'var_page'  => 'page',
 		'list_rows' => 10,
 	],
-
 ];

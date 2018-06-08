@@ -1,7 +1,7 @@
 <?php
 /**
  * admin模块行为扩展定义文件
- * @author 夏爽
+ * @author xs
  */
 
 return [

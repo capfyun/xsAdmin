@@ -1,11 +1,12 @@
 <?php
 /**
  * admin基类
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\controller;
 
 use think\Hook;
+use xs\Auth;
 
 abstract class AdminBase extends Base{
 	//当前用户ID
@@ -103,7 +104,7 @@ abstract class AdminBase extends Base{
 			'status'    => 1,
 		];
 		if(!$this->isAdministrator($this->user_id)){
-			$where['id'] = ['in', service('Auth')->getAuthIds($this->user_id) ? : ''];
+			$where['id'] = ['in', Auth::instance()->getAuthIds($this->user_id) ? : ''];
 		}
 		$rule_list = db('auth_rule')
 			->where($where)
@@ -135,7 +136,7 @@ abstract class AdminBase extends Base{
 			'status'    => 1,
 		];
 		if(!$this->isAdministrator($this->user_id)){
-			$where['id'] = ['in', service('Auth')->getAuthIds($this->user_id) ? : ''];
+			$where['id'] = ['in', Auth::instance()->getAuthIds($this->user_id) ? : ''];
 		}
 		$result = db('auth_rule')
 			->where($where)

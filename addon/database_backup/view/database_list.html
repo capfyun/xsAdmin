@@ -1,0 +1,54 @@
+{extend name="layout/base" /}
+
+{block name="content"}
+
+
+<div id="table" class="box" >
+	<div class="box-body">
+		<div class="row">
+			<div class="col-sm-12">
+				{include file="layout/option"/}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table table-bordered table-striped table-hover" >
+					<thead>
+					<tr >
+						<th class="" width="15%">表名</th>
+						<th class="" width="8%">行</th>
+						<th class="" width="8%">自增值</th>
+						<th class="" width="10%">数据长度</th>
+						<th class="" width="10%">表引擎</th>
+						<th class="" width="">描述</th>
+						<th class="" width="15%">创建时间</th>
+					</tr>
+					</thead>
+					<tbody>
+					{foreach $paging as $k => $v}
+					<tr data-name="{$v.Name}" >
+						<td>{$v.Name}</td>
+						<td>{$v.Rows}</td>
+						<td>{$v.Auto_increment}</td>
+						<td>{$v.Data_length_format}</td>
+						<td>{$v.Engine}</td>
+						<td>{$v.Comment}</td>
+						<td>{$v.Create_time}</td>
+					</tr>
+					{/foreach}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+<script>
+	$(function(){
+
+	});
+</script>
+{/block}

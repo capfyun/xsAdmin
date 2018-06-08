@@ -1,7 +1,7 @@
 <?php
 /**
  * 权限
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\controller;
 
@@ -57,17 +57,17 @@ class Auth extends \app\common\controller\AdminBase{
 			]);
 		}
 		$param = $this->param([
-			'id'               => ['number', 'min' => 0],
+			'id'               => ['integer', 'egt' => 0],
 			'title|名称'         => ['require', 'length' => '1,20'],
 			'name|链接地址'        => ['length' => '1,50'],
-			'parent_id|上级ID'   => ['require', 'number', 'min' => 0],
+			'parent_id|上级ID'   => ['require', 'integer', 'egt' => 0],
 			'icon'             => [],
-			'type|类型'          => ['require', 'number', 'between' => '0,2'],
-			'request|请求类型'     => ['require', 'number', 'between' => '0,1'],
-			'status|状态'        => ['require', 'number', 'between' => '0,1'],
-			'sort|排序'          => ['number', 'between' => '0,9999'],
+			'type|类型'          => ['require', 'integer', 'between' => '0,2'],
+			'request|请求类型'     => ['require', 'integer', 'between' => '0,1'],
+			'status|状态'        => ['require', 'integer', 'between' => '0,1'],
+			'sort|排序'          => ['integer', 'between' => '0,9999'],
 			'param_name|参数名'   => ['length' => '1,20'],
-			'param_num|参数数量'   => ['number', 'between' => '0,3'],
+			'param_num|参数数量'   => ['integer', 'between' => '0,3'],
 			'label_color|标签颜色' => ['length' => '1,20'],
 			'label_value|标签内容' => ['length' => '1,20'],
 		]);
@@ -129,11 +129,11 @@ class Auth extends \app\common\controller\AdminBase{
 			]);
 		}
 		$param = $this->param([
-			'id'             => ['number', 'min' => 0],
+			'id'             => ['integer', 'egt' => 0],
 			'title|名称'       => ['require', 'length' => '1,10'],
 			'description|描述' => [],
-			'sort|排序'        => ['number', 'between' => '0,9999'],
-			'status|参数名'     => ['require', 'number', 'between' => '0,1'],
+			'sort|排序'        => ['integer', 'between' => '0,9999'],
+			'status|状态'      => ['require', 'integer', 'between' => '0,1'],
 			'rule_ids|包含权限'  => ['array'],
 		]);
 		$param===false && $this->error($this->getError());

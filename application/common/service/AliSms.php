@@ -1,7 +1,7 @@
 <?php
 /**
  * 阿里短信服务
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\service;
 

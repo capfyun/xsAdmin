@@ -1,0 +1,48 @@
+{extend name="layout/base" /}
+
+{block name="content"}
+
+
+<div id="table" class="box" >
+	<div class="box-body">
+		<div class="row">
+			<div class="col-sm-12">
+				{include file="layout/option"/}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table table-bordered table-striped table-hover" >
+					<thead>
+					<tr >
+						<th class="" width="">文件名</th>
+						<th class="" width="8%">分卷数</th>
+						<th class="" width="15%">大小</th>
+						<th class="" width="20%">创建时间</th>
+					</tr>
+					</thead>
+					<tbody>
+					{foreach $paging as $k => $v }
+					<tr data-name="{$v.name}" >
+						<td>{$v.name}</td>
+						<td>{$v.part}</td>
+						<td>{:service('Tool')->formatBytes($v.size)}</td>
+						<td>{$v.create_time_format}</td>
+					</tr>
+					{/foreach}
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+<script>
+	$(function(){
+
+	});
+</script>
+{/block}

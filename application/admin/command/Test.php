@@ -1,7 +1,7 @@
 <?php
 /**
  * 自定义命令行-测试
- * @auth 夏爽
+ * @auth xs
  */
 namespace app\admin\command;
 

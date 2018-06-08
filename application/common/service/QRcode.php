@@ -1,7 +1,7 @@
 <?php
 /**
  * 服务层-二维码
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\service;
 

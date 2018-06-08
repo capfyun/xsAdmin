@@ -11,14 +11,14 @@
 
 // 应用行为扩展定义文件
 return [
-	//模块初始化
-	'module_init'  => [
+	'app_init' => [
 		//配置
 		'app\\common\\behavior\\Config',
 		//插件
 		'app\\common\\behavior\\Addon',
-		//模块开始钩子
-		'app\\common\\behavior\\ModuleBegin'
+	],
+	//模块初始化
+	'module_init'  => [
 	],
 	
 ];

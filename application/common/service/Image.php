@@ -1,11 +1,11 @@
 <?php
 /**
  * 图片
- * @author 夏爽
+ * @author xs
  */
 namespace app\common\service;
 
-use Downloader\Downloader;
+use xs\Upload;
 
 class Image extends Base{
 	
@@ -24,8 +24,8 @@ class Image extends Base{
 	 * @param int $height 图片高度
 	 * @return string WEB图片路径名称
 	 */
-	public function createThumb($path, $width = 0, $height = 0){
-		if($path=='' || $width<=0 || $height<=0){
+	public function createThumb($file, $width = 0, $height = 0){
+		if($file=='' || $width<=0 || $height<=0){
 			$this->error = '参数错误';
 			return false;
 		}
@@ -34,53 +34,57 @@ class Image extends Base{
 			return false;
 		}
 		//缩略图文件名
-		$base_path = 'resource/image/';
+		$base_path = RUNTIME_PATH.'thumb'.DS;
 		$dir_name  = "w{$width}h{$height}/";
-		$file_name = md5($path).'.'.pathinfo($path, PATHINFO_EXTENSION);
+		$file_name = md5($file).'.'.pathinfo($file, PATHINFO_EXTENSION);
 		$full_name = $base_path.$dir_name.$file_name;
 		
-		//生成缩略图
-		if(is_file($full_name)==false){
-			$is_rm = 0;
-			//缓存远程图片
-			if(strpos($path, "http")===0){
-				$downloader = new Downloader([
-					'save_path' => $base_path,
-					'auto_sub'  => false,
-					'hash'      => false,
-					'replace'   => true,
-					'save_name' => ['md5', $path],
-				]);
-				$info       = $downloader->download($path);
-				if(!$info){
-					$this->error = $downloader->getError();
-					return false;
-				}
-				$path = $info['save_path'].$info['save_name'];
-				$is_rm = 1;
-			}
-			//原文件不存在
-			if(is_file($path)==false){
-				$this->error = '原始文件不存在';
-				return false;
-			}
-			if(!$this->mkdir($base_path.$dir_name)){
-				return false;
-			}
-			$image = \think\Image::open($path);
-			$image->thumb($width, $height, \think\Image::THUMB_CENTER)->save($full_name);
-			//删除原始文件
-			$is_rm && @unlink($path);
+		//已存在文件时直接返回
+		if(is_file($full_name)){
+			return $full_name;
 		}
+		
+		//生成缩略图
+		$is_rm = 0;
+		//缓存远程图片
+		if(strpos($file, "http")===0){
+			$uploader = new Upload([
+				'save_path' => RUNTIME_PATH,
+				'auto_sub'  => false,
+				'hash'      => false,
+				'replace'   => true,
+				'save_name' => ['md5', $file],
+			]);
+			$info     = $uploader->grab($file);
+			if(!$info){
+				$this->error = $uploader->getError();
+				return false;
+			}
+			$info  = array_shift($info);
+			$file  = $info['save_path'].$info['save_name'];
+			$is_rm = 1;
+		}
+		//原文件不存在
+		if(is_file($file)==false){
+			$this->error = '原始文件不存在';
+			return false;
+		}
+		if(!$this->mkdir($base_path.$dir_name)){
+			return false;
+		}
+		$image = \think\Image::open($file);
+		$image->thumb($width, $height, \think\Image::THUMB_CENTER)->save($full_name);
+		//删除原始文件
+		$is_rm && @unlink($file);
 		return $full_name;
 	}
 	
 	/**
 	 * 打印图片
 	 * @param string $path 图片地址，可以是远程图片
-	 * @return bool
+	 * @return false
 	 */
-	public function printi($path = '', $mime = ''){
+	public function output($path = '', $mime = ''){
 		if(!$mime){
 			$image = @getimagesize($path);
 			if(!$image){
@@ -129,18 +133,17 @@ class Image extends Base{
 	
 	/**
 	 * 创建目录
-	 * @param  string $save_path 要创建的穆里
-	 * @return boolean          创建状态，true-成功，false-失败
+	 * @param  string $save_path 要创建的目录
+	 * @return boolean 创建状态，true-成功，false-失败
 	 */
-	private function mkdir($save_path){
-		$dir = $save_path;
+	private function mkdir($dir){
 		if(is_dir($dir)){
 			return true;
 		}
 		if(mkdir($dir, 0777, true)){
 			return true;
 		}else{
-			$this->error = "目录 {$save_path} 创建失败！";
+			$this->error = "目录 {$dir} 创建失败！";
 			return false;
 		}
 	}

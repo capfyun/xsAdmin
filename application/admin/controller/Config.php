@@ -1,7 +1,7 @@
 <?php
 /**
  * 系统配置
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\controller;
 
@@ -28,8 +28,9 @@ class Config extends \app\common\controller\AdminBase{
 		$status_format = [0 => '禁用', 1 => '启用'];
 		foreach($paging as $k => $v){
 			$v['group_format']  = isset($group_list[$v['group']]) ? $group_list[$v['group']] : '-';
-			$v['type_format']   = model('Config')->typeAttr($v['type']);
+			$v['type_format']   = \xs\Config::typeAttr($v['type']);
 			$v['status_format'] = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '-';
+			$v['value']         = htmlspecialchars(service('Tool')->msubstr($v['value'], 0, 90));
 			$paging->offsetSet($k, $v);
 		}
 		
@@ -52,16 +53,17 @@ class Config extends \app\common\controller\AdminBase{
 			]);
 		}
 		$param = $this->param([
-			'id'             => ['number', 'min' => 0],
+			'id'             => ['integer', 'egt' => 0],
 			'title|名称'       => ['require', 'length' => '1,20'],
-			'name|键'         => ['require', 'length' => '1,50', 'unique:config'],
-			'group|分组'       => ['require', 'number', 'min' => 0],
-			'type|键类型'       => ['require', 'in' => array_keys(model('Config')->typeAttr())],
+			'name|键'         => ['require', 'alphaDash', 'length' => '1,50', 'unique:config'],
+			'group|分组'       => ['require', 'integer', 'egt' => 0],
+			'type|键类型'       => ['require', 'in' => array_keys(\xs\Config::typeAttr())],
 			'value|值'        => [],
+			'validate|验证规则'  => ['length' => '1,250'],
 			'extra|额外参数'     => [],
 			'description|描述' => [],
-			'sort|排序'        => ['number', 'between' => '0,9999'],
-			'status|状态'      => ['require', 'number', 'between' => '0,1'],
+			'sort|排序'        => ['integer', 'between' => '0,9999'],
+			'status|状态'      => ['require', 'integer', 'between' => '0,1'],
 		]);
 		$param===false && $this->error($this->getError());
 		$result = model('Config')
@@ -70,7 +72,7 @@ class Config extends \app\common\controller\AdminBase{
 			->save($param);
 		$result || $this->error();
 		//初始化配置
-		model('Config')->load(true);
+		\xs\Config::load(true);
 		$this->success('操作成功', cookie('forward'));
 	}
 	
@@ -79,10 +81,13 @@ class Config extends \app\common\controller\AdminBase{
 	 */
 	public function simple_setting(){
 		if(!$this->request->isPost()){
-			$list = model("Config")
+			$list = model('Config')
 				->where(['status' => 1, 'group' => input('group', 1)])
-				->order('sort DESC')
+				->order('sort DESC,id DESC')
 				->select();
+			foreach($list as $k => $v){
+				$v['type']=='editor' && $list[$k]['value'] = htmlspecialchars_decode($v['value']);
+			}
 			//视图
 			return $this->fetch('', [
 				'list' => $list,
@@ -91,6 +96,14 @@ class Config extends \app\common\controller\AdminBase{
 		$param = $this->param([
 			'config' => ['require', 'array'],
 		]);
+		//校验
+		$rule   = model("Config")
+			->where(['name' => ['IN', array_keys($param['config'])], 'validate' => db()->raw('!=""')])
+			->column('validate', 'CONCAT(`name`,"|",`title`)');
+		$result = $this->validate($param['config'], $rule);
+		if($result!==true){
+			$this->error($result);
+		}
 		//更新
 		$sql = " CASE `name` ";
 		foreach($param['config'] as $k => $v){
@@ -99,7 +112,7 @@ class Config extends \app\common\controller\AdminBase{
 				$i = 0;
 				foreach($v as $k1 => $v1){
 					if(isset($v1['value']) && $v1['value']){
-						$value .= ($i++==0 ? '' : ',').(isset($v1['key']) && $v1['key'] ? $v1['key'].':' : '').$v1['value'];
+						$value .= ($i++==0 ? '' : ',').(isset($v1['key']) && $v1['key'] ? preg_replace('/[,:;\r\n]+/', '', $v1['key']).':' : '').preg_replace('/[,:;\r\n]+/', '', $v1['value']);
 					}
 				}
 			}else{
@@ -113,7 +126,7 @@ class Config extends \app\common\controller\AdminBase{
 			->update(['value' => db()->raw($sql)]);
 		$result || $this->error('操作失败');
 		//初始化配置
-		model('Config')->load(true);
+		\xs\Config::load(true);
 		$this->success('操作成功');
 	}
 	

@@ -1,7 +1,7 @@
 <?php
 /**
  * 插件
- * @author 夏爽
+ * @author xs
  */
 namespace app\admin\controller;
 
@@ -11,17 +11,8 @@ class Addon extends \app\common\controller\AdminBase{
 	 * 备份文件列表
 	 */
 	public function addon_list(){
-		$path = config('addon_path');
-		//创建目录
-		if(!is_dir($path) && !mkdir($path, 0777, true)){
-			$this->error("目录 {$path} 创建失败！");
-		}
-		//检测目录是否可写
-		if(!is_writable($path)){
-			$this->error("目录 {$path} 不可写！");
-		}
 		//获取文件列
-		$files = new \FilesystemIterator($path, \FilesystemIterator::KEY_AS_FILENAME);
+		$files = new \FilesystemIterator(ADDON_PATH, \FilesystemIterator::KEY_AS_FILENAME);
 		
 		$list      = [];
 		$has_class = [];
@@ -62,7 +53,7 @@ class Addon extends \app\common\controller\AdminBase{
 		
 		foreach($addons as $k => $v){
 			$v['status_format'] = '包不存在【异常】';
-			$list[] = $v;
+			$list[]             = $v;
 		}
 		
 		//视图
@@ -91,13 +82,13 @@ class Addon extends \app\common\controller\AdminBase{
 			]);
 		}
 		$param = $this->param([
-			'id'             => ['require', 'number', 'min' => 0],
+			'id'             => ['require', 'integer', 'egt' => 0],
 			'title|名称'       => ['require', 'max' => 50],
 			'author|作者'      => ['max' => 50],
 			'version|版本'     => ['max' => 50],
 			'description|描述' => [],
-			'sort|排序'        => ['between' => '0,9999'],
-			'status|状态'      => ['require', 'number', 'between' => '0,1'],
+			'sort|排序'        => ['integer', 'between' => '0,9999'],
+			'status|状态'      => ['require', 'integer', 'between' => '0,1'],
 			'config|配置'      => ['array'],
 		]);
 		$param===false && $this->error($this->getError());
@@ -111,9 +102,9 @@ class Addon extends \app\common\controller\AdminBase{
 			$validate = [];
 			foreach($coption as $k => $v){
 				isset($v['validate'])
-					&& $validate[$k.(isset($v['name']) ? '|'.$v['name'] : '')] = $v['validate'];
+				&& $validate[$k.(isset($v['name']) ? '|'.$v['name'] : '')] = $v['validate'];
 			}
-			
+
 //			halt([$param['config'], $validate]);
 			$result = $this->validate($param['config'], $validate);
 			$result!==true && $this->error($result);
