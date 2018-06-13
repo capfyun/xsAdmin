@@ -6,11 +6,7 @@
 namespace app\admin\controller;
 
 
-
-use think\Validate;
-use xs\auth\Auth;
 use xs\Rsa;
-use xs\Upload;
 
 class Debug extends \app\common\controller\AdminBase{
 	
@@ -36,7 +32,7 @@ class Debug extends \app\common\controller\AdminBase{
 		// 设置生产相关配置，具体配置参数见 [Configuration](Configuration.md)
 		$config = \Kafka\ProducerConfig::getInstance();
 		$config->setMetadataRefreshIntervalMs(10000);
-		$config->setMetadataBrokerList('10.13.4.159:9192');
+		$config->setMetadataBrokerList('127.0.0.1:9092');
 		$config->setBrokerVersion('0.9.0.1');
 		$config->setRequiredAck(1);
 		$config->setIsAsyn(false);
@@ -65,7 +61,7 @@ class Debug extends \app\common\controller\AdminBase{
 		
 		$config = \Kafka\ConsumerConfig::getInstance();
 		$config->setMetadataRefreshIntervalMs(10000);
-		$config->setMetadataBrokerList('10.13.4.159:9192');
+		$config->setMetadataBrokerList('127.0.0.1:9092');
 		$config->setGroupId('test');
 		$config->setBrokerVersion('0.9.0.1');
 		$config->setTopics(array('test'));
