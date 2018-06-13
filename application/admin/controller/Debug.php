@@ -48,12 +48,19 @@ class Debug extends \app\common\controller\AdminBase{
 		});
 //		$producer->setLogger($logger);
 		$producer->success(function($result) {
-			var_dump($result);
+			halt([
+				'success',
+				$result
+			]);
 		});
 		$producer->error(function($errorCode) {
-			var_dump($errorCode);
+			halt([
+				'error',
+				$errorCode
+			]);
 		});
 		$producer->send();
+		halt('end');
 	}
 	
 	
@@ -69,7 +76,8 @@ class Debug extends \app\common\controller\AdminBase{
 		$consumer = new \Kafka\Consumer();
 //		$consumer->setLogger($logger);
 		$consumer->start(function($topic, $part, $message) {
-			var_dump($message);
+			halt([$topic, $part, $message]);
 		});
+		halt('end');
 	}
 }
