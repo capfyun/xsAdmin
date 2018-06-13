@@ -13,7 +13,10 @@
  * @auth xs
  */
 return [
-	'app\admin\command\Test', //测试
-	'app\admin\command\Server', //创建服务器
-	'app\admin\command\Timer', //创建服务器
+	//测试
+	'app\common\command\Test',
+	//开启定时器
+	'app\common\command\Timer',
+	//Kafka
+	'app\common\command\Kafka',
 ];

@@ -33,7 +33,7 @@ class Debug extends \app\common\controller\AdminBase{
 		$config = \Kafka\ProducerConfig::getInstance();
 		$config->setMetadataRefreshIntervalMs(10000);
 		$config->setMetadataBrokerList('127.0.0.1:9092');
-		$config->setBrokerVersion('0.9.0.1');
+//		$config->setBrokerVersion('0.9.0.1');
 		$config->setRequiredAck(1);
 		$config->setIsAsyn(false);
 		$config->setProduceInterval(500);
@@ -48,19 +48,19 @@ class Debug extends \app\common\controller\AdminBase{
 		});
 //		$producer->setLogger($logger);
 		$producer->success(function($result) {
-			halt([
+			var_dump([
 				'success',
 				$result
 			]);
 		});
 		$producer->error(function($errorCode) {
-			halt([
+			var_dump([
 				'error',
 				$errorCode
 			]);
 		});
 		$producer->send();
-		halt('end');
+		var_dump('end');
 	}
 	
 	
@@ -70,14 +70,14 @@ class Debug extends \app\common\controller\AdminBase{
 		$config->setMetadataRefreshIntervalMs(10000);
 		$config->setMetadataBrokerList('127.0.0.1:9092');
 		$config->setGroupId('test');
-		$config->setBrokerVersion('0.9.0.1');
+//		$config->setBrokerVersion('0.9.0.1');
 		$config->setTopics(array('test'));
 //$config->setOffsetReset('earliest');
 		$consumer = new \Kafka\Consumer();
 //		$consumer->setLogger($logger);
 		$consumer->start(function($topic, $part, $message) {
-			halt([$topic, $part, $message]);
+			var_dump([$topic, $part, $message]);
 		});
-		halt('end');
+		var_dump('end');
 	}
 }

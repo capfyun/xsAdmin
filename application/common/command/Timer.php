@@ -1,19 +1,17 @@
 <?php
 /**
- * 命令行-定时器
+ * 定时器
  * @auth xs
  */
-namespace app\admin\command;
+namespace app\common\command;
 
 use think\console\Input;
 use think\console\Output;
 use think\console\input\Argument;
 use think\console\input\Option;
 
-class Timer extends \app\common\command\Base{
+class Timer extends Base{
 	
-	//当前模块
-	protected $module = 'admin';
 	
 	/**
 	 * 命令配置

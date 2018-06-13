@@ -1,34 +1,31 @@
 <?php
 /**
- * 自定义命令行-测试
+ * 测试
  * @auth xs
  */
-namespace app\admin\command;
+namespace app\common\command;
 
 use think\console\Input;
 use think\console\Output;
 use think\console\input\Argument;
 use think\console\input\Option;
 
-class Test extends \app\common\command\Base{
-	
-	//当前模块
-	protected $module = 'admin';
-	
+class Kafka extends Base{
 	/**
 	 * 命令配置
 	 */
 	protected function configure(){
+		//命令名称
+		$this->setName('kafka')
+			->setDescription('Here is the remark ') //描述
+			//参数
+			->addArgument('email', Argument::REQUIRED) //必填
+			->addArgument('mobile', Argument::OPTIONAL) //选填
+			//选项
+			->addOption('message', 'm', Option::VALUE_REQUIRED, 'test') //必填
+			->addOption('status', 's', Option::VALUE_OPTIONAL, 'test'); //选填
 		
-		//设置参数
-		$this->addArgument('email', Argument::OPTIONAL); //必传参数
-		$this->addArgument('mobile', Argument::OPTIONAL);//可选参数
 		
-		//选项定义
-		$this->addOption('message', 'm', Option::VALUE_OPTIONAL, 'test'); //选项值必填
-		$this->addOption('status', 's', Option::VALUE_OPTIONAL, 'test'); //选项值选填
-		
-		$this->setName('test')->setDescription('Here is the remark ');
 	}
 	
 	/**

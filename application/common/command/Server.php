@@ -1,19 +1,16 @@
 <?php
 /**
- * 命令行-服务器
+ * 服务
  * @auth xs
  */
-namespace app\admin\command;
+namespace app\common\command;
 
 use think\console\Input;
 use think\console\Output;
 use think\console\input\Argument;
 use think\console\input\Option;
 
-class Server extends \app\common\command\Base{
-	
-	//当前模块
-	protected $module = 'admin';
+class Server extends Base{
 	
 	/**
 	 * 命令配置

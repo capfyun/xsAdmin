@@ -19,10 +19,11 @@ return [
 	],
 	/* 域名路由 */
 	'__domain__'  => [
+		//本地调试路由
 		'admin.xs.local' => 'admin',
-		'c.7guoyouxi.com' => 'admin',
 		'api.xs.local'   => 'api',
-		// 泛域名规则
+		//正式域名
+		'c.7guoyouxi.com' => 'admin',
 	],
 
 ];
