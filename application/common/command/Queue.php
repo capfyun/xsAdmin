@@ -20,7 +20,7 @@ class Queue extends Base{
 			->setDescription('')//描述
 			//参数
 			->addArgument('type', Argument::REQUIRED)
-			->addOption('close', 'c', Option::VALUE_OPTIONAL, 'close consumer');
+			->addOption('close', 'c', Option::VALUE_NONE, 'close consumer');
 	}
 	
 	/**
@@ -30,10 +30,17 @@ class Queue extends Base{
 	 * @return void
 	 */
 	protected function execute(Input $input, Output $output){
-		//获取参数值
-		$args = $input->getArguments();
+		$this->input  = $input;
+		$this->output = $output;
 		
-		switch(strtolower($args['type'])){
+		//关闭消费者
+		if($input->getOption('close')){
+			$queue = new \xs\Queue();
+			$queue->close($input->getArgument('type'));
+			exit;
+		}
+		
+		switch(strtolower($input->getArgument('type'))){
 			//测试
 			case 'test':
 				$this->test();
@@ -43,7 +50,8 @@ class Queue extends Base{
 				$this->producer();
 				break;
 			default:
-				print_r($args);
+				print_r($input->getArguments());
+				print_r($input->getOptions());
 		}
 	}
 	
@@ -52,7 +60,7 @@ class Queue extends Base{
 	 */
 	private function producer(){
 		$queue = new \xs\Queue();
-		$queue->producer('test',['xcxc','asqwe','asdq'=>123123]);
+		$queue->producer('test', ['xcxc', 'asqwe', 'asdq' => 123123]);
 		print_r('end');
 	}
 	
@@ -61,8 +69,8 @@ class Queue extends Base{
 	 */
 	public function test(){
 		$queue = new \xs\Queue();
-		$queue->consumer('test',function($data){
-			dbDebug('consumer',$data);
+		$queue->consumer('test', function($data){
+			dbDebug('consumer', $data);
 		});
 		print_r('end');
 	}

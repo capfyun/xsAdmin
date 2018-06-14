@@ -22,6 +22,7 @@ class Test extends Base{
 			->addArgument('email', Argument::REQUIRED) //必填
 			->addArgument('mobile', Argument::OPTIONAL) //选填
 			//选项
+			->addOption('close', 'c', Option::VALUE_NONE, 'close') //有该选项时值为1
 			->addOption('message', 'm', Option::VALUE_REQUIRED, 'test') //必填
 			->addOption('status', 's', Option::VALUE_OPTIONAL, 'test'); //选填
 		
