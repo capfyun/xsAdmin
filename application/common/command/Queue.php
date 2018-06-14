@@ -35,6 +35,8 @@ class Queue extends Base{
 		
 		//关闭消费者
 		if($input->getOption('close')){
+			print_r('close');
+			print_r($input->getArgument('type'));
 			$queue = new \xs\Queue();
 			$queue->close($input->getArgument('type'));
 			exit;

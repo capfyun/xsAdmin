@@ -5,7 +5,12 @@
  */
 namespace xs;
 
+use xs\traits\Instance;
+
 class Queue{
+	
+	use Instance;
+	
 	/**
 	 * Queue Class
 	 * 需要安装kafka http://kafka.apache.org/downloads.html
@@ -58,17 +63,17 @@ class Queue{
 	 */
 	public function consumer($topic, \Closure $callback = null){
 		$config = \Kafka\ConsumerConfig::getInstance();
-		$config->setMetadataBrokerList('127.0.0.1:9092');
 		$config->setGroupId($topic);
 		$config->setTopics(array($topic));
 		$consumer = new \Kafka\Consumer();
 		$consumer->start(function($topic, $part, $message) use ($callback){
-			isset($message['key']) && $message['key']=='close' && exit();
+			print_r(['consumer', $topic, $part, $message]);
+			$data = $message['message'];
+			$data['key']=='close' && exit();
 			if(is_callable($callback)){
-				$value = json_decode($message['value'], true);
+				$value = json_decode($data['value'], true);
 				call_user_func($callback, $value);
 			}
-			print_r(['consumer', $topic, $part, $message]);
 		});
 		//不会运行到此
 	}
@@ -80,23 +85,17 @@ class Queue{
 	 * @return bool
 	 */
 	public function producer($topic, $data = []){
-		$producer = new \Kafka\Producer(function() use ($topic,$data){
+		$producer = new \Kafka\Producer(function() use ($topic, $data){
 			return array(
-				array(
-					'topic' => $topic,
-					'value' => json_encode($data),
-//					'key'   => '',
-				),
+				array('topic' => $topic, 'key' => 'data', 'value' => json_encode($data),),
 			);
 		});
 		//注册发送成功事件
-//		$producer->success(function($result){
-//			print_r(['producer_success', $result,]);
-//		});
+		$producer->success(function($result){ });
 		//注册发送失败事件
-//		$producer->error(function($errorCode){
-//			print_r(['producer_error', $errorCode,]);
-//		});
+		$producer->error(function($errorCode){ });
+		//发送
+		$producer->send();
 		$producer->send();
 		return true;
 	}
@@ -109,11 +108,7 @@ class Queue{
 	public function close($topic){
 		$producer = new \Kafka\Producer(function() use ($topic){
 			return array(
-				array(
-					'topic' => $topic,
-//					'value' => '',
-					'key'   => 'close',
-				),
+				array('topic' => $topic, 'key' => 'close', 'value' => 'close',),
 			);
 		});
 		$producer->send();
