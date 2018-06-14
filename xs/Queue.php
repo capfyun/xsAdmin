@@ -63,7 +63,7 @@ class Queue{
 		$config->setTopics(array($topic));
 		$consumer = new \Kafka\Consumer();
 		$consumer->start(function($topic, $part, $message) use ($callback){
-			$message['key']=='close' && exit();
+			isset($message['key']) && $message['key']=='close' && exit();
 			if(is_callable($callback)){
 				$value = json_decode($message['value'], true);
 				call_user_func($callback, $value);
