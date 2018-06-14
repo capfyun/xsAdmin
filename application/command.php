@@ -18,5 +18,5 @@ return [
 	//开启定时器
 	'app\common\command\Timer',
 	//Kafka
-	'app\common\command\Kafka',
+	'app\common\command\Queue',
 ];
