@@ -19,7 +19,8 @@ class Queue extends Base{
 		$this->setName('queue')
 			->setDescription('')//描述
 			//参数
-			->addArgument('type', Argument::REQUIRED);
+			->addArgument('type', Argument::REQUIRED)
+			->addOption('close', 'c', Option::VALUE_OPTIONAL, 'close consumer');
 	}
 	
 	/**
@@ -42,6 +43,7 @@ class Queue extends Base{
 				$this->producer();
 				break;
 			default:
+				print_r($args);
 		}
 	}
 	
@@ -49,27 +51,8 @@ class Queue extends Base{
 	 * 生产者，该方法用于调试
 	 */
 	private function producer(){
-		
-		// 设置生产相关配置，具体配置参数见 [Configuration](Configuration.md)
-		$config = \Kafka\ProducerConfig::getInstance();
-		$config->setMetadataBrokerList('127.0.0.1:9092');
-		
-		$producer = new \Kafka\Producer(function(){
-			return array(
-				array(
-					'topic' => 'test',
-					'value' => json_encode(['asd', 'xcxc' => '123']),
-					'key'   => json_encode(['xcxcas' => '123123', 'asdqwe']),
-				),
-			);
-		});
-		$producer->success(function($result){
-			print_r(['producer_success', $result,]);
-		});
-		$producer->error(function($errorCode){
-			print_r(['producer_error', $errorCode,]);
-		});
-		$producer->send();
+		$queue = new \xs\Queue();
+		$queue->producer('test',['xcxc','asqwe','asdq'=>123123]);
 		print_r('end');
 	}
 	
@@ -77,13 +60,9 @@ class Queue extends Base{
 	 * 消费者
 	 */
 	public function test(){
-		
-		$config = \Kafka\ConsumerConfig::getInstance();
-		$config->setMetadataBrokerList('127.0.0.1:9092');
-		$config->setTopics(array('test'));
-		$consumer = new \Kafka\Consumer();
-		$consumer->start(function($topic, $part, $message){
-			print_r(['consumer', $topic, $part, $message]);
+		$queue = new \xs\Queue();
+		$queue->consumer('test',function($data){
+			dbDebug('consumer',$data);
 		});
 		print_r('end');
 	}
