@@ -112,7 +112,7 @@ class Queue{
 				array(
 					'topic' => $topic,
 //					'value' => '',
-					'key'   => 'stop',
+					'key'   => 'close',
 				),
 			);
 		});
