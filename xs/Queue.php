@@ -5,26 +5,30 @@
  */
 namespace xs;
 
-use xs\traits\Instance;
 
 class Queue{
-	
-	use Instance;
 	
 	/**
 	 * Queue Class
 	 * 需要安装kafka http://kafka.apache.org/downloads.html
 	 * 依赖 composer nmred/kafka-php:0.2.*
 	 */
+	
 	/**
-	 * 配置
+	 * 单例实例
+	 * @var Queue
+	 */
+	protected static $instance = null;
+	
+	/**
+	 * 默认配置
 	 * @var array
 	 */
 	private static $config = [
 		//通用配置
 		'clientId'                  => 'kafka-php',
 		'brokerVersion'             => '0.10.1.0',
-		'metadataBrokerList'        => '',
+		'metadataBrokerList'        => '127.0.0.1:9092',
 		'messageMaxBytes'           => '1000000',
 		'metadataRequestTimeoutMs'  => '60000',
 		'metadataRefreshIntervalMs' => '300000',
@@ -47,13 +51,37 @@ class Queue{
 	
 	/**
 	 * 初始化
-	 * Queue constructor.
+	 * @param array $options 配置
 	 */
-	public function __construct(){
-		\Kafka\ConsumerConfig::getInstance()
-			->setMetadataBrokerList('127.0.0.1:9092');
-		\Kafka\ProducerConfig::getInstance()
-			->setMetadataBrokerList('127.0.0.1:9092');
+	private function __construct($options = []){
+		$this->config($options);
+	}
+	
+	/**
+	 * 获取实例
+	 * @param array $options 实例配置
+	 * @return static
+	 */
+	public static function instance($options = []){
+		if(is_null(self::$instance)){
+			static::$instance = new static($options);
+		}
+		return static::$instance;
+	}
+	
+	/**
+	 * 配置
+	 * @param array $options 配置
+	 * return $this
+	 */
+	public function config($options = []){
+		$options = array_merge(static::$config,$options);
+		foreach($options as $k => $v){
+			$method = 'set'.ucfirst($k);
+			\Kafka\ConsumerConfig::getInstance()->$method($v);
+			\Kafka\ProducerConfig::getInstance()->$method($v);
+		}
+		return $this;
 	}
 	
 	/**
@@ -80,8 +108,8 @@ class Queue{
 	
 	/**
 	 * 使用生产者
-	 * @param $topic
-	 * @param array $data
+	 * @param string $topic 主题
+	 * @param array $data 数据
 	 * @return bool
 	 */
 	public function producer($topic, $data = []){
@@ -96,13 +124,12 @@ class Queue{
 		$producer->error(function($errorCode){ });
 		//发送
 		$producer->send();
-		$producer->send();
 		return true;
 	}
 	
 	/**
 	 * 关闭消费者
-	 * @param $topic
+	 * @param string $topic 主题
 	 * @return bool
 	 */
 	public function close($topic){
