@@ -66,7 +66,7 @@ class Lock{
 	 * @param int $time 时长（秒），0为永久
 	 * @return bool
 	 */
-	public function acquire($name, $time = 10){
+	public static function acquire($name, $time = 10){
 		return self::init()->acquire($name, $time);
 	}
 	
@@ -75,7 +75,7 @@ class Lock{
 	 * @param string $name 锁名称
 	 * @return bool
 	 */
-	public function release($name){
+	public static function release($name){
 		return self::init()->release($name);
 	}
 }

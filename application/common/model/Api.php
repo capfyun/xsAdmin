@@ -5,6 +5,10 @@
  */
 namespace app\common\model;
 
+use xs\Aes;
+use xs\Curl;
+use xs\Rsa;
+
 class Api extends Base{
 	
 	/* 自动完成 */
@@ -78,7 +82,7 @@ class Api extends Base{
 		if(isset($data['isinit']) && $data['isinit']==1){
 			//获取接口参数
 			$api_url = $this->getApiUrl($data['url']);
-			$result  = service('Curl')->request($api_url, ['getapiinfo' => 1], 'post');
+			$result  = Curl::request($api_url, ['getapiinfo' => 1], 'post');
 			$result  = json_decode($result, true);
 			if(!$result){
 				$this->error = '初始化失败';
@@ -157,26 +161,18 @@ class Api extends Base{
 		//加密
 		if($api->is_encrypt){
 			//客户端签名
-			$param['_sign'] = service('Rsa')
-				->setPrivateKey(config('client_private_key'))
-				->sign(http_build_query($param));
+			$param['_sign'] = Rsa::privates(config('client_private_key'))->sign(http_build_query($param));
 			//客户端aes加密
 			$aesKey        = '7guoyx'.time();
-			$post['param'] = service('Aes')
-				->setKey($aesKey)
-				->encrypt(http_build_query($param));
+			$post['param'] = Aes::instance(['key'=>$aesKey])->encrypt(http_build_query($param));
 			//客户端加密aes key
-			$post['key'] = service('Rsa')
-				->setPublicKey(config('rsa_public_key'))
-				->publicEncrypt($aesKey);
+			$post['key'] = Rsa::publics(config('rsa_public_key'))->encrypt($aesKey);
 		}else{
 			$post = $param;
 		}
-		
-		
 		//调用接口
 		$api_url = $this->getApiUrl($api->url);
-		$result  = service('Curl')->request($api_url, $post, 'post');
+		$result  = Curl::request($api_url, $post, 'post');
 		
 		if(!$result){
 			$this->error = '请求失败';
@@ -202,9 +198,7 @@ class Api extends Base{
 			return false;
 		}
 		//获取aes key
-		$key = service('Rsa')
-			->setPrivateKey(config('rsa_private_key'))
-			->privateDecrypt($input['key']);
+		$key = Rsa::privates(config('rsa_private_key'))->decrypt($input['key']);
 		//校验aes key
 		$result = preg_match('/^7guoyx(\d{10})$/', $key, $time);
 		if(!$result){
@@ -217,9 +211,8 @@ class Api extends Base{
 			return false;
 		}
 		//解密参数
-		$http = service('Aes')
-			->setKey($key)
-			->decrypt($input['param']);
+		
+		$http = Aes::instance($key)->decrypt($input['param']);
 		parse_str($http, $param);
 		//校验签名
 		if(!isset($param['_sign'])){
@@ -228,9 +221,7 @@ class Api extends Base{
 		}
 		$sign = $param['_sign'];
 		unset($param['_sign']);
-		$result = service('Rsa')
-			->setPublicKey(config('client_public_key'))
-			->verify(http_build_query($param), $sign);
+		$result = Rsa::publics(config('client_public_key'))->verify(http_build_query($param), $sign);
 		if(!$result){
 			$this->error = '签名校验失败';
 			return false;

@@ -64,7 +64,7 @@ class Auth {
 	 * 校验IP是否允许登录
 	 */
 	private function checkLoginIp(){
-		$ip = service('Tool')->getClientIp();
+		$ip = Helper::getClientIp();
 		switch(Config::get('admin_id_type')){
 			//禁止模式
 			case '1':

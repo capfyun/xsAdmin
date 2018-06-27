@@ -7,6 +7,7 @@ namespace addon\database_backup;
 
 use addon\Base;
 use think\Hook;
+use xs\Helper;
 
 class DatabaseBackup extends Base{
 	
@@ -49,7 +50,7 @@ class DatabaseBackup extends Base{
 		
 		$url = strtolower(
 			request()->module()
-			.'/'.service('Tool')->convertHump(request()->controller())
+			.'/'.Helper::convertHump(request()->controller())
 			.'/'.request()->action()
 		);
 		$id  = uniqid();

@@ -17,10 +17,6 @@ class AliSms extends Base{
 	//短信类型
 	protected $send_type = '';
 	
-	public function __construct(){
-		parent::__construct();
-	}
-	
 	/**
 	 * 初始化配置
 	 * @param array $config

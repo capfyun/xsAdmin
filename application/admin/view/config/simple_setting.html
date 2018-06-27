@@ -55,7 +55,7 @@
 
 					{case list}
 					<dl class="simple-with-drop">
-						{foreach :service('Tool')->strToArray($v['value']) as $k1 => $v1}
+						{foreach :\xs\Helper::strToArray($v['value']) as $k1 => $v1}
 						<dd class="form-inline">
 							<input type="text" name="config[{$v.name}][{$k1}][value]" class="form-control" value="{$v1}" size="30" placeholder="值">
 							<span class="btn btn-sm btn-danger " onclick="$(this).parent('dd').remove();">
@@ -77,7 +77,7 @@
 					{case dict}
 						<dl class="simple-with-drop">
 							{php}$i = 0;{/php}
-							{foreach :service('Tool')->strToArray($v['value']) as $k1 => $v1}
+							{foreach :\xs\Helper::strToArray($v['value']) as $k1 => $v1}
 							<dd class="form-inline">
 								<input type="text" name="config[{$v.name}][{$i}][key]" class="form-control" value="{:is_int($k1) ? '' : $k1}" size="10" placeholder="键">
 								<input type="text" name="config[{$v.name}][{$i}][value]" class="form-control" value="{$v1}" size="30" placeholder="值">
@@ -100,7 +100,7 @@
 
 					{case select}
 						<select name="config[{$v.name}]" class="form-control select2">
-							{foreach :service('Tool')->strToArray($v['extra']) as $k1 => $v1}
+							{foreach :\xs\Helper::strToArray($v['extra']) as $k1 => $v1}
 							<option value="{$k1}" {if $v['value']==$k1} selected {/if}>{$v1}</option>
 							{/foreach}
 						</select>
@@ -108,14 +108,14 @@
 
 					{case selects}
 						<select name="config[{$v.name}][][value]" class="form-control select2" multiple>
-							{foreach :service('Tool')->strToArray($v['extra']) as $k1 => $v1}
+							{foreach :\xs\Helper::strToArray($v['extra']) as $k1 => $v1}
 							<option value="{$k1}" {if in_array($k1,explode(',',$v['value']))} selected {/if}>{$v1}</option>
 							{/foreach}
 						</select>
 					{/case}
 
 					{case radio}
-						{foreach :service('Tool')->strToArray($v['extra']) as $k1 => $v1}
+						{foreach :\xs\Helper::strToArray($v['extra']) as $k1 => $v1}
 						<label class="radio-inline">
 							<input name="config[{$v.name}]" type="radio" value="{$k1}" required {if $v['value']==$k1} checked {/if}>
 							{$v1}
@@ -124,7 +124,7 @@
 					{/case}
 
 					{case checkbox}
-						{foreach :service('Tool')->strToArray($v['extra']) as $k1 => $v1}
+						{foreach :\xs\Helper::strToArray($v['extra']) as $k1 => $v1}
 						<label class="checkbox-inline">
 							<input name="config[{$v.name}][][value]" type="checkbox" value="{$k1}" {if in_array($k1,explode(',',$v['value']))} checked {/if}>
 							{$v1}

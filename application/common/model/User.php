@@ -7,6 +7,8 @@ namespace app\common\model;
 
 use think\Cookie;
 use think\Session;
+use xs\Aes;
+use xs\Helper;
 
 class User extends Base{
 	/* 自动完成 */
@@ -33,7 +35,7 @@ class User extends Base{
 	 * 修改器-注册IP
 	 */
 	public function setRegisterIpAttr($value, $data){
-		return service('Tool')->getClientIp(1);
+		return Helper::getClientIp(1);
 	}
 	
 	/**
@@ -138,7 +140,7 @@ class User extends Base{
 	public function loginUpdate($user_id){
 		$this->isUpdate(true)->save([
 			'last_login_time' => time(),
-			'last_login_ip'   => service('Tool')->getClientIp(1),
+			'last_login_ip'   => Helper::getClientIp(1),
 			'login_num'       => db()->raw('`login_num`+1'),
 		], ['id' => $user_id]);
 	}
@@ -158,7 +160,7 @@ class User extends Base{
 		];
 		Session::set('user_id', $user->id);
 		Session::set('user', $auth);
-		Session::set('user_sign', service('Tool')->sign($auth));
+		Session::set('user_sign', Helper::sign($auth));
 		Session::set('nickname', $user->nickname);
 		Session::set('face', url('open/image', ['i' => $user->face, 'w' => 150, 'h' => 150]));
 	}
@@ -170,8 +172,8 @@ class User extends Base{
 	public function loginAfterCookie($user_id){
 		$user = $this->get($user_id);
 		Cookie::set(
-			service('Tool')->sign('cookie_login'),
-			service('Aes')->encrypt($user->username.'||'.$user->password),
+			Helper::sign('cookie_login'),
+			Aes::encrypt($user->username.'||'.$user->password),
 			7*24*60*60
 		);
 	}
@@ -193,7 +195,7 @@ class User extends Base{
 	public function isLogin(){
 		$user = Session::get('user');
 		if(!$user
-			|| Session::get('user_sign')!=service('Tool')->sign($user)
+			|| Session::get('user_sign')!=Helper::sign($user)
 		){
 			return 0;
 		}
@@ -229,12 +231,12 @@ class User extends Base{
 	 * @return int 用户ID
 	 */
 	public function cookieLogin(){
-		$cookie_login = cookie(service('Tool')->sign('cookie_login'));
+		$cookie_login = cookie(Helper::sign('cookie_login'));
 		
 		if(!$cookie_login){
 			return 0;
 		}
-		$cookie = service('Aes')->decrypt($cookie_login);
+		$cookie = Aes::decrypt($cookie_login);
 		if(!$cookie || strpos($cookie, '||')===false){
 			return 0;
 		}

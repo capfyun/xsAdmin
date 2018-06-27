@@ -12,13 +12,7 @@ class Thread {
 	protected $portal_url = 'http://crm.7guoyouxi.com/open/thread';
 	
 	/**
-	 * 初始化
-	 */
-	public function __construct(){
-	}
-	
-	/**
-	 * 开启异步线程
+	 * 异步线程
 	 * @param string $url 地址（如控制器/方法）
 	 * @param array $data 参数
 	 * @param string $method 请求方式

@@ -5,6 +5,8 @@
  */
 namespace app\admin\controller;
 
+use xs\Helper;
+
 class Auth extends \app\common\controller\AdminBase{
 	
 	/**
@@ -49,7 +51,7 @@ class Auth extends \app\common\controller\AdminBase{
 			$rule = model('authRule')->get(input('id'));
 			//权限列表
 			$rule_list = db('auth_rule')->order('sort DESC')->select();
-			$rule_list = service('Tool')->sortArrayRecursio($rule_list);
+			$rule_list = Helper::sortArrayRecursio($rule_list);
 			//视图
 			return $this->fetch('', [
 				'info'      => $rule,
@@ -122,7 +124,7 @@ class Auth extends \app\common\controller\AdminBase{
 			$group = model('AuthGroup')->get(input('id'));
 			//权限列表
 			$rule_list = db('auth_rule')->order('sort DESC')->select();
-			$rule_list = service('Tool')->sortArrayRecursio($rule_list);
+			$rule_list = Helper::sortArrayRecursio($rule_list);
 			return $this->fetch('', [
 				'info'      => $group,
 				'rule_list' => $rule_list,

@@ -7,6 +7,7 @@ namespace addon\captcha;
 
 use addon\Base;
 use think\Hook;
+use xs\Helper;
 
 class Captcha extends Base{
 	
@@ -70,7 +71,7 @@ class Captcha extends Base{
 		
 		$url = strtolower(
 			request()->module()
-			.'/'.service('Tool')->convertHump(request()->controller())
+			.'/'.Helper::convertHump(request()->controller())
 			.'/'.request()->action()
 		);
 		//注册

@@ -24,7 +24,7 @@ class Queue extends Base{
 	}
 	
 	/**
-	 * 可以这样执行命令 php think test hello 13333333333 -m"this value should set" -s"this value can be null"
+	 * 运行
 	 * @param Input $input
 	 * @param Output $output
 	 * @return void
@@ -57,7 +57,7 @@ class Queue extends Base{
 	}
 	
 	/**
-	 * 生产者，该方法用于调试
+	 * 生产者，用于调试
 	 */
 	private function producer(){
 		\xs\Queue::instance()->producer('test', ['xcxc', 'asqwe', 'asdq' => 123123]);
@@ -67,7 +67,7 @@ class Queue extends Base{
 	/**
 	 * 消费者
 	 */
-	public function test(){
+	private function test(){
 		\xs\Queue::instance()->consumer('test', function($data){
 			dbDebug('consumer', $data);
 		});

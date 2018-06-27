@@ -5,7 +5,6 @@
  */
 namespace xs;
 
-
 class Queue{
 	
 	/**
@@ -26,27 +25,7 @@ class Queue{
 	 */
 	private static $config = [
 		//通用配置
-		'clientId'                  => 'kafka-php',
-		'brokerVersion'             => '0.10.1.0',
-		'metadataBrokerList'        => '127.0.0.1:9092',
-		'messageMaxBytes'           => '1000000',
-		'metadataRequestTimeoutMs'  => '60000',
-		'metadataRefreshIntervalMs' => '300000',
-		'metadataMaxAgeMs'          => -1,
-		//producer配置
-		'requiredAck'               => 1,
-		'timeout'                   => 5000,
-		'isAsyn'                    => false,
-		'requestTimeout'            => 6000,
-		'produceInterval'           => 100,
-		//consumer配置
-		'groupId'                   => '',
-		'sessionTimeout'            => 30000,
-		'rebalanceTimeout'          => 30000,
-		'topics'                    => array(),
-		'offsetReset'               => 'latest', // earliest
-		'maxBytes'                  => 65536, // 64kb
-		'maxWaitTime'               => 100,
+		'metadataBrokerList' => '127.0.0.1:9092',
 	];
 	
 	/**
@@ -75,7 +54,7 @@ class Queue{
 	 * return $this
 	 */
 	public function config($options = []){
-		$options = array_merge(static::$config,$options);
+		$options = array_merge(static::$config, $options);
 		foreach($options as $k => $v){
 			$method = 'set'.ucfirst($k);
 			\Kafka\ConsumerConfig::getInstance()->$method($v);
@@ -85,22 +64,29 @@ class Queue{
 	}
 	
 	/**
-	 * 注册生产者，keep run
+	 * 注册消费者，keep run
 	 * @param string $topic 主题名称
 	 * @param \Closure|null $callback 回调函数
 	 */
 	public function consumer($topic, \Closure $callback = null){
+		//订阅主题
 		$config = \Kafka\ConsumerConfig::getInstance();
 		$config->setGroupId($topic);
 		$config->setTopics(array($topic));
+		//注册
 		$consumer = new \Kafka\Consumer();
 		$consumer->start(function($topic, $part, $message) use ($callback){
-			print_r(['consumer', $topic, $part, $message]);
 			$data = $message['message'];
-			$data['key']=='close' && exit();
-			if(is_callable($callback)){
-				$value = json_decode($data['value'], true);
-				call_user_func($callback, $value);
+			switch($data['key']){
+				//关闭
+				case 'close':
+					exit;
+				//运行
+				default:
+					if(is_callable($callback)){
+						$value = json_decode($data['value'], true);
+						call_user_func($callback, $value);
+					}
 			}
 		});
 		//不会运行到此

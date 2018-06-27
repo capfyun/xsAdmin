@@ -5,19 +5,9 @@
  */
 namespace app\common\service;
 
+use think\Request;
 
-class ExecLock extends Base{
-	//前缀
-	protected $prefix = '';
-	
-	/**
-	 * 初始化
-	 */
-	public function __construct(){
-		parent::__construct();
-		//前缀
-		$this->prefix = config('app_env').'execlock';
-	}
+class Lock extends Base{
 	
 	/**
 	 * 开启锁
@@ -28,15 +18,10 @@ class ExecLock extends Base{
 	public function open($tag = '', $time = 10){
 		//生成锁名
 		$name = $this->getName($tag);
-		//校验是否已锁
-		if(cache($name)==1){
-			$this->error = '已锁';
-			return false;
-		}
-		//上锁
-		$result = cache($name, 1, $time, 'execlock');
+		//获取一个锁
+		$result = \xs\Lock::connect()->acquire($name, $time);
 		if(!$result){
-			$this->error = '系统错误';
+			$this->error = '上锁失败';
 			return false;
 		}
 		return true;
@@ -50,10 +35,10 @@ class ExecLock extends Base{
 	public function close($tag = ''){
 		//生成锁名
 		$name = $this->getName($tag);
-		//关闭
-		$result = cache($name, null);
+		//关闭锁
+		$result = \xs\Lock::connect()->release($name);
 		if(!$result){
-			$this->error = '系统错误';
+			$this->error = '锁关闭失败';
 			return false;
 		}
 		return true;
@@ -65,12 +50,13 @@ class ExecLock extends Base{
 	 * @return string
 	 */
 	protected function getName($tag = ''){
-		//生成名称
-		$name = $this->prefix
-			.request()->module()
-			.request()->controller()
-			.request()->action()
-			.$tag;
-		return strtolower($name);
+		$request = Request::instance();
+		return strtolower(
+			config('app_env')
+			.$request->module()
+			.$request->controller()
+			.$request->action()
+			.$tag
+		);
 	}
 }

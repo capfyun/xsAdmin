@@ -5,6 +5,8 @@
  */
 namespace app\admin\controller;
 
+use xs\Helper;
+
 class Config extends \app\common\controller\AdminBase{
 	
 	/**
@@ -30,7 +32,7 @@ class Config extends \app\common\controller\AdminBase{
 			$v['group_format']  = isset($group_list[$v['group']]) ? $group_list[$v['group']] : '-';
 			$v['type_format']   = \xs\Config::typeAttr($v['type']);
 			$v['status_format'] = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '-';
-			$v['value']         = htmlspecialchars(service('Tool')->msubstr($v['value'], 0, 90));
+			$v['value']         = htmlspecialchars(Helper::msubstr($v['value'], 0, 90));
 			$paging->offsetSet($k, $v);
 		}
 		

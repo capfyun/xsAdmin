@@ -5,6 +5,8 @@
  */
 namespace app\api\controller;
 
+use xs\Helper;
+
 class User extends \app\common\controller\ApiBase{
 	
 	/**
@@ -21,7 +23,7 @@ class User extends \app\common\controller\ApiBase{
 			//手机号登录
 			case 1:
 				//校验手机号
-				$result = service('Tool')->isMobile($param['username']);
+				$result = Helper::isMobile($param['username']);
 				if(!$result){
 					return $this->apiReturn(['code' => 1000, 'msg' => '请输入一个有效的手机号']);
 				}
@@ -101,7 +103,7 @@ class User extends \app\common\controller\ApiBase{
 			//手机号
 			case 1:
 				//校验手机号
-				$result = service('Tool')->isMobile($param['number']);
+				$result = Helper::isMobile($param['number']);
 				if(!$result){
 					return $this->apiReturn(['code' => 1000, 'msg' => '请输入一个有效的手机号']);
 				}

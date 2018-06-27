@@ -6,6 +6,8 @@
 namespace app\admin\controller;
 
 
+use xs\Helper;
+
 class Database extends \app\common\controller\AdminBase{
 	
 	/**
@@ -14,7 +16,7 @@ class Database extends \app\common\controller\AdminBase{
 	public function database_list(){
 		$list = db()->query('SHOW TABLE STATUS');
 		foreach($list as $k => $v){
-			$list[$k]['Data_length_format'] = service('Tool')->formatBytes($v['Data_length']);
+			$list[$k]['Data_length_format'] = Helper::formatBytes($v['Data_length']);
 		}
 		
 		//视图
@@ -99,7 +101,7 @@ class Database extends \app\common\controller\AdminBase{
 		!$name && $this->apiReturn(['code' => 1000, 'msg' => '无文件']);
 		
 		//程序锁
-		$result = service('ExecLock')->open('', 60*60);
+		$result = service('Lock')->open('', 60*60);
 		!$result && $this->apiReturn(['code' => 1000, 'msg' => '检测到有一个还原任务正在执行，请稍后再试！']);
 		
 		//开始还原
@@ -117,7 +119,7 @@ class Database extends \app\common\controller\AdminBase{
 		$config = $class::config();
 		$path   = isset($config['backup_path']) ? $config['backup_path'] : '.';
 		$result = $backup->import(rtrim($path, '/').'/'.$name);
-		service('ExecLock')->close();
+		service('Lock')->close();
 		!$result && $this->apiReturn(['code' => 1000, 'msg' => $backup->getError()]);
 		
 		$this->apiReturn(['code' => 0, 'msg' => '还原成功']);
@@ -131,7 +133,7 @@ class Database extends \app\common\controller\AdminBase{
 	 */
 	public function export(){
 		//程序锁
-		$result = service('ExecLock')->open('', 60*60);
+		$result = service('Lock')->open('', 60*60);
 		!$result && $this->apiReturn(['code' => 1000, 'msg' => '检测到有一个备份任务正在执行，请稍后再试！']);
 		
 		//开始备份
@@ -151,7 +153,7 @@ class Database extends \app\common\controller\AdminBase{
 		$path   = isset($config['backup_path']) ? $config['backup_path'] : '.';
 		$file   = rtrim($path, '/').'/'.date('YmdHis').'_'.config('database.database').'.sql';
 		$result = $backup->export($file, input('name'));
-		service('ExecLock')->close();
+		service('Lock')->close();
 		!$result && $this->apiReturn(['code' => 1000, 'msg' => $backup->getError()]);
 		
 		$this->apiReturn(['code' => 0, 'msg' => '备份成功']);

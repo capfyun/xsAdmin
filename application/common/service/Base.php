@@ -7,12 +7,6 @@ namespace app\common\service;
 
 abstract class Base{
 	
-	/**
-	 * 构造
-	 */
-	public function __construct(){
-	}
-	
 	//错误信息
 	protected $error = '';
 	

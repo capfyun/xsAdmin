@@ -7,6 +7,7 @@ namespace app\common\controller;
 
 use think\Hook;
 use xs\Auth;
+use xs\Helper;
 
 abstract class AdminBase extends Base{
 	//当前用户ID
@@ -24,7 +25,7 @@ abstract class AdminBase extends Base{
 		/* 定义属性 */
 		//当前请求地址
 		$this->url = strtolower(
-			service('Tool')->convertHump($this->request->controller())
+			Helper::convertHump($this->request->controller())
 			.'/'.$this->request->action()
 		);
 
@@ -117,7 +118,7 @@ abstract class AdminBase extends Base{
 		//创建菜单之后
 		Hook::listen('create_menu_after', $rule_list);
 		//进行递归排序
-		return service('Tool')->sortArrayRecursio($rule_list);
+		return Helper::sortArrayRecursio($rule_list);
 	}
 	
 	/**

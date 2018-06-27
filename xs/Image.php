@@ -82,6 +82,7 @@ class Image{
 	/**
 	 * 打印图片
 	 * @param string $path 图片地址，可以是远程图片
+	 * @param string $mime 图片mime格式
 	 * @return false
 	 */
 	public function output($path = '', $mime = ''){

@@ -45,8 +45,8 @@ class Rsa{
 	 * @param array $params 参数
 	 * @return mixed
 	 */
-	public static function __callStatic($type, $params){
-		array_unshift($params, $type);
+	public static function __callStatic($method, $params){
+		array_unshift($params, $method);
 		return call_user_func_array([self::class, 'instance'], $params);
 	}
 	

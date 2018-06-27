@@ -61,17 +61,6 @@ class Open extends \app\common\controller\AdminBase{
 	}
 	
 	/**
-	 * 多线程入口
-	 */
-	public function thread(){
-		//执行多线程任务
-		$result = service('Thread')->portal();
-		!$result && $this->apiReturn(['code' => 1000, 'msg' => service('Thread')->getError()]);
-		
-		$this->apiReturn(['code' => 0, 'msg' => 'ok']);
-	}
-	
-	/**
 	 * 下载
 	 */
 	public function download($id = 0){
