@@ -6,6 +6,7 @@
 namespace app\admin\controller;
 
 
+use xs\Addon;
 use xs\Helper;
 
 class Database extends \app\common\controller\AdminBase{
@@ -48,7 +49,7 @@ class Database extends \app\common\controller\AdminBase{
 	 * 备份文件列表
 	 */
 	public function backup_list(){
-		$class  = model('Addon')->getClass('DatabaseBackup');
+		$class  = Addon::getClass('DatabaseBackup');
 		$config = $class::config();
 		$path   = isset($config['backup_path']) ? $config['backup_path'] : '.';
 		//创建目录
@@ -115,7 +116,7 @@ class Database extends \app\common\controller\AdminBase{
 			'hostport' => config('database.hostport'),
 			'charset'  => config('database.charset'),
 		]);
-		$class  = model('Addon')->getClass('DatabaseBackup');
+		$class  = Addon::getClass('DatabaseBackup');
 		$config = $class::config();
 		$path   = isset($config['backup_path']) ? $config['backup_path'] : '.';
 		$result = $backup->import(rtrim($path, '/').'/'.$name);
@@ -148,7 +149,7 @@ class Database extends \app\common\controller\AdminBase{
 			'charset'  => config('database.charset'),
 		]);
 		//生成文件名
-		$class  = model('Addon')->getClass('DatabaseBackup');
+		$class  = Addon::getClass('DatabaseBackup');
 		$config = $class::config();
 		$path   = isset($config['backup_path']) ? $config['backup_path'] : '.';
 		$file   = rtrim($path, '/').'/'.date('YmdHis').'_'.config('database.database').'.sql';

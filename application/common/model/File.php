@@ -120,9 +120,6 @@ class File extends Base{
 			$this->error = '不存在该文件！';
 			return false;
 		}
-		//擦除缓冲区
-		ob_end_clean();
-		ini_set('memory_limit', '2048M');
 		//下载文件
 		switch($file->location){
 			//本地文件
@@ -139,29 +136,67 @@ class File extends Base{
 	}
 	
 	/**
-	 * 下载本地文件
+	 * 下载本地文件，支持断点续传
 	 * @param  array $file 文件信息数组
 	 * @param  callable $callback 下载回调函数，一般用于增加下载次数
 	 * @param  string $args 回调函数参数
 	 * @return boolean            下载失败返回false
 	 */
 	private function downLocalFile($file){
-		if(!is_file($file['save_path'].$file['save_name'])){
-			$this->error = '文件已被删除！';
-			return false;
+		$path = $file['save_path'].$file['save_name'];
+		if(!is_file($path)){
+			header("HTTP/1.1 505 Internal server error");
+			exit;
 		}
+		$size  = $file['size'];
+		$name  = $file['save_name'];
+		$type  = $file['type'];
+		$begin = 0;
+		$end   = $size-1;
+		//断点续传
+		if(isset($_SERVER['HTTP_RANGE']) && preg_match('/\=\s*(\d+)\s*\-?\s*(\d+)?/', $_SERVER['HTTP_RANGE'], $matches)){
+			header('HTTP /1.1 206 Partial Content');
+			$begin = $matches[1];
+			isset($matches[1]) && $end = $matches[2];
+			header('Content-Range: bytes '.$begin.'-'.$end.'/'.$size);
+		}else{
+			header('Content-Range: bytes 0-'.$end.'/'.$size);
+		}
+		//响应头
+		header('Content-Length:'.($end-$begin+1));
+		header('Content-type: '.$type);
+		header('Content-Description: File Transfer');
+		header('Accenpt-Ranges: bytes');
+		header('Cache-control: public');
+		header('Pragma: public');
+		//解决在IE中下载时中文乱码问题
+		isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/MSIE/', $_SERVER['HTTP_USER_AGENT'])
+			? header('Content-Disposition: attachment; filename="'.rawurlencode($name).'"')
+			: header('Content-Disposition: attachment; filename="'.$name.'"');
+		//下载
+		ob_end_clean();
+		set_time_limit(0);
+		ini_set('memory_limit', '2048M');
+		$fp = fopen($path, 'rb');
+		fseek($fp, $begin, SEEK_SET);
+		while(!feof($fp) && $begin<=$end && (connection_status()==0)){
+			print fread($fp, min(1024*16, ($end-$begin)+1));
+			$begin += 1024*16;
+		}
+		fclose($fp);
+		exit;
 		
 		//执行下载 //TODO: 大文件断点续传
-		header("Content-Description: File Transfer");
-		header('Content-type: '.$file['type']);
-		header('Content-Length:'.$file['size']);
-		if(preg_match('/MSIE/', $_SERVER['HTTP_USER_AGENT'])){ //for IE
-			header('Content-Disposition: attachment; filename="'.rawurlencode($file['save_name']).'"');
-		}else{
-			header('Content-Disposition: attachment; filename="'.$file['save_name'].'"');
-		}
-		readfile($file['save_path'].$file['save_name']);
-		exit;
+//		header("Content-Description: File Transfer");
+//		header('Content-type: '.$file['type']);
+//		header('Content-Length:'.$file['size']);
+//		if(preg_match('/MSIE/', $_SERVER['HTTP_USER_AGENT'])){ //for IE
+//			header('Content-Disposition: attachment; filename="'.rawurlencode($file['save_name']).'"');
+//		}else{
+//			header('Content-Disposition: attachment; filename="'.$file['save_name'].'"');
+//		}
+//		readfile($file['save_path'].$file['save_name']);
+//		exit;
 	}
 	
 	/**

@@ -1,7 +1,45 @@
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
 <form action="{:url()}" method="post" enctype="multipart/form-data">
 
-	<input type="file" name="aa" >
+	<input type="file" name="aa">
 	<button type="submit">submit</button>
 
 
 </form>
+
+<div id="app">
+
+	<template v-if="type">
+		<h1>Title</h1>
+		<p>Paragraph 1</p>
+		<p>Paragraph 2</p>
+
+	</template>
+
+	<div class="app" v-if="type === 'A'">
+		A
+	</div>
+	<div class="app" v-else-if="type === 'B'">
+		B
+	</div>
+	<div class="app" v-else-if="type === 'C'">
+		C
+	</div>
+	<div class="app" v-else>
+		Not A/B/C
+	</div>
+</div>
+
+
+<script>
+	app = new Vue({
+		el:'#app',
+		data : {
+			type : true,
+		}
+	});
+	app.items.splice(indexOfItem, 1, newValue)
+
+
+</script>

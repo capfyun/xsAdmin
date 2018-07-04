@@ -12,13 +12,12 @@ use xs\Helper;
 class Captcha extends Base{
 	
 	/**
-	 * 信息
+	 * 插件信息
 	 */
-	protected static $info = [
-		'title'       => '登录验证码',
-		'description' => '后台登录验证码',
-		'author'      => 'xs',
-	];
+	protected static $title       = '登录验证码';
+	protected static $description = '后台登录验证码';
+	protected static $author      = 'xs';
+	protected static $version     = '1.0';
 	
 	/**
 	 * 选项

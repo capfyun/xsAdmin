@@ -20,7 +20,8 @@
         "topthink/framework": "5.0.*",
         "topthink/think-mongo": "1.*",
         "topthink/think-image": "^1.0",
-        "nmred/kafka-php": "0.2.*"
+        "nmred/kafka-php": "0.2.*",
+        "aliyuncs/oss-sdk-php": "^2.3"
     },
     "extra": {
         "think-path": "thinkphp"

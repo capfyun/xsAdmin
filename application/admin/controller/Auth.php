@@ -100,7 +100,7 @@ class Auth extends \app\common\controller\AdminBase{
 		$paging = model('AuthGroup')
 			->where($where)
 			->order('sort DESC')
-			->paginate();
+			->paginate(['query' => array_filter(input())]);
 		
 		$status_format = [0 => '禁用', 1 => '启用'];
 		foreach($paging as $k => $v){

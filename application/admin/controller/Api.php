@@ -10,7 +10,7 @@ class Api extends \app\common\controller\AdminBase{
 	/**
 	 * 接口列表
 	 */
-	public function api_list(){
+	public function lists(){
 		$keyword = [
 			'url'  => ['url' => ['LIKE', '%'.input('keyword').'%']],
 			'name' => ['name' => ['LIKE', '%'.input('keyword').'%']],
@@ -22,7 +22,7 @@ class Api extends \app\common\controller\AdminBase{
 		$paging = model('Api')
 			->where($where)
 			->order(input('order') ? : 'id DESC')
-			->paginate();
+			->paginate(['query' => array_filter(input())]);
 		
 		$status_format     = [0 => '禁用', 1 => '启用'];
 		$is_encrypt_format = [0 => '否', 1 => '是'];
@@ -42,7 +42,7 @@ class Api extends \app\common\controller\AdminBase{
 	/**
 	 * 新增编辑接口
 	 */
-	public function api_addedit(){
+	public function addedit(){
 		if(!$this->request->isPost()){
 			$info = model('Api')->get(input('id'));
 			//视图
@@ -89,7 +89,7 @@ class Api extends \app\common\controller\AdminBase{
 	/**
 	 * 错误码列表
 	 */
-	public function code_list(){
+	public function code(){
 		//状态码
 		$code = model('Api')->getErrorCode();
 		

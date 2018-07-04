@@ -12,13 +12,12 @@ use xs\Helper;
 class DatabaseBackup extends Base{
 	
 	/**
-	 * 信息
+	 * 插件信息
 	 */
-	protected static $info = [
-		'title'       => '数据库管理',
-		'description' => '数据库优化、备份、还原等操作，只限超管访问',
-		'author'      => 'xs',
-	];
+	protected static $title       = '数据库管理';
+	protected static $description = '数据库优化、备份、还原等操作，只限超管访问';
+	protected static $author      = 'xs';
+	protected static $version     = '1.0';
 	
 	/**
 	 * 选项

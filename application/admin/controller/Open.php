@@ -5,6 +5,8 @@
  */
 namespace app\admin\controller;
 
+use xs\Image;
+
 class Open extends \app\common\controller\AdminBase{
 	
 	public function login1(){
@@ -72,28 +74,25 @@ class Open extends \app\common\controller\AdminBase{
 	 * 图片浏览
 	 */
 	public function image($i = 0, $w = 0, $h = 0){
-		$i || service('Image')->output(config('default_image'), 'image/png');
+		$i || Image::output(config('default_image'), 'image/png');
 		
 		//缓存
 		$cache_time = 7*24*60*60;
 		$pass_mtime = gmdate('D, d M Y H:i:s', time()+$cache_time).' GMT';
 		$etag       = md5("image_i{$i}w{$w}h{$h}");
-		
 		//http 304缓存
 		if(isset($_SERVER['HTTP_IF_NONE_MATCH']) && $_SERVER['HTTP_IF_NONE_MATCH']==$etag){
-			return response('', 304)
-				->cacheControl('');
+			return response('', 304)->cacheControl('');
 		}
-		dbDebug('imageThumb');
 		//查询数据库
 		$file = model('File')->get($i);
-		(!$file || strpos($file['type'], 'image/')!==0) && service('Image')->output(config('default_image'), 'image/png');
+		(!$file || strpos($file['type'], 'image/')!==0) && Image::output(config('default_image'), 'image/png');
 		$image = trim(model('File')->url($i), '/');
 		
 		//缩略图
 		if($w && $h){
-			$image = service('Image')->createThumb($image, $w, $h);
-			$image || service('Image')->output(config('default_image'), 'image/png');
+			$image = Image::createThumb($image, $w, $h);
+			$image || Image::output(config('default_image'), 'image/png');
 		}
 		
 		header('Pragma: cache');
@@ -101,7 +100,7 @@ class Open extends \app\common\controller\AdminBase{
 		header('Expires: '.$pass_mtime);
 		header('Etag: '.$etag);
 		//打印图片
-		return service('Image')->output($image, $file['type']);
+		Image::output($image, $file['type']);
 	}
 	
 }

@@ -8,17 +8,14 @@ namespace addon;
 abstract class Base{
 	//错误信息
 	protected static $error = '';
-	
 	/**
-	 * 插件初始信息
+	 * 插件信息
 	 */
-	protected static $info = [
-		'title'       => '', //名称
-		'description' => '', //描述
-		'explain'     => '', //使用说明
-		'author'      => '', //作者
-		'version'     => '1.0', //版本
-	];
+	protected static $title       = ''; //名称
+	protected static $description = ''; //描述
+	protected static $explain     = ''; //使用说明
+	protected static $author      = ''; //说明
+	protected static $version     = '1.0'; //版本号
 	
 	/**
 	 * 构造
@@ -32,14 +29,6 @@ abstract class Base{
 	 */
 	public static function register(){
 		return true;
-	}
-	
-	/**
-	 * 插件信息
-	 * @return array
-	 */
-	public static function info(){
-		return array_merge(self::$info,static::$info);
 	}
 	
 	/**
@@ -64,7 +53,7 @@ abstract class Base{
 	 */
 	public static function config(){
 		$addon = model('Addon')->get([
-			'name' => preg_replace('/^.*\\\/','',static::class),
+			'name' => preg_replace('/^.*\\\/', '', static::class),
 		]);
 		if(!$addon || !$addon->config || !$config = json_decode($addon->config, true)){
 			return [];
@@ -74,21 +63,61 @@ abstract class Base{
 	
 	/**
 	 * 默认插件参数信息，写入到plugin表config_param字段
-	 *  @return ['字段名' => [
-			'type'    => '必须，数据类型【text,radio,checkbox,select,selects】', //checkbox、selects的值是数组
-			'name'    => '文字显示',
-			'validate' => '数据校验【int,float,date,datetime,require,正则表达式】',
-			'value'   => '[名字=>数据] //1,数组：非text的枚举项,radio和select时第一个参数为默认值; 2,字符串：【text】默认数据'
-	   		'explain' => '说明内容'
-		]]
+	 * @return ['字段名' => [
+	 * 'type'    => '必须，数据类型【text,radio,checkbox,select,selects】', //checkbox、selects的值是数组
+	 * 'name'    => '文字显示',
+	 * 'validate' => '数据校验【int,float,date,datetime,require,正则表达式】',
+	 * 'value'   => '[名字=>数据] //1,数组：非text的枚举项,radio和select时第一个参数为默认值; 2,字符串：【text】默认数据'
+	 * 'explain' => '说明内容'
+	 * ]]
 	 */
 	public static function option(){
 		return [];
 	}
 	
 	/**
+	 * 名称
+	 * @return string
+	 */
+	public static function title(){
+		return static::$title;
+	}
+	
+	/**
+	 * 描述
+	 * @return string
+	 */
+	public static function description(){
+		return static::$description;
+	}
+	
+	/**
+	 * 使用说明
+	 * @return string
+	 */
+	public static function explain(){
+		return static::$explain;
+	}
+	
+	/**
+	 * 作者
+	 * @return string
+	 */
+	public static function author(){
+		return static::$author;
+	}
+	
+	/**
+	 * 版本号
+	 * @return string
+	 */
+	public static function version(){
+		return static::$version;
+	}
+	
+	/**
 	 * 返回错误信息
-	 * @return array
+	 * @return string
 	 */
 	public static function getError(){
 		return static::$error;

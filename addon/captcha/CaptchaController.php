@@ -5,6 +5,8 @@
  */
 namespace app\admin\controller;
 
+use xs\Addon;
+
 class Captcha extends \app\common\controller\AdminBase{
 	
 	/**
@@ -13,7 +15,7 @@ class Captcha extends \app\common\controller\AdminBase{
 	public function image(){
 		require_once __DIR__.'/library/Captcha.php';
 		
-		$class = model('Addon')->getClass('Captcha');
+		$class = Addon::getClass('Captcha');
 		
 		$captcha = new \Captcha($class::config());
 		$code    = $captcha->create();

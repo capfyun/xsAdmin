@@ -12,19 +12,17 @@ use xs\Helper;
 class SystemInfo extends Base{
 	
 	/**
-	 * 信息
+	 * 插件信息
 	 */
-	protected static $info = [
-		'title'       => '系统信息',
-		'description' => '环境模块等参数，只限管理员访问',
-		'author'      => 'xs',
-	];
+	protected static $title       = '系统信息';
+	protected static $description = '环境模块等参数，只限管理员访问';
+	protected static $author      = 'xs';
+	protected static $version     = '1.0';
 	
 	/**
 	 * 注册
 	 */
 	public static function register(){
-		
 		$url = strtolower(
 			request()->module()
 			.'/'.Helper::convertHump(request()->controller())

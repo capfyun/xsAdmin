@@ -10,7 +10,7 @@ class Addon extends \app\common\controller\AdminBase{
 	/**
 	 * 备份文件列表
 	 */
-	public function addon_list(){
+	public function lists(){
 		//获取文件列
 		$files = new \FilesystemIterator(ADDON_PATH, \FilesystemIterator::KEY_AS_FILENAME);
 		
@@ -20,7 +20,7 @@ class Addon extends \app\common\controller\AdminBase{
 			if(!$v->isDir()){
 				continue;
 			}
-			$class = model('Addon')->getClass($k);
+			$class = \xs\Addon::getClass($k);
 			if(!class_exists($class)){
 				throw new \Exception("插件类不存在：{$class}");
 			}
@@ -29,14 +29,13 @@ class Addon extends \app\common\controller\AdminBase{
 				$addon->status_format = $addon->status ? '启用【已安装】' : '禁用【已安装】';
 				$list[]               = $addon->toArray();
 			}else{
-				$info   = $class::info();
 				$list[] = [
 					'id'            => 0,
 					'name'          => $k,
-					'title'         => $info['title'],
-					'description'   => $info['description'],
-					'author'        => $info['author'],
-					'version'       => $info['version'],
+					'title'         => $class::title(),
+					'description'   => $class::description(),
+					'author'        => $class::author(),
+					'version'       => $class::version(),
 					'sort'          => 0,
 					'status_format' => '禁用【未安装】',
 				];
@@ -66,11 +65,11 @@ class Addon extends \app\common\controller\AdminBase{
 	/**
 	 * 配置插件
 	 */
-	public function addon_edit(){
+	public function edit(){
 		if(!$this->request->isPost()){
 			$addon = model('Addon')->get(['name' => input('name')]);
 			$addon || $this->error('该插件还未安装');
-			$class = model('Addon')->getClass($addon->name);
+			$class = \xs\Addon::getClass($addon->name);
 			class_exists($class) || $this->error("插件类不存在： {$class}");
 			$option = $class::option();
 			$config = $class::config();
@@ -95,7 +94,7 @@ class Addon extends \app\common\controller\AdminBase{
 		//校验
 		$addon = model('Addon')->get($param['id']);
 		$addon || $this->error('插件不存在');
-		$class = model('Addon')->getClass($addon->name);
+		$class = \xs\Addon::getClass($addon->name);
 		class_exists($class) || $this->error("插件类不存在： {$class}");
 		//校验配置
 		if($param['config'] && $coption = $class::option()){
@@ -104,8 +103,6 @@ class Addon extends \app\common\controller\AdminBase{
 				isset($v['validate'])
 				&& $validate[$k.(isset($v['name']) ? '|'.$v['name'] : '')] = $v['validate'];
 			}
-
-//			halt([$param['config'], $validate]);
 			$result = $this->validate($param['config'], $validate);
 			$result!==true && $this->error($result);
 		}
@@ -120,54 +117,59 @@ class Addon extends \app\common\controller\AdminBase{
 	}
 	
 	/**
-	 * 插件安装
+	 * 安装
 	 */
-	public function addon_install(){
-		$class = model('Addon')->getClass(input('name'));
+	public function install(){
+		//类不存在
+		$class = \xs\Addon::getClass(input('name'));
 		!class_exists($class) && $this->apiReturn(['msg' => "插件类不存在： {$class}"]);
-		
+		//已安装
 		$addon = model('Addon')->get(['name' => input('name')]);
 		$addon && $this->apiReturn(['msg' => '该插件已安装']);
-		
-		$data         = $class::info();
-		$data['name'] = input('name');
 		//安装
 		db()->startTrans();
-		$result = model('Addon')->allowField(true)->isUpdate(false)->save($data);
-		if(!$result){
-			db()->rollback();
-			$this->apiReturn(['msg' => model('Addon')->getError()]);
-		}
 		$result = $class::install();
 		if(!$result){
 			db()->rollback();
 			$this->apiReturn(['msg' => $class::getError()]);
+		}
+		$result = model('Addon')->allowField(true)->isUpdate(false)
+			->save([
+				'name'        => input('name'),
+				'title'       => $class::title(),
+				'description' => $class::description(),
+				'author'      => $class::author(),
+				'version'     => $class::version(),
+			]);
+		if(!$result){
+			db()->rollback();
+			$this->apiReturn(['msg' => model('Addon')->getError()]);
 		}
 		db()->commit();
 		$this->apiReturn(['code' => 0, 'msg' => '安装成功']);
 	}
 	
 	/**
-	 * 插件卸载
+	 * 卸载
 	 */
-	public function addon_uninstall(){
+	public function uninstall(){
+		//未安装
 		$addon = model('Addon')->get(['name' => input('name')]);
 		!$addon && $this->apiReturn(['msg' => '该插件未安装']);
-		
 		//卸载
 		db()->startTrans();
-		$result = model('Addon')->destroy(['name' => input('name')]);
-		if(!$result){
-			db()->rollback();
-			$this->apiReturn(['msg' => model('Addon')->getError()]);
-		}
-		$class = model('Addon')->getClass(input('name'));
+		$class = \xs\Addon::getClass(input('name'));
 		if(class_exists($class)){
 			$result = $class::uninstall();
 			if(!$result){
 				db()->rollback();
 				$this->apiReturn(['msg' => $class::getError()]);
 			}
+		}
+		$result = model('Addon')->destroy(['name' => input('name')]);
+		if(!$result){
+			db()->rollback();
+			$this->apiReturn(['msg' => model('Addon')->getError()]);
 		}
 		db()->commit();
 		$this->apiReturn(['code' => 0, 'msg' => '卸载成功']);

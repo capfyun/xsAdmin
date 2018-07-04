@@ -24,7 +24,7 @@ class Upload{
 		'replace'   => false, //存在同名是否覆盖
 		'hash'      => true, //是否生成hash编码
 		'callback'  => false, //false不检测，检测文件是否存在回调，如果存在返回文件信息数组
-		'location'  => 1, //文件存储位置标识
+		'location'  => 'local', //文件存储位置标识
 	);
 	/**
 	 * 错误信息
@@ -43,23 +43,19 @@ class Upload{
 	 * @param string $driver 要使用的上传驱动 LOCAL-本地上传驱动，FTP-FTP上传驱动
 	 */
 	public function __construct($config = array(), $driver = '', $driver_config = null){
-		/* 获取配置 */
-		$this->config = array_merge($this->config, $config);
+		//获取配置
+		$config && $this->config = array_merge($this->config, $config);
 		
-		/* 设置上传驱动 */
+		//设置上传驱动
 		$this->setDriver($driver, $driver_config);
 		
-		/* 调整配置，把字符串配置参数转换为数组 */
+		//调整配置，把字符串配置参数转换为数组
 		if(!empty($this->config['mimes'])){
-			if(is_string($this->config['mimes'])){
-				$this->config['mimes'] = explode(',', $this->config['mimes']);
-			}
+			is_string($this->config['mimes']) && $this->config['mimes'] = explode(',', $this->config['mimes']);
 			$this->config['mimes'] = array_map('strtolower', $this->config['mimes']);
 		}
 		if(!empty($this->config['exts'])){
-			if(is_string($this->config['exts'])){
-				$this->config['exts'] = explode(',', $this->config['exts']);
-			}
+			is_string($this->config['exts']) && $this->config['exts'] = explode(',', $this->config['exts']);
 			$this->config['exts'] = array_map('strtolower', $this->config['exts']);
 		}
 	}
@@ -408,7 +404,7 @@ class Upload{
 			
 			if(!empty($sub_path)
 				&& method_exists($this->driver, 'mkdir')
-				&& !$this->driver->mkdir($this->save_path.$sub_path)
+				&& !$this->driver->mkdir($this->config['save_path'].$sub_path)
 			){
 				$this->error = $this->driver->getError();
 				return false;

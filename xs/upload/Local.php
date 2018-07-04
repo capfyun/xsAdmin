@@ -58,16 +58,11 @@ class Local extends Driver{
 	 */
 	public function mkdir($save_path){
 		$dir = $save_path;
-		if(is_dir($dir)){
-			return true;
-		}
-		
-		if(mkdir($dir, 0777, true)){
-			return true;
-		}else{
-			$this->error = "目录 {$save_path} 创建失败！";
+		if(!is_dir($dir) && !mkdir($dir, 0777, true)){
+			$this->error = "目录 {$dir} 创建失败！";
 			return false;
 		}
+		return true;
 	}
 	
 	/**

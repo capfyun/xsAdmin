@@ -10,7 +10,7 @@ class User extends \app\common\controller\AdminBase{
 	/**
 	 * 用户列表
 	 */
-	public function user_list(){
+	public function lists(){
 		$keyword = [
 			'nickname' => ['m.nickname' => ['LIKE', '%'.input('keyword').'%']],
 			'mobile'   => ['m.mobile' => input('keyword')],
@@ -28,7 +28,7 @@ class User extends \app\common\controller\AdminBase{
 			->group('m.id')
 			->where($where)
 			->order('m.id DESC')
-			->paginate();
+			->paginate(['query' => array_filter(input())]);
 		
 		$status_format = [0 => '禁用', 1 => '启用'];
 		foreach($paging as $k => $v){
@@ -48,7 +48,7 @@ class User extends \app\common\controller\AdminBase{
 	/**
 	 * 新增编辑用户
 	 */
-	public function user_addedit(){
+	public function addedit(){
 		if(!$this->request->isPost()){
 			$user = model('User')->get(input('id'));
 			//权限组
@@ -101,7 +101,7 @@ class User extends \app\common\controller\AdminBase{
 	/**
 	 * 用户资料修改
 	 */
-	public function user_info(){
+	public function info(){
 		if(!$this->request->isPost()){
 			//获取用户信息
 			$user = model('User')->get($this->user_id);

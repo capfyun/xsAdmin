@@ -173,7 +173,7 @@ class User extends Base{
 		$user = $this->get($user_id);
 		Cookie::set(
 			Helper::sign('cookie_login'),
-			Aes::encrypt($user->username.'||'.$user->password),
+			Aes::instance()->encrypt($user->username.'||'.$user->password),
 			7*24*60*60
 		);
 	}
@@ -236,7 +236,7 @@ class User extends Base{
 		if(!$cookie_login){
 			return 0;
 		}
-		$cookie = Aes::decrypt($cookie_login);
+		$cookie = Aes::instance()->decrypt($cookie_login);
 		if(!$cookie || strpos($cookie, '||')===false){
 			return 0;
 		}

@@ -9,14 +9,6 @@ use xs\Upload;
 
 class Image{
 	
-	protected $ext = [
-		'gif'  => 1,
-		'jpg'  => 2,
-		'jpeg' => 2,
-		'png'  => 3,
-		'bmp'  => 6,
-	];
-	
 	/**
 	 * 生成缩略图
 	 * @param string $path 图片路径，可以是远程图
@@ -24,14 +16,12 @@ class Image{
 	 * @param int $height 图片高度
 	 * @return string WEB图片路径名称
 	 */
-	public function createThumb($file, $width = 0, $height = 0){
+	public static function createThumb($file, $width = 0, $height = 0){
 		if($file=='' || $width<=0 || $height<=0){
-			$this->error = '参数错误';
-			return false;
+			throw new \Exception('参数错误');
 		}
 		if(!class_exists('\think\Image')){
-			$this->error = '缺少\think\Image类库';
-			return false;
+			throw new \Exception('缺少\think\Image类库');
 		}
 		//缩略图文件名
 		$base_path = RUNTIME_PATH.'thumb'.DS;
@@ -55,10 +45,9 @@ class Image{
 				'replace'   => true,
 				'save_name' => ['md5', $file],
 			]);
-			$info     = $uploader->grab($file);
+			$info     = $uploader->upload($file,'remote');
 			if(!$info){
-				$this->error = $uploader->getError();
-				return false;
+				throw new \Exception($uploader->getError());
 			}
 			$info  = array_shift($info);
 			$file  = $info['save_path'].$info['save_name'];
@@ -66,12 +55,14 @@ class Image{
 		}
 		//原文件不存在
 		if(is_file($file)==false){
-			$this->error = '原始文件不存在';
-			return false;
+			throw new \Exception('原始文件不存在');
 		}
-		if(!$this->mkdir($base_path.$dir_name)){
-			return false;
+		//创建目录
+		$dir = $base_path.$dir_name;
+		if(!is_dir($dir) && !mkdir($dir, 0777, true)){
+			throw new \Exception("目录 {$dir} 创建失败！");
 		}
+		//生成
 		$image = \think\Image::open($file);
 		$image->thumb($width, $height, \think\Image::THUMB_CENTER)->save($full_name);
 		//删除原始文件
@@ -83,15 +74,12 @@ class Image{
 	 * 打印图片
 	 * @param string $path 图片地址，可以是远程图片
 	 * @param string $mime 图片mime格式
-	 * @return false
+	 * @return void
 	 */
-	public function output($path = '', $mime = ''){
+	public static function output($path = '', $mime = ''){
 		if(!$mime){
 			$image = @getimagesize($path);
-			if(!$image){
-				$this->error = '无效的图像文件';
-				return false;
-			}
+			!$image && exit('无效的图像文件');
 			$mime = $image['mime'];
 		}
 		header("Content-type: ".$mime);
@@ -104,48 +92,28 @@ class Image{
 	
 	/**
 	 * 检测图像文件
-	 * @return bool
+	 * @return false|string
 	 */
-	public function checkImg($path = ''){
+	public static function checkImg($path = ''){
 		if(!file_exists($path)){
 			return false;
 		}
-		/* 对图像文件进行严格检测 */
-		$ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-		if(!isset($this->ext[$ext]) || $this->ext[$ext]!=$this->getImageType($path)){
+		//对图像文件进行严格检测
+		$ext  = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+		$exts = ['gif' => 1, 'jpg' => 2, 'jpeg' => 2, 'png' => 3, 'bmp' => 6,];
+		if(!isset($exts[$ext])){
+			return false;
+		}
+		if(function_exists('exif_imagetype')){
+			$image_type = exif_imagetype($path);
+		}else{
+			$info       = getimagesize($path);
+			$image_type = $info[2];
+		}
+		if($exts[$ext]!=$image_type){
 			return false;
 		}
 		return $ext;
 	}
 	
-	/**
-	 * 判断图像类型
-	 * @param $image
-	 * @return int
-	 */
-	protected function getImageType($image){
-		if(function_exists('exif_imagetype')){
-			return exif_imagetype($image);
-		}else{
-			$info = getimagesize($image);
-			return $info[2];
-		}
-	}
-	
-	/**
-	 * 创建目录
-	 * @param  string $save_path 要创建的目录
-	 * @return boolean 创建状态，true-成功，false-失败
-	 */
-	private function mkdir($dir){
-		if(is_dir($dir)){
-			return true;
-		}
-		if(mkdir($dir, 0777, true)){
-			return true;
-		}else{
-			$this->error = "目录 {$dir} 创建失败！";
-			return false;
-		}
-	}
 }

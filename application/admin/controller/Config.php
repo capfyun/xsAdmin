@@ -12,7 +12,7 @@ class Config extends \app\common\controller\AdminBase{
 	/**
 	 * 配置-列表
 	 */
-	public function config_list(){
+	public function lists(){
 		$keyword = [
 			'title' => ['title' => ['LIKE', '%'.input('keyword').'%']],
 			'name'  => ['name' => ['LIKE', '%'.input('keyword').'%']],
@@ -24,7 +24,7 @@ class Config extends \app\common\controller\AdminBase{
 		$paging = model('Config')
 			->where($where)
 			->order(input('order') ? : 'sort DESC,id DESC')
-			->paginate(['query' => array_filter(input()),]);
+			->paginate(['query' => array_filter(input())]);
 		
 		$group_list    = config('config_group');
 		$status_format = [0 => '禁用', 1 => '启用'];
@@ -46,7 +46,7 @@ class Config extends \app\common\controller\AdminBase{
 	/**
 	 * 新增编辑配置
 	 */
-	public function config_addedit(){
+	public function addedit(){
 		if(!$this->request->isPost()){
 			$config = model('Config')->get(input('id'));
 			//视图
@@ -81,7 +81,7 @@ class Config extends \app\common\controller\AdminBase{
 	/**
 	 * 简易设定
 	 */
-	public function simple_setting(){
+	public function setting(){
 		if(!$this->request->isPost()){
 			$list = model('Config')
 				->where(['status' => 1, 'group' => input('group', 1)])
