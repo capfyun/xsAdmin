@@ -30,7 +30,7 @@
 	</div>
 </div>
 
-<div id="table" class="box" >
+<div id="table" class="box" data-order="{:input('order','name desc')}">
 	<div class="box-body">
 		<div class="row">
 			<div class="col-sm-12">
@@ -43,14 +43,14 @@
 				<table class="table table-bordered table-striped table-hover" >
 					<thead>
 					<tr >
-						<th class="" width="5%">ID</th>
-						<th class="" width="15%">名称</th>
-						<th class="" width="15%">键</th>
-						<th class="" width="">值</th>
-						<th class="" width="10%">分组</th>
-						<th class="" width="10%">类型</th>
-						<th class="" width="10%">状态</th>
-						<th class="" width="5%">排序</th>
+						<th order-field="id" width="5%">ID</th>
+						<th width="15%">名称</th>
+						<th width="15%">键</th>
+						<th width="">值</th>
+						<th width="10%">分组</th>
+						<th width="10%">类型</th>
+						<th width="10%">状态</th>
+						<th order-field="sort" width="8%">排序</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -84,9 +84,4 @@
 </div>
 
 
-<script>
-	$(function(){
-
-	});
-</script>
 {/block}

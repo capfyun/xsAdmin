@@ -11,14 +11,11 @@
 				<h4 class="modal-title" id="modal-icon-label"><i class="fa fa-image"></i> 图标</h4>
 			</div>
 			<div class="modal-body" style="text-align:center;">
-
-
 				<div class="btn-group" style="width: 100%; margin-bottom: 10px;">
 					<!--<button type="button" id="color-chooser-btn" class="btn btn-info btn-block dropdown-toggle" data-toggle="dropdown">Color <span class="caret"></span></button>-->
 					<ul class="fc-color-picker">
 						{foreach :db('font_awesome')->select() as $v}
-						<li data-value="{$v.name}" title="{$v.name}" data-dismiss="modal" style="border:solid 0.1pt darkgray;width:50px;margin:2px;padding:3px;cursor:pointer;"
-							onclick="var input_icon=$('input[name=icon]');input_icon.val( $(this).attr('data-value') ); page.changeIcon(input_icon);">
+						<li title="{$v.name}" class="icon-input" data-dismiss="modal" style="border:solid 0.1pt darkgray;width:50px;margin:2px;padding:3px;cursor:pointer;" >
 							<i class="fa {$v.name}"></i>
 						</li>
 						{/foreach}
@@ -45,10 +42,14 @@
 
 					<div class="form-group">
 						<label  class="col-sm-2 control-label">上级菜单</label>
-						<div class="col-sm-10" >
-							<div class="" id="rule_treeview" style="overflow: auto;height:400px;">
-								<!-- 菜单 -->
-							</div>
+						<div class="col-sm-10" id="treeview" >
+							<!-- 菜单 -->
+							<label class="radio-inline">
+								<input type="radio" name="parent_id" value="0" :checked="parent_id==0">
+								<span class="fa fa-folder-open-o"></span>
+								根目录
+							</label>
+							<rule-list :param="data" style="overflow: auto;height:400px;"></rule-list>
 						</div>
 					</div>
 					<div class="form-group">
@@ -70,7 +71,7 @@
 						<div class="col-sm-10">
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fa {$info.icon ? : 'fa-link'}"></i></span>
-								<input name="icon" value="{$info.icon ?? ''}" type="text" class="form-control" maxlength="30" placeholder="" onclick="page.changeIcon(this);">
+								<input name="icon" value="{$info.icon ?? ''}" type="text" class="form-control" maxlength="30" placeholder="">
 								<a href="javascript:;" class="btn-search-icon input-group-addon" data-toggle="modal" data-target="#modal-icon">查看图标</a>
 							</div>
 						</div>
@@ -216,30 +217,85 @@
 	</div>
 </div>
 
+<script type="vue/template" id="rule-template">
+	<div class="" >
+		<ul v-for="item in param" style="list-style:none;">
+			<li style="list-style:none;">
+				<label class="radio-inline">
+					<input v-if="!is_examine && !isSelf(item.id)" type="radio" name="parent_id" :value="item.id" :checked="isChecked(item.id)" >
+					<span class="fa" :class="item.icon || 'fa-link'"></span>
+					{{ item.title }}
+				</label>
+			</li>
+			<template v-if="isChild(item)" >
+				<rule-list :param="item.child" :is_examine="is_examine || isSelf(item.id)"></rule-list>
+			</template>
+		</ul>
+	</div>
+</script>
+
 <script type="text/javascript">
-	$(function(){
+	require([
+		'jquery',
+		'app',
+		'vue'
+	], function($, app, Vue){
 		//选项切换
-		$('input[name=type]').on('change',page.optionShow);
-
-		//权限列表
-		var $rule_list = $.parseJSON('{:json_encode($rule_list)}');
-		$('#rule_treeview').html(app.auth.treeview($rule_list,"{$info.parent_id ?? ''}","{$info.id ?? ''}"));
-
-	});
-
-	var page = {
-		//选项参数
-		optionShow : function(){
+		$('input[name=type]').on('change',function(){
 			var $radio = $(this);
 			var $option = $('#option-fieldset');
 			$radio.val()==2 ? $option.prop('disabled',false) : $option.prop('disabled',true);
-		},
-		//icon
-		changeIcon : function(input){
-			input = $(input);
+		});
+		//icon图标选择
+		$('.icon-input').on('click',function(event){
+			var icon = $('input[name=icon]');
+			var fa = $(event.currentTarget).attr('title');
+			icon.val( fa );
+			icon.prev('span').find('i').removeClass().addClass('fa ' + fa);
+		});
+
+		//填写icon
+		$('input[name=icon]').on('change',function(event){
+			input = $(event.currentTarget);
 			input.prev('span').find('i').removeClass().addClass('fa '+input.val());
-		},
-	};
+		});
+
+		//权限树组件
+		var treeview = new Vue({
+			el: '#treeview',
+			data: {
+				data : [],
+				parent_id : null,
+				self_id : null
+			},
+			computed : {},
+			methods: {}
+		});
+		Vue.component("rule-list",{
+			template:"#rule-template",
+			props:["param","is_examine"],
+			data: function(){
+				return {parent_id:treeview.parent_id, self_id:treeview.self_id};
+			},
+			methods : {
+				isChild : function(item){
+					return item.child && item.child.length>0 ? true : false;
+				},
+				isChecked : function(id){
+					return this.parent_id == id;
+				},
+				isSelf : function(id){
+					return this.self_id == id;
+				}
+			}
+		});
+		treeview.data = $.parseJSON('{:json_encode($rule_list)}');
+		treeview.parent_id = "{$info.parent_id ?? ''}";
+		treeview.self_id = "{$info.id ?? ''}";
+
+	});
+
+
 
 </script>
 {/block}

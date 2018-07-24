@@ -39,7 +39,7 @@ class Config extends \app\common\controller\AdminBase{
 		//视图
 		cookie('forward', request()->url());
 		return $this->fetch('', [
-			'paging' => $paging,
+			'paging' => $paging
 		]);
 	}
 	

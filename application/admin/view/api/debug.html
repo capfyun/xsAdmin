@@ -26,7 +26,7 @@
 <div class="row">
 	<div class="col-md-12">
 		<div class="box ">
-			<form class="form-horizontal" method="post" action="{:url()}" onsubmit="return page.debugStart(this);">
+			<form class="form-horizontal" method="post" action="{:url()}" id="debug" @submit.prevent="submit">
 				<div class="box-body">
 					<input name="api_id" type="hidden" value="{:input('api_id')}" />
 					<fieldset >
@@ -94,33 +94,40 @@
 </div>
 
 <script type="text/javascript">
-	$(function(){
+	require([
+		'jquery',
+		'app',
+		'vue'
+	], function($, app, Vue){
+		var debug = new Vue({
+			el: '#debug',
+			data: {
+				data : []
+			},
+			computed : {},
+			methods: {
+				submit: function(enven){
+					app.shade('show');
+					var form = $(enven.currentTarget);
+					$.post(form.attr("action"),form.serialize(),function(data){
+						try {
+							if(typeof JSON == 'object'){
+								$('#result').val(JSON.stringify(JSON.parse(data), null, "    "));
+							}else{
+								$('#result').val( jsl.format.formatJson(data) );
+							}
+							$('#modal-debug').modal();
+						} catch(e) {
+							form.find('#result').val( data );
+							app.alert('接口出错：'+e);
+						}
+						app.shade('hide');
+					});
+				}
+			}
+		});
 	});
 
-	var page = {
-		/**
-		 * 接口调试请求
-		 */
-		debugStart 			: function(form){
-			app.shade('show');
-			var $form 	= $(form);
-			$.post($form.attr("action"),$form.serialize(),function(data){
-				try {
-					if(typeof JSON == 'object'){
-						$('#result').val(JSON.stringify(JSON.parse(data), null, "    "));
-					}else{
-						$('#result').val( jsl.format.formatJson(data) );
-					}
-					$('#modal-debug').modal();
-				} catch(e) {
-					$form.find('#result').val( data );
-					app.alert('接口出错：'+e);
-				}
-				app.shade('hide');
-			});
-			return false;
-		},
-	};
 
 </script>
 {/block}

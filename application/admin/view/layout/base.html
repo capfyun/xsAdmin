@@ -40,7 +40,7 @@ desired effect
 |               | sidebar-mini                            |
 |---------------------------------------------------------|
 -->
-<body class="hold-transition sidebar-mini " >
+<body class="hold-transition sidebar-mini skin-blue" >
 
 {include  file="layout/modal" /}
 
@@ -55,21 +55,17 @@ desired effect
 	<!-- Content Wrapper. Contains page content -->
 	<div class="content-wrapper">
 		<!-- Content Header (Page header) -->
-		<section class="content-header">
+		<section class="content-header" id="content-header">
 			<h1>
-				{$app.current.title ?? ''}
-				<small>{$app.current.name ?? ''}</small>
+				{{ current.title ? current.title : '' }}
+				<small>{{ current.name ? current.name : '' }}</small>
 			</h1>
 			<ol class="breadcrumb">
-				{if isset($app['checked']) && is_array($app['checked'])}
-				{foreach :array_reverse($app['checked']) as $k => $v}
-				<li >
+				<li v-if="checked" v-for="item in checked">
 					<a href="javascript:;">
-					<i class="fa {$v['icon'] ? : 'fa-link'}"></i>{$v['title']}
+						<i class="fa" :class="item.icon ? item.icon : 'fa-link'"></i>{{ item.title }}
 					</a>
 				</li>
-				{/foreach}
-				{/if}
 			</ol>
 		</section>
 

@@ -17,8 +17,8 @@ return [
 	'lang_switch_on'        => false,
 	
 	//跳转模版
-	'dispatch_success_tmpl' => 'layout/dispatch_jump',
-	'dispatch_error_tmpl'   => 'layout/dispatch_jump',
+	'dispatch_success_tmpl' => 'layout/jump',
+	'dispatch_error_tmpl'   => 'layout/jump',
 	
 	//分页
 	'paginate'              => [

@@ -68,10 +68,12 @@ class Alioss extends Driver{
 	
 	/**
 	 * 文件是否存在
+	 * @param array $file 保存的文件信息
+	 * @return bool
 	 */
 	public function exist($file){
 		try{
-			$exist = $this->handler->doesObjectExist(
+			return $this->handler->doesObjectExist(
 				$this->config['bucket'],
 				$file['save_path'].$file['save_name']
 			);
@@ -79,7 +81,6 @@ class Alioss extends Driver{
 			$this->error = $e->getMessage();
 			return false;
 		}
-		var_dump($exist);
 	}
 	
 }

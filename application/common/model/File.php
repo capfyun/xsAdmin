@@ -47,7 +47,8 @@ class File extends Base{
 		], config('upload_config'), $config);
 		$uploader = new Upload($config, $driver, $driver_config);
 		//上传
-		$data = $uploader->upload($files);
+		$type = isset($config['type']) && $config['type']=='remote' ? 'remote' : 'upload';
+		$data = $uploader->upload($files,$type);
 		if(!$data){
 			$this->error = $uploader->getError();
 			return false;
@@ -55,57 +56,23 @@ class File extends Base{
 		//文件上传成功，记录文件信息
 		foreach($data as $k => $v){
 			//已经存在文件记录
-			if(isset($v['id']) && is_numeric($v['id'])){
-				continue;
+			if(!isset($v['id']) || !is_numeric($v['id'])){
+				//文件入库
+				$this->id = null;
+				$result   = $this->allowField(true)->isUpdate(false)->save($v);
+				if($result){
+					$data[$k]['id'] = $this->id;
+				}else{
+					//TODO: 文件上传成功，但是记录文件信息失败，需记录日志
+					unset($data[$k]);
+					continue;
+				}
 			}
-			//文件入库
-			$this->id = null;
-			$result   = $this->allowField(true)->isUpdate(false)->save($v);
-			if(!$result){
-				//TODO: 文件上传成功，但是记录文件信息失败，需记录日志
-				unset($data[$k]);
-			}
-			$data[$k]['id'] = $this->id;
+			$data[$k]['url'] = $this->url($data[$k]['id']);
 		}
 		return $data; //文件上传成功
 	}
 	
-	/**
-	 * 抓取网络资源保存到本地
-	 * @param string|array $urls 文件远程地址，支持多文件
-	 * @param array $config 配置
-	 * @return array|false
-	 */
-	public function grab($urls, $config = [], $driver = 'Local', $driver_config = null){
-		//初始化
-		$config   = array_merge([
-			'callback'    => [$this, 'isExist'],
-			'removeTrash' => [$this, 'removeTrash'],
-		], config('upload_config'), $config);
-		$uploader = new Upload($config, $driver, $driver_config);
-		$data     = $uploader->upload($urls, 'remote');
-		
-		if(!$data){
-			$this->error = $uploader->getError();
-			return false;
-		}
-		//文件上传成功，记录文件信息
-		foreach($data as $k => $v){
-			//已经存在文件记录
-			if(isset($v['id']) && is_numeric($v['id'])){
-				continue;
-			}
-			//文件入库
-			$this->id = null;
-			$result   = $this->allowField(true)->isUpdate(false)->save($v);
-			if(!$result){
-				//TODO: 文件上传成功，但是记录文件信息失败，需记录日志
-				unset($data[$k]);
-			}
-			$data[$k]['id'] = $this->id;
-		}
-		return $data; //文件上传成功
-	}
 	
 	/**
 	 * 下载指定文件
@@ -123,10 +90,10 @@ class File extends Base{
 		//下载文件
 		switch($file->location){
 			//本地文件
-			case 1:
+			case 'local':
 				return $this->downLocalFile($file);
 			//FTP文件
-			case 2:
+			case 'ftp':
 				return $this->downFtpFile($file);
 				break;
 			default:
@@ -185,18 +152,6 @@ class File extends Base{
 		}
 		fclose($fp);
 		exit;
-		
-		//执行下载 //TODO: 大文件断点续传
-//		header("Content-Description: File Transfer");
-//		header('Content-type: '.$file['type']);
-//		header('Content-Length:'.$file['size']);
-//		if(preg_match('/MSIE/', $_SERVER['HTTP_USER_AGENT'])){ //for IE
-//			header('Content-Disposition: attachment; filename="'.rawurlencode($file['save_name']).'"');
-//		}else{
-//			header('Content-Disposition: attachment; filename="'.$file['save_name'].'"');
-//		}
-//		readfile($file['save_path'].$file['save_name']);
-//		exit;
 	}
 	
 	/**
@@ -221,7 +176,7 @@ class File extends Base{
 			throw new \Exception('缺少参数:md5');
 		}
 		//查找文件
-		$file = $this->where(['md5' => $file['md5'], 'sha1' => $file['sha1']])->find();
+		$file = $this->where(['md5' => $file['md5'], 'sha1' => $file['sha1'], 'location' => $file['location']])->find();
 		return $file ? $file->toArray() : false;
 	}
 	
@@ -252,11 +207,11 @@ class File extends Base{
 		//文件存储位置
 		switch($file['location']){
 			//本地
-			case 1:
+			case 'local':
 				$path = '/'.$file['save_path'].$file['save_name'];
 				break;
-			case 2:
-				$path = '';
+			case 'alioss':
+				$path = 'https://qiguo.oss-cn-shanghai.aliyuncs.com/'.$file['save_path'].$file['save_name'];
 				break;
 			default:
 				$path = '';

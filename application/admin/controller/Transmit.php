@@ -14,9 +14,6 @@ class Transmit extends \app\common\controller\AdminBase{
 		//进行上传
 		$data = model('File')->upload();
 		!$data && $this->apiReturn(['code' => 1000, 'msg' => model('File')->getError()]);
-		foreach($data as $k => $v){
-			$data[$k]['url'] = model('File')->url($v['id']);
-		}
 		//上传成功
 		$this->apiReturn(['code' => 0, 'msg' => '上传成功！', 'data' => $data]);
 	}
@@ -94,7 +91,7 @@ class Transmit extends \app\common\controller\AdminBase{
 					
 					$result = [
 						'state'    => 'SUCCESS', //上传状态，上传成功时必须返回'SUCCESS'
-						'url'      => model('File')->url($file['id']), //返回的地址
+						'url'      => $file['url'], //返回的地址
 						'title'    => $file['save_name'], //新文件名
 						'original' => $file['name'], //原始文件名
 						'type'     => $file['ext'], //文件类型，后缀
@@ -130,7 +127,7 @@ class Transmit extends \app\common\controller\AdminBase{
 			//抓取远程文件
 			case 'catchimage':
 				$images = input($config['catcherFieldName'].'/a');
-				$upload = model('File')->grab($images);
+				$upload = model('File')->upload($images,['type'=>'remote']);
 				if($upload){
 					$result = [
 						'state' => 'SUCCESS',
@@ -139,7 +136,7 @@ class Transmit extends \app\common\controller\AdminBase{
 					foreach($upload as $k => $v){
 						$result['list'][] = [
 							'state'    => 'SUCCESS',
-							'url'      => model('File')->url($v['id']),
+							'url'      => $v['url'],
 							'size'     => $v['size'],
 							'title'    => $v['save_name'],
 							'original' => $v['save_name'],

@@ -1,0 +1,43 @@
+{
+  "name": "xs",
+  "authors": [],
+  "description": "",
+  "main": "",
+  "license": "Apache2.0",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "jquery-ui": "^1.12.1",
+    "jquery-datetimepicker": "datetimepicker#*",
+    "jquery-slimscroll": "slimscroll#^1.3.8",
+    "bootstrap-validator": "bootstrapvalidator#^0.5.3",
+    "bootstrap": "3.3.7",
+    "bootstrap-fileinput": "^4.4.8",
+    "bootstrap-slider": "*",
+    "bootstrap-wysihtml5": "wysihtml5#*",
+    "fastclick": "^1.0.6",
+    "font-awesome": "^4.7.0",
+    "icheck": "icheck#^1.0.2",
+    "inputmask": "^4.0.0",
+    "ionicons": "^2.0.1",
+    "jvectormap": "^2.0.4",
+    "layer": "^3.1.1",
+    "pace": "^1.0.2",
+    "requirejs": "^2.3.5",
+    "select2": "^4.0.3",
+    "supersized": "*",
+    "vue": "^2.5.16",
+    "require-css": "^0.1.10"
+  },
+  "resolutions": {
+    "jquery": "^3.3.1",
+    "bootstrap": "3.3.7"
+  }
+}

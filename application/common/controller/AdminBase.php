@@ -95,22 +95,16 @@ abstract class AdminBase extends Base{
 	private function getMainMenu(){
 		$badge = [
 			'addon/addon_list' => [
-				'red' => 'hot'
-			]
+				'red' => 'hot',
+			],
 		];
 		
-		//权限列表
-		$where = [
-			'type' => 1, //menu[0隐藏-1主菜单-2按钮]
-			'status'    => 1,
-		];
+		//权限列表 type[0隐藏-1主菜单-2按钮]
+		$where = ['type' => 1, 'status' => 1,];
 		if(!$this->isAdministrator($this->user_id)){
 			$where['id'] = ['in', Auth::instance()->getAuthIds($this->user_id) ? : ''];
 		}
-		$rule_list = db('auth_rule')
-			->where($where)
-			->order('sort DESC')
-			->select();
+		$rule_list = db('auth_rule')->where($where)->order('sort DESC')->select();
 		foreach($rule_list as $k => $v){
 			$rule_list[$k]['badge'] = isset($badge[$v['name']]) ? $badge[$v['name']] : [];
 		}
@@ -133,7 +127,7 @@ abstract class AdminBase extends Base{
 		
 		$where = [
 			'parent_id' => $parent_id,
-			'type' => 2, //menu[0隐藏-1主菜单-2按钮]
+			'type'      => 2, //menu[0隐藏-1主菜单-2按钮]
 			'status'    => 1,
 		];
 		if(!$this->isAdministrator($this->user_id)){

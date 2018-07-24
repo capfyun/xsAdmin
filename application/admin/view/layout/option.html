@@ -1,15 +1,16 @@
 
-{foreach $app['option'] as $v }
-	<a class="btn btn-app menu-option "
-	    href="{:url($v['name'],isset($extra) ? $extra : [],false)}"
-	   	data-title="{$v.title ?? '操作'}"
-	   	data-request="{$v.request ?? 0}"
-		data-param="{$v.param ?? ''}"
-	>
-		{if strpos($v['label'],'{literal}:{/literal}')!==false}
-			<span class="badge {:strstr($v['label'],':',true) ? 'bg-'.strstr($v['label'],':',true) : ''}">{:ltrim(strstr($v['label'],':'),':')}</span>
-		{/if}
-		<i class="fa {:isset($v['icon'])&&$v['icon'] ? $v['icon'] : 'fa-link'} "></i>{$v.title ?? ''}
-	</a>
-{/foreach}
+<a v-for="item in option" class="btn btn-app"
+    :href="item.name ? '/'+item.name : ''"
+    :title="item.title ? item.title : '操作'"
+   	:request="item.request"
+    :param="item.param"
+    extra='{:isset($extra) ? json_encode($extra) : ""}'
+    @click.prevent="optionEvent"
+>
+	<span v-if="item.label" class="badge" :class="'bg-'+item.label.split(':', 2)[0]">
+		{{ item.label.split(':', 2)[1] }}
+	</span>
+	<i class="fa" :class="item.icon ? item.icon : 'fa-link'"></i>
+	{{ item.title }}
+</a>
 

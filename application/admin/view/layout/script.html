@@ -1,7 +1,25 @@
+<script type="vue/template" id="menu-template">
+	<ul :data-widget="is_bar ? 'tree' : ''" :class="{'sidebar-menu': is_bar, 'treeview-menu' : is_bar ? false : true}">
+		<li v-if="is_bar" class="treeview header">HEADER</li>
+		<li v-for="item in param"
+			:id="item.id"
+			:class="{treeview: isChild(item), 'menu-open': item.is_checked, active: item.is_checked }" >
+			<a class="menu-item"  :href="item.name ? '/'+item.name : 'javascript:;'" :data-request-type="item.request" @click="request" >
+				<i class="fa" :class="item.icon ? item.icon : 'fa-link'"></i>
+				<span>{{ item.title }}</span>
+				<span class="pull-right-container">
+					<i v-if="isChild(item)" class="fa fa-angle-left pull-right" ></i>
+					<small v-if="item.label" class="label pull-right " :class="'bg-'+(item.label.split(':')[0])">{{ item.label.split(':')[1] }}</small>
+				</span>
+			</a>
+			<template v-if="isChild(item)" >
+				<menu-list :param="item.child" :is_bar="0" :style="item.is_checked ? {display:'block'} : {}"></menu-list>
+			</template>
+		</li>
+	</ul>
+</script>
+
 
 <script type="text/javascript">
-	$(function(){
-		app.run();
 
-	});
 </script>

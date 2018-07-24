@@ -75,7 +75,7 @@
 					{/case}
 
 					{case dict}
-						<dl class="simple-with-drop">
+						<dl class="simple-with-drop" >
 							{php}$i = 0;{/php}
 							{foreach :\xs\Helper::strToArray($v['value']) as $k1 => $v1}
 							<dd class="form-inline">
@@ -145,10 +145,7 @@
 					{/case}
 
 					{case editor}
-					<script id="{$v.name}" name="config[{$v.name}]" type="text/plain" style="width:100%;height:200px;">{$v.value}</script>
-					<script>$(function(){
-						var ue = UE.getEditor('{$v.name}');
-					});</script>
+					<script id="editor-{$v.name}" name="config[{$v.name}]" type="text/plain" style="width:100%;height:200px;">{$v.value}</script>
 					{/case}
 
 					{default/}
@@ -167,20 +164,31 @@
 	</form>
 </div>
 
-<script>
-	$(function(){
+<script type="text/javascript">
+	require([
+		'jquery',
+		'app',
+		'vue',
+		'ueditor',
+		'bootstrap-fileinput'
+	], function($, app, Vue, UE){
+		//编辑器
+		$('script[id^=editor-]').each(function(k,v){
+			UE.getEditor($(v).attr('id'));
+		});
+
 		//拖拽
 		$("dl.simple-with-drop").sortable({
 			group: 'no-drop',
-			handle: 'span.btn-dragsort',
+			handle: 'span.btn-dragsort'
 		}).disableSelection();
 
 		//日期时间
 		$('.config-time').datetimepicker({datepicker:false, format:'H:i', step:1});
 		$('.config-date').datetimepicker({timepicker:false, format:'Y-m-d',});
 		$('.config-datetime').datetimepicker({format:'Y-m-d H:i',});
-
 	});
+
 
 	var page = {
 		dict_id : -1,

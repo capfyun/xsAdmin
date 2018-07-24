@@ -7,33 +7,17 @@
     <title>{:config('web_title')}-登录</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <!-- Bootstrap 3.3.6 -->
-    <link rel="stylesheet" href="{$Think.config.asset}/bootstrap/css/bootstrap.min.css">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="{$Think.config.asset}/font-awesome/css/font-awesome.min.css">
-    <!-- Ionicons -->
-    <link rel="stylesheet" href="{$Think.config.asset}/ionicons/css/ionicons.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{$Think.config.asset}/adminlte/css/adminlte.min.css">
-    <!-- iCheck -->
-    <link rel="stylesheet" href="{$Think.config.asset}/icheck/square/blue.css">
-    <!-- supersized -->
-    <link rel="stylesheet" href="{$Think.config.asset}/supersized/supersized.css">
-    <!-- jQuery 3.3.1 -->
-    <script src="{$Think.config.asset}/jquery/jquery-3.3.1.js"></script>
-    <!-- Bootstrap 3.3.7 -->
-    <script src="{$Think.config.asset}/bootstrap/js/bootstrap.min.js"></script>
-    <!-- iCheck -->
-    <script src="{$Think.config.asset}/icheck/icheck.min.js"></script>
-    <!-- layer -->
-    <script src="{$Think.config.asset}/layer/layer.js"></script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-    <script src="{$Think.config.asset}/adminlte/js/html5shiv.min.js"></script>
-    <script src="{$Think.config.asset}/adminlte/js/respond.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/resource/asset/adminlte/js/html5shiv.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/resource/asset/adminlte/js/respond.min.js"></script>
     <![endif]-->
+    <script src="/resource/lib/requirejs/require.js" ></script>
+    <script src="/resource/asset/js/require.config.js?_={:time()}" ></script>
+
+
 </head>
 <body class="hold-transition " style="background-color: #d2d6de;">
 <div class="row" style="width:400px;margin:2% auto;">
@@ -42,7 +26,7 @@
             <a href="/" style="color:#444;">{:config('web_title')}</a>
         </div>
         <div class="box ">
-            <form action="{:url()}" class="form-horizontal form-validator" method="post" onsubmit="return page.login(this);">
+            <form action="{:url()}" class="form-horizontal form-validator" method="post" id="login" @submit.prevent="login">
                 <div class="box-body">
                     <p style="text-align: center;margin:5% auto;">帐号登录</p>
                     <div class="form-group has-feedback">
@@ -86,39 +70,52 @@
     </div>
 </div>
 
-<script>
-    $(function () {
-        $('input').iCheck({
-            checkboxClass: 'icheckbox_square-blue',
-            radioClass: 'iradio_square-blue',
-            increaseArea: '20%' // optional
+<script type="text/javascript">
+    require([
+        'jquery',
+        'vue',
+        'layer',
+        'adminlte',
+        'bootstrap',
+        'icheck'
+    ], function($, Vue, layer){
+        layer.config({
+            path: '/resource/lib/layer/dist/'
+        });
+//        $('input').iCheck({
+//            checkboxClass: 'icheckbox_square-blue',
+//            radioClass: 'iradio_square-blue',
+//            increaseArea: '20%' // optional
+//        });
+
+        //主菜单
+        var login = new Vue({
+            el: '#login',
+            data: {
+                data : []
+            },
+            computed : {},
+            methods: {
+                login : function(event){
+                    var form = $(event.currentTarget);
+                    //提交表单
+                    $.post(form.attr("action"),form.serialize(),function(data,status){
+                        if(status == 'success'){
+                            layer.msg(data.msg,{
+                                time : 1000,
+                                end : function(){
+                                    if(data.code == 0){
+                                        window.location.href = data.data.url;
+                                    }
+                                }
+                            });
+                        }
+                    },'json');
+                }
+            }
         });
 
     });
-
-    var page = {
-        /**
-         * 登录
-         * @returns {boolean}
-         */
-        login : function(form){
-            var $form = $(form);
-            //提交表单
-            $.post($form.attr("action"),$form.serialize(),function(data,status){
-                if(status == 'success'){
-                    layer.msg(data.msg,{
-                        time : 1000,
-                        end : function(){
-                            if(data.code == 0){
-                                window.location.href = data.data.url;
-                            }
-                        }
-                    });
-                }
-            },'json');
-            return false;
-        },
-    };
 
 </script>
 </body>

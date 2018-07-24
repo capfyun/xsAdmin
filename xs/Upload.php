@@ -16,11 +16,10 @@ class Upload{
 		'mimes'     => array(), //允许上传的文件MiMe类型
 		'max_size'  => 0, //上传的文件大小限制 (0-不做限制)
 		'exts'      => array(), //允许上传的文件后缀
-		'auto_sub'  => true, //自动子目录保存文件
-		'sub_name'  => array('date', 'Y-m-d'), //子目录创建方式，[0]-函数名，[1]-参数，多个参数使用数组
+		'auto_sub'  => array('date', 'Y-m-d'), //自动子目录保存文件，false则关闭，子目录创建方式，[0]-函数名，[1]-参数，多个参数使用数组
 		'save_path' => '', //保存路径
 		'save_name' => array('uniqid', ''), //上传文件命名规则，[0]-函数名，[1]-参数，多个参数使用数组
-		'save_ext'  => '', //文件保存后缀，空则使用原后缀
+		'save_ext'  => false, //文件保存后缀，false则使用原后缀
 		'replace'   => false, //存在同名是否覆盖
 		'hash'      => true, //是否生成hash编码
 		'callback'  => false, //false不检测，检测文件是否存在回调，如果存在返回文件信息数组
@@ -90,8 +89,8 @@ class Upload{
 	 * @param  array $file 文件数组
 	 * @return array 上传成功后的文件信息
 	 */
-	public function uploadOne($file){
-		$info = $this->upload(array($file));
+	public function uploadOne($file, $type = 'upload'){
+		$info = $this->upload($file ? array($file) : '',$type);
 		return $info ? $info[0] : $info;
 	}
 	
@@ -387,9 +386,9 @@ class Upload{
 		}
 		
 		/* 文件保存后缀，支持强制更改文件后缀 */
-		$ext = empty($this->config['save_ext']) ? $file['ext'] : $this->config['save_ext'];
+		$ext = $this->config['save_ext']===false ? $file['ext'] : $this->config['save_ext'];
 		
-		return $save_name.'.'.$ext;
+		return $ext ? $save_name.'.'.$ext : $save_name;
 	}
 	
 	/**
@@ -398,8 +397,8 @@ class Upload{
 	 */
 	private function getSubPath($file_name){
 		$sub_path = '';
-		$rule     = $this->config['sub_name'];
-		if($this->config['auto_sub'] && !empty($rule)){
+		$rule     = $this->config['auto_sub'];
+		if($rule!==false){
 			$sub_path = $this->getName($rule, $file_name).'/';
 			
 			if(!empty($sub_path)

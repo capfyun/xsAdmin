@@ -67,22 +67,4 @@
 	</div>
 </div>
 
-<script type="text/javascript">
-	$(function(){
-
-		//权限列表
-		var $rule_list = $.parseJSON('{:json_encode($rule_list)}');
-		var $checked_ids = $.parseJSON('{:json_encode(isset($info->rules)&&$info->rules ? explode(',',$info->rules) : [])}');
-
-		$('#rule_treeview').html(app.auth.checkTreeview($rule_list,$checked_ids));
-	});
-
-	var page = {
-		//选项参数
-	};
-
-
-
-
-</script>
 {/block}

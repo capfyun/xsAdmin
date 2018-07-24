@@ -29,9 +29,9 @@
 		</form>
 		<!-- /.search form -->
 
-		<ul class="sidebar-menu" id="main-menu" data-widget="tree" data-menu='{:json_encode(isset($app["menu"]) ? $app["menu"] : [])}' data-checked='{:json_encode(isset($app["checked"]) ? $app["checked"] : [])}'>
-			<!-- 菜单栏 -->
-		</ul>
+		<!-- 主菜单栏组件 -->
+		<menu-list id="main-menu" :param="data" :is_bar="1"></menu-list>
+
 	</section>
 	<!-- /.sidebar -->
 </aside>

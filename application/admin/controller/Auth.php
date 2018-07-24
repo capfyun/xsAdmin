@@ -5,6 +5,7 @@
  */
 namespace app\admin\controller;
 
+use think\Hook;
 use xs\Helper;
 
 class Auth extends \app\common\controller\AdminBase{
@@ -148,6 +149,77 @@ class Auth extends \app\common\controller\AdminBase{
 			->save($param);
 		$result || $this->error('操作失败');
 		$this->success('操作成功', cookie('forward'));
+	}
+	
+	/**
+	 * 获取主菜单
+	 * @return array
+	 */
+	public function get_menu(){
+		$param = $this->param([
+			'url|地址' => ['length' => '0,100'],
+		]);
+		$url = preg_match('/^\/?([\w]+\/{1}[\w]+[^\.\/])/',strtolower($param['url']),$result) ? $result[1] : '';
+		
+		
+		$option = [];
+		$checked = [];
+		if($url){
+			/* 获取选项列表 */
+			$parent_id = db('auth_rule')->where(['name' => $url])->value('id');
+			//type[0隐藏-1主菜单-2按钮]
+			$where = ['parent_id' => $parent_id, 'type' => 2, 'status' => 1,];
+			if(!$this->isAdministrator($this->user_id)){
+				$where['id'] = ['in', \xs\Auth::instance()->getAuthIds($this->user_id) ? : ''];
+			}
+			$option = db('auth_rule')->where($where)->order('sort DESC')->select();
+			//创建选项之后
+			Hook::listen('create_option_after', $option);
+			
+			/* 获取选中 */
+			$rule    = db('auth_rule')->where(['name' => $url, 'status' => 1])->find();
+			$checked = [];
+			if($rule){
+				$data     = [$rule['id'] => $rule];
+				$function = function($id) use (&$function, &$data){
+					$rule = db('auth_rule')->where(['id' => $id, 'type' => 1, 'status' => 1])->find();
+					if($rule){
+						$data[$rule['id']] = $rule;
+						$function($rule['parent_id']);
+					}
+					return $data;
+				};
+				$checked  = $function($rule['parent_id']);
+			}
+		}
+		
+		$current = $checked ? current($checked) : [];
+		
+		//权限列表 type[0隐藏-1主菜单-2按钮]
+		$badge = [
+			'addon/addon_list' => ['red' => 'hot',],
+		];
+		$where = ['type' => 1, 'status' => 1,];
+		if(!$this->isAdministrator($this->user_id)){
+			$where['id'] = ['in', \xs\Auth::instance()->getAuthIds($this->user_id) ? : ''];
+		}
+		$menu = db('auth_rule')->where($where)->order('sort DESC')->select();
+		foreach($menu as $k => $v){
+			$menu[$k]['badge'] = isset($badge[$v['name']]) ? $badge[$v['name']] : [];
+			$menu[$k]['is_checked'] = isset($checked[$v['id']]) ? true : false;
+		}
+		//创建菜单之后
+		Hook::listen('create_menu_after', $menu);
+		//进行递归排序
+		$menu = Helper::sortArrayRecursio($menu);
+		
+		$this->apiReturn(['code' => 0, 'msg' => 'ok', 'data' => [
+			'url'     => $url,
+			'current' => $current,
+			'checked' => $checked,
+			'menu'    => $menu,
+			'option'  => $option,
+		]]);
 	}
 	
 }

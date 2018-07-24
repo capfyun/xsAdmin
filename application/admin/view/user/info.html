@@ -105,7 +105,12 @@
 </div>
 
 <script type="text/javascript">
-	$(function(){
+	require([
+		'jquery',
+		'app',
+		'vue',
+		'bootstrap-fileinput'
+	], function($, app, Vue){
 		$('.form-validator').bootstrapValidator(
 				"addField", "verify_password", {
 					validators: {
@@ -140,11 +145,9 @@
 			}
 			$('input[name=face]').val(data.response.data[0].id).next('img').attr('src', data.response.data[0].url);
 		});
-
-
 	});
 
-	var page = {};
+
 
 </script>
 {/block}
