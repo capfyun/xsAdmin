@@ -7,7 +7,7 @@ namespace addon\captcha;
 
 use addon\Base;
 use think\Hook;
-use xs\Helper;
+use lib\Helper;
 
 class Captcha extends Base{
 	

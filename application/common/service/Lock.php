@@ -19,7 +19,7 @@ class Lock extends Base{
 		//生成锁名
 		$name = $this->getName($tag);
 		//获取一个锁
-		$result = \xs\Lock::connect()->acquire($name, $time);
+		$result = \lib\Lock::connect()->acquire($name, $time);
 		if(!$result){
 			$this->error = '上锁失败';
 			return false;
@@ -36,7 +36,7 @@ class Lock extends Base{
 		//生成锁名
 		$name = $this->getName($tag);
 		//关闭锁
-		$result = \xs\Lock::connect()->release($name);
+		$result = \lib\Lock::connect()->release($name);
 		if(!$result){
 			$this->error = '锁关闭失败';
 			return false;

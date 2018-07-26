@@ -13,8 +13,8 @@ class Addon {
 	 */
 	public function run(&$param){
 		//读取并挂载插件
-		\xs\Addon::load(\think\Config::get('app_debug'));
-		\xs\Addon::mount();
+		\lib\Addon::load(\think\Config::get('app_debug'));
+		\lib\Addon::mount();
 	}
 
 	

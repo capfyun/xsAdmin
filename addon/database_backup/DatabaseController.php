@@ -6,8 +6,8 @@
 namespace app\admin\controller;
 
 
-use xs\Addon;
-use xs\Helper;
+use lib\Addon;
+use lib\Helper;
 
 class Database extends \app\common\controller\AdminBase{
 	

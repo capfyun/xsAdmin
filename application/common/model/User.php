@@ -7,8 +7,8 @@ namespace app\common\model;
 
 use think\Cookie;
 use think\Session;
-use xs\Aes;
-use xs\Helper;
+use lib\Aes;
+use lib\Helper;
 
 class User extends Base{
 	/* 自动完成 */

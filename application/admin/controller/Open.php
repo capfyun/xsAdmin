@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-use xs\Image;
+use lib\Image;
 
 class Open extends \app\common\controller\AdminBase{
 	

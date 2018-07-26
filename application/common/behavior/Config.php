@@ -15,6 +15,6 @@ class Config {
 	 */
 	public function run(&$param){
 		//读取配置
-		\xs\Config::load(\think\Config::get('app_debug'));
+		\lib\Config::load(\think\Config::get('app_debug'));
 	}
 }

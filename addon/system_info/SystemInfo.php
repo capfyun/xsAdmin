@@ -7,7 +7,7 @@ namespace addon\system_info;
 
 use addon\Base;
 use think\Hook;
-use xs\Helper;
+use lib\Helper;
 
 class SystemInfo extends Base{
 	

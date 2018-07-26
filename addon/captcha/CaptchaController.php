@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-use xs\Addon;
+use lib\Addon;
 
 class Captcha extends \app\common\controller\AdminBase{
 	

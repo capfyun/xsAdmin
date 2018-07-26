@@ -7,7 +7,7 @@ namespace addon\database_backup;
 
 use addon\Base;
 use think\Hook;
-use xs\Helper;
+use lib\Helper;
 
 class DatabaseBackup extends Base{
 	

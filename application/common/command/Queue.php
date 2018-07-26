@@ -37,7 +37,7 @@ class Queue extends Base{
 		if($input->getOption('close')){
 			print_r('close');
 			print_r($input->getArgument('type'));
-			\xs\Queue::instance()->close($input->getArgument('type'));
+			\lib\Queue::instance()->close($input->getArgument('type'));
 			exit;
 		}
 		
@@ -60,7 +60,7 @@ class Queue extends Base{
 	 * 生产者，用于调试
 	 */
 	private function producer(){
-		\xs\Queue::instance()->producer('test', ['xcxc', 'asqwe', 'asdq' => 123123]);
+		\lib\Queue::instance()->producer('test', ['xcxc', 'asqwe', 'asdq' => 123123]);
 		print_r('end');
 	}
 	
@@ -68,7 +68,7 @@ class Queue extends Base{
 	 * 消费者
 	 */
 	private function test(){
-		\xs\Queue::instance()->consumer('test', function($data){
+		\lib\Queue::instance()->consumer('test', function($data){
 			dbDebug('consumer', $data);
 		});
 		print_r('end');

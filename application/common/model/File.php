@@ -5,7 +5,7 @@
  */
 namespace app\common\model;
 
-use xs\Upload;
+use lib\Upload;
 
 class File extends Base{
 	

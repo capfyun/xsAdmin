@@ -5,7 +5,7 @@
  */
 namespace app\admin\controller;
 
-use xs\Helper;
+use lib\Helper;
 
 class Config extends \app\common\controller\AdminBase{
 	
@@ -30,7 +30,7 @@ class Config extends \app\common\controller\AdminBase{
 		$status_format = [0 => '禁用', 1 => '启用'];
 		foreach($paging as $k => $v){
 			$v['group_format']  = isset($group_list[$v['group']]) ? $group_list[$v['group']] : '-';
-			$v['type_format']   = \xs\Config::typeAttr($v['type']);
+			$v['type_format']   = \lib\Config::typeAttr($v['type']);
 			$v['status_format'] = isset($status_format[$v['status']]) ? $status_format[$v['status']] : '-';
 			$v['value']         = htmlspecialchars(Helper::msubstr($v['value'], 0, 90));
 			$paging->offsetSet($k, $v);
@@ -59,7 +59,7 @@ class Config extends \app\common\controller\AdminBase{
 			'title|名称'       => ['require', 'length' => '1,20'],
 			'name|键'         => ['require', 'alphaDash', 'length' => '1,50', 'unique:config'],
 			'group|分组'       => ['require', 'integer', 'egt' => 0],
-			'type|键类型'       => ['require', 'in' => array_keys(\xs\Config::typeAttr())],
+			'type|键类型'       => ['require', 'in' => array_keys(\lib\Config::typeAttr())],
 			'value|值'        => [],
 			'validate|验证规则'  => ['length' => '1,250'],
 			'extra|额外参数'     => [],
@@ -74,7 +74,7 @@ class Config extends \app\common\controller\AdminBase{
 			->save($param);
 		$result || $this->error();
 		//初始化配置
-		\xs\Config::load(true);
+		\lib\Config::load(true);
 		$this->success('操作成功', cookie('forward'));
 	}
 	
@@ -128,7 +128,7 @@ class Config extends \app\common\controller\AdminBase{
 			->update(['value' => db()->raw($sql)]);
 		$result || $this->error('操作失败');
 		//初始化配置
-		\xs\Config::load(true);
+		\lib\Config::load(true);
 		$this->success('操作成功');
 	}
 	

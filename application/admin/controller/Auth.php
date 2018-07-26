@@ -6,7 +6,7 @@
 namespace app\admin\controller;
 
 use think\Hook;
-use xs\Helper;
+use lib\Helper;
 
 class Auth extends \app\common\controller\AdminBase{
 	
@@ -170,7 +170,7 @@ class Auth extends \app\common\controller\AdminBase{
 			//type[0隐藏-1主菜单-2按钮]
 			$where = ['parent_id' => $parent_id, 'type' => 2, 'status' => 1,];
 			if(!$this->isAdministrator($this->user_id)){
-				$where['id'] = ['in', \xs\Auth::instance()->getAuthIds($this->user_id) ? : ''];
+				$where['id'] = ['in', \lib\Auth::instance()->getAuthIds($this->user_id) ? : ''];
 			}
 			$option = db('auth_rule')->where($where)->order('sort DESC')->select();
 			//创建选项之后
@@ -201,7 +201,7 @@ class Auth extends \app\common\controller\AdminBase{
 		];
 		$where = ['type' => 1, 'status' => 1,];
 		if(!$this->isAdministrator($this->user_id)){
-			$where['id'] = ['in', \xs\Auth::instance()->getAuthIds($this->user_id) ? : ''];
+			$where['id'] = ['in', \lib\Auth::instance()->getAuthIds($this->user_id) ? : ''];
 		}
 		$menu = db('auth_rule')->where($where)->order('sort DESC')->select();
 		foreach($menu as $k => $v){

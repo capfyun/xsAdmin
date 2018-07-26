@@ -6,9 +6,9 @@
 namespace app\admin\controller;
 
 use OSS\OssClient;
-use xs\IpLocation;
-use xs\Rsa;
-use xs\Upload;
+use lib\IpLocation;
+use lib\Rsa;
+use lib\Upload;
 
 class Debug extends \app\common\controller\AdminBase{
 	

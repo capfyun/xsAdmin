@@ -5,9 +5,9 @@
  */
 namespace app\common\model;
 
-use xs\Aes;
-use xs\Curl;
-use xs\Rsa;
+use lib\Aes;
+use lib\Curl;
+use lib\Rsa;
 
 class Api extends Base{
 	

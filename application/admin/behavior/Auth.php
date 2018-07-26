@@ -6,7 +6,7 @@
 namespace app\admin\behavior;
 
 use think\Config;
-use xs\Helper;
+use lib\Helper;
 
 class Auth {
 	
@@ -42,7 +42,7 @@ class Auth {
 				if($user_id<=0){
 					redirect(url('open/login'));
 				}
-				$auth = \xs\Auth::instance(Config::get('auth_config'));
+				$auth = \lib\Auth::instance(Config::get('auth_config'));
 				$result = $auth->check($this->url, $user_id);
 				if(!$result){
 					request()->isAjax()

@@ -6,8 +6,8 @@
 namespace app\common\controller;
 
 use think\Hook;
-use xs\Auth;
-use xs\Helper;
+use lib\Auth;
+use lib\Helper;
 
 abstract class AdminBase extends Base{
 	//当前用户ID

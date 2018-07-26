@@ -20,7 +20,7 @@ class Addon extends \app\common\controller\AdminBase{
 			if(!$v->isDir()){
 				continue;
 			}
-			$class = \xs\Addon::getClass($k);
+			$class = \lib\Addon::getClass($k);
 			if(!class_exists($class)){
 				throw new \Exception("插件类不存在：{$class}");
 			}
@@ -69,7 +69,7 @@ class Addon extends \app\common\controller\AdminBase{
 		if(!$this->request->isPost()){
 			$addon = model('Addon')->get(['name' => input('name')]);
 			$addon || $this->error('该插件还未安装');
-			$class = \xs\Addon::getClass($addon->name);
+			$class = \lib\Addon::getClass($addon->name);
 			class_exists($class) || $this->error("插件类不存在： {$class}");
 			$option = $class::option();
 			$config = $class::config();
@@ -94,7 +94,7 @@ class Addon extends \app\common\controller\AdminBase{
 		//校验
 		$addon = model('Addon')->get($param['id']);
 		$addon || $this->error('插件不存在');
-		$class = \xs\Addon::getClass($addon->name);
+		$class = \lib\Addon::getClass($addon->name);
 		class_exists($class) || $this->error("插件类不存在： {$class}");
 		//校验配置
 		if($param['config'] && $coption = $class::option()){
@@ -121,7 +121,7 @@ class Addon extends \app\common\controller\AdminBase{
 	 */
 	public function install(){
 		//类不存在
-		$class = \xs\Addon::getClass(input('name'));
+		$class = \lib\Addon::getClass(input('name'));
 		!class_exists($class) && $this->apiReturn(['msg' => "插件类不存在： {$class}"]);
 		//已安装
 		$addon = model('Addon')->get(['name' => input('name')]);
@@ -158,7 +158,7 @@ class Addon extends \app\common\controller\AdminBase{
 		!$addon && $this->apiReturn(['msg' => '该插件未安装']);
 		//卸载
 		db()->startTrans();
-		$class = \xs\Addon::getClass(input('name'));
+		$class = \lib\Addon::getClass(input('name'));
 		if(class_exists($class)){
 			$result = $class::uninstall();
 			if(!$result){

@@ -5,7 +5,7 @@
  */
 namespace app\api\controller;
 
-use xs\Helper;
+use lib\Helper;
 
 class User extends \app\common\controller\ApiBase{
 	

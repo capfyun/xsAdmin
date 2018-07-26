@@ -4,7 +4,7 @@
  * @author xs
  */
 
-\think\Loader::addNamespace('xs', ROOT_PATH.'xs'.DS);
+\think\Loader::addNamespace('lib', ROOT_PATH.'lib'.DS);
 // 插件
 define('ADDON_PATH', ROOT_PATH.'addon'.DS);
 is_dir(ADDON_PATH) || @mkdir(ADDON_PATH, 0777, true);
