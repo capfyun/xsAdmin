@@ -12,6 +12,8 @@
 // 应用行为扩展定义文件
 return [
 	'app_init' => [
+		//自定义类库
+		'app\\common\\behavior\\Lib',
 		//配置
 		'app\\common\\behavior\\Config',
 		//插件

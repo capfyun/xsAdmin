@@ -33,7 +33,12 @@
 						<td>{$v.author}</td>
 						<td>{$v.version}</td>
 						<td>{$v.sort}</td>
-						<td>{$v.status_format}</td>
+						<td>
+							{$v['status'] ? '<span style="color:green;">启用</span>' : '<span style="color:red;">禁用</span>'}
+							【
+							{$v['install'] ? '<span style="color:green;">已安装</span>' : '<span style="color:red;">未安装</span>'}
+							】
+						</td>
 					</tr>
 					{/foreach}
 					</tbody>

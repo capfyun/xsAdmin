@@ -5,6 +5,7 @@
  */
 namespace app\admin\controller;
 
+use lib\Addon;
 use OSS\OssClient;
 use lib\IpLocation;
 use lib\Rsa;
@@ -19,6 +20,21 @@ class Debug extends \app\common\controller\AdminBase{
 	 * 测试
 	 */
 	public function test(){
+		halt(ADDON_PATH);
+		
+		$name = '';
+		$name = md5($name);
+		if(true){
+			// 使用子目录
+			$name = substr($name, 0, 2).DS.substr($name, 2);
+		}
+		$name = 'xxx'.DS.$name;
+		$filename = 'abc/'.$name.'.php';
+		
+		halt($filename);
+		
+		
+		
 		
 		if($this->request->isPost()){
 			

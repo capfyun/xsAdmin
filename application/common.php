@@ -4,13 +4,6 @@
  * @author xs
  */
 
-\think\Loader::addNamespace('lib', ROOT_PATH.'lib'.DS);
-// 插件
-define('ADDON_PATH', ROOT_PATH.'addon'.DS);
-is_dir(ADDON_PATH) || @mkdir(ADDON_PATH, 0777, true);
-\think\Loader::addNamespace('addon', ADDON_PATH);
-
-
 if(!function_exists('service')){
 	/**
 	 * 实例化服务层

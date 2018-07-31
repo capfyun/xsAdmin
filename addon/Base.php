@@ -5,6 +5,8 @@
  */
 namespace addon;
 
+use lib\Addon;
+
 abstract class Base{
 	//错误信息
 	protected static $error = '';
@@ -52,13 +54,12 @@ abstract class Base{
 	 * @return array
 	 */
 	public static function config(){
-		$addon = model('Addon')->get([
-			'name' => preg_replace('/^.*\\\/', '', static::class),
-		]);
-		if(!$addon || !$addon->config || !$config = json_decode($addon->config, true)){
+		$name = preg_replace('/^.*\\\/', '', static::class);
+		$info = Addon::getInfo($name);
+		if(!$info){
 			return [];
 		}
-		return $config;
+		return $info['config'];
 	}
 	
 	/**

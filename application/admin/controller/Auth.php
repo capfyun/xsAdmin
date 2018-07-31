@@ -192,7 +192,8 @@ class Auth extends \app\common\controller\AdminBase{
 				$checked  = $function($rule['parent_id']);
 			}
 		}
-		
+		//创建选中路径之后
+		Hook::listen('create_checked_after', $checked);
 		$current = $checked ? current($checked) : [];
 		
 		//权限列表 type[0隐藏-1主菜单-2按钮]
