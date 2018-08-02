@@ -1,0 +1,22 @@
+/**
+ * 描    述: 后台主体样式
+ * 作用范围：后台独有1
+ */
+
+
+/* 表格点击变色 */
+table.table tr.selected {
+    background-color:#7CC5E5!important;
+}
+span.table-checkall,span.table-checkinvert {
+    color:cornflowerblue;cursor: pointer;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+    -khtml-user-select: none; /* Konqueror */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently not supported by any browser */
+}
+textarea {
+    resize: none;
+}
