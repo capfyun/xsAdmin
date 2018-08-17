@@ -82,6 +82,7 @@ class Queue{
 				case 'close':
 					exit;
 				//运行
+				case 'data':
 				default:
 					if(is_callable($callback)){
 						$value = json_decode($data['value'], true);

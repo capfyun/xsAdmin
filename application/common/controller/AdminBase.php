@@ -9,8 +9,6 @@ namespace app\common\controller;
 abstract class AdminBase extends Base{
 	//当前用户ID
 	protected $user_id = 0;
-	//错误信息
-	protected $error = '';
 	
 	/**
 	 * 构造函数
@@ -19,19 +17,6 @@ abstract class AdminBase extends Base{
 		parent::_initialize();
 		//当前用户ID
 		$this->user_id = model('User')->isLogin();
-
-//		halt([
-//			$this->request->module(),
-//			$this->request->controller(),
-//			$this->request->action()
-//		]);
-	}
-	
-	/**
-	 * 获取错误信息
-	 */
-	public function getError(){
-		return $this->error;
 	}
 	
 	/**
@@ -44,8 +29,7 @@ abstract class AdminBase extends Base{
 		//校验数据
 		$result = $this->validate($param, array_filter($rule), $message);
 		if($result!==true){
-			$this->error = $result;
-			return false;
+			return $result;
 		}
 		$data = [];
 		foreach($rule as $k => $v){

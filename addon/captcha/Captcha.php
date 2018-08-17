@@ -6,8 +6,10 @@
 namespace addon\captcha;
 
 use addon\Base;
+use lib\Menu;
 use think\Hook;
 use lib\Helper;
+use think\Request;
 
 class Captcha extends Base{
 	
@@ -28,13 +30,13 @@ class Captcha extends Base{
 				'type'     => 'radio', //checkbox、selects的值是数组
 				'name'     => '使用中文验证码',
 				'validate' => ['number', 'between' => '0,1'],
-				'value'    => ['否' => false, '是' => true],
+				'value'    => ['是' => true, '否' => false],
 			],
 			'use_img_bg'     => [
 				'type'     => 'radio', //checkbox、selects的值是数组
 				'name'     => '使用背景图片',
 				'validate' => ['number', 'between' => '0,1'],
-				'value'    => ['否' => false, '是' => true],
+				'value'    => ['是' => true, '否' => false],
 			],
 			'use_curve'      => [
 				'type'     => 'radio', //checkbox、selects的值是数组
@@ -52,13 +54,13 @@ class Captcha extends Base{
 				'type'     => 'radio', //checkbox、selects的值是数组
 				'name'     => '区分大小写',
 				'validate' => ['number', 'between' => '0,1'],
-				'value'    => ['否' => false, '是' => true],
+				'value'    => ['是' => true, '否' => false],
 			],
 			'length'         => [
 				'type'     => 'text', //checkbox、selects的值是数组
 				'name'     => '验证码位数',
 				'validate' => ['number', 'between' => '1,10'],
-				'value'    => 5,
+				'value'    => 4,
 			],
 		];
 	}
@@ -68,22 +70,18 @@ class Captcha extends Base{
 	 */
 	public static function register(){
 		
-		$url = strtolower(
-			request()->module()
-			.'/'.Helper::convertHump(request()->controller())
-			.'/'.request()->action()
-		);
-		//注册
-		if($url=='admin/captcha/image'){
-			$open_url   = config('open_url') ? : [];
-			$open_url[] = 'captcha/image';
-			config('open_url', $open_url);
-			require_once __DIR__.'/CaptchaController.php';
-		}
-		//验证码校验
-		if($url=='admin/open/login'){
+		Menu::push([
+			'name' => 'captcha/image',
+			'show' => false,
+			'auth' => false,
+		]);
+		require_once __DIR__.'/CaptchaController.php';
+		Hook::add('module_init', function(&$request){
+			if('admin/open/login'!=strtolower($request->module().'/'.$request->controller().'/'.$request->action())){
+				return true;
+			}
 			//验证码校验
-			if(request()->isPost()){
+			if($request->isPost()){
 				if(!session('captcha')){
 					abort(json(['code' => 1000, 'msg' => '请填写验证码']));
 				}
@@ -94,24 +92,25 @@ class Captcha extends Base{
 					strtolower(session('captcha'))!=strtolower(input('captcha')) && abort(json(['code' => 1000, 'msg' => '验证码错误']));
 				}
 			}
-			$catpcha_show = <<<HTML
+			Hook::add('view_filter', function(&$view){
+				$image = url('captcha/image');
+				$captcha = <<<HTML
 <div class="form-group has-feedback">
 	<div class="col-sm-12" style="margin-bottom:10px;">
 		<input name="captcha" value="" type="text"  class="form-control" placeholder="填写下图所示验证码">
 		<span class="glyphicon glyphicon-tag form-control-feedback"></span>
 	</div>
 	<div class="col-sm-7">
-		<img src="/captcha/image" width="200" id="captcha_img" class="img-responsive img-thumbnail" alt="" onclick="$(this).prop('src','/captcha/image?_='+Math.random());" style="cursor: pointer;">
+		<img src="{$image}" width="200" id="captcha_img" class="img-responsive img-thumbnail" alt="" onclick="$(this).prop('src','{$image}?_='+Math.random());" style="cursor: pointer;">
 	</div>
 	<div class="col-sm-5">
-		看不清？<a href="#" onclick="$('#captcha_img').attr('src','/captcha/image?_='+Math.random());return false;" >换一张</a>
+		看不清？<a href="#" onclick="$('#captcha_img').attr('src','{$image}?_='+Math.random());return false;" >换一张</a>
 	</div>
 </div>
 HTML;
-			Hook::add('create_captcha',function(&$param) use ($catpcha_show){
-				$param = $catpcha_show;
+				$view = str_replace('<!--$captcha-->', $captcha, $view);
 			});
-		}
+		});
 	}
 	
 }

@@ -23,7 +23,7 @@ class Local extends Driver{
 		}
 		
 		//保存文件
-		if(!copy($file['tmp_name'], $file_name)){
+		if(!rename($file['tmp_name'], $file_name)){
 			$this->error = '文件上传保存错误！';
 			return false;
 		}

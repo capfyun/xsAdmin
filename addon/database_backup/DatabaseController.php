@@ -5,7 +5,6 @@
  */
 namespace app\admin\controller;
 
-
 use lib\Addon;
 use lib\Helper;
 
@@ -80,6 +79,7 @@ class Database extends \app\common\controller\AdminBase{
 					'name'               => $name,
 					'part'               => 1,
 					'size'               => $v->getSize(),
+					'size_format'        => Helper::formatBytes($v->getSize()),
 					'create_time_format' => date('Y-m-d H:i:s', $v->getMTime()),
 					'create_time'        => $v->getMTime(),
 				];

@@ -42,14 +42,16 @@
 
 					<div class="form-group">
 						<label  class="col-sm-2 control-label">上级菜单</label>
-						<div class="col-sm-10" id="treeview" >
-							<!-- 菜单 -->
-							<label class="radio-inline">
-								<input type="radio" name="parent_id" value="0" :checked="parent_id==0">
-								<span class="fa fa-folder-open-o"></span>
-								根目录
-							</label>
-							<rule-list :param="data" style="overflow: auto;height:400px;"></rule-list>
+						<div class="col-sm-10" >
+							<div id="treeview" style="overflow: auto;height:400px;border:1px dashed gray; padding:5px;">
+								<!-- 菜单 -->
+								<label class="radio-inline">
+									<input type="radio" name="parent_id" value="0" :checked="parent_id==0">
+									<span class="fa fa-folder-open-o"></span>
+									根目录
+								</label>
+								<rule-list :param="data" ></rule-list>
+							</div>
 						</div>
 					</div>
 					<div class="form-group">
@@ -72,7 +74,7 @@
 							<div class="input-group">
 								<span class="input-group-addon"><i class="fa {$info.icon ? : 'fa-link'}"></i></span>
 								<input name="icon" value="{$info.icon ?? ''}" type="text" class="form-control" maxlength="30" placeholder="">
-								<a href="javascript:;" class="btn-search-icon input-group-addon" data-toggle="modal" data-target="#modal-icon">查看图标</a>
+								<a href="#" class="btn-search-icon input-group-addon" data-toggle="modal" data-target="#modal-icon">查看图标</a>
 							</div>
 						</div>
 					</div>

@@ -5,6 +5,7 @@
  */
 namespace app\admin\behavior;
 
+use lib\Menu;
 use think\Config;
 use lib\Helper;
 
@@ -16,6 +17,7 @@ class Auth {
 	 * 初始化
 	 */
 	public function __construct(){
+		\lib\Auth::instance(Config::get('auth_config'));
 		//当前请求地址
 		$this->url = strtolower(
 			Helper::convertHump(request()->controller())
@@ -31,24 +33,29 @@ class Auth {
 		$user_id = model('User')->isLogin() ? : model('User')->cookieLogin();
 		
 		//校验IP
-		$result = $this->checkLoginIp();
-		$result || abort(404, '您的IP禁止操作');
+		!$this->checkLoginIp() && abort(404, '您的IP禁止操作');
 		
 		//管理员帐号，不需要任何验证
 		if(!$this->isAdministrator($user_id)){
-			
 			//权限验证
 			if(!$this->isExempt()){
-				if($user_id<=0){
-					redirect(url('open/login'));
+				//自定义菜单
+				if(Menu::isCustom($this->url)){
+					if(!Menu::check($this->url, $user_id)){
+						abort(redirect('error/e404',['msg'=>'未授权']));
+					}
+				}else{
+					//权限
+					if($user_id<=0){
+						abort(redirect('open/login'));
+					}
+					if(!\lib\Auth::instance()->check($this->url, $user_id)){
+						request()->isAjax()
+							? abort(404, '未授权')
+							: abort(redirect('open/login'));
+					}
 				}
-				$auth = \lib\Auth::instance(Config::get('auth_config'));
-				$result = $auth->check($this->url, $user_id);
-				if(!$result){
-					request()->isAjax()
-						? abort(404, '未授权')
-						: abort(redirect('open/login'));
-				}
+				
 			}
 		}
 	}

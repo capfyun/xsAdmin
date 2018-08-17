@@ -35,15 +35,11 @@ class Addon extends \app\common\controller\AdminBase{
 		}
 		$param = $this->param([
 			'name|package'   => ['require', 'length' => '1,50'],
-			'title|标题'       => ['require', 'length' => '1,50'],
-			'author|作者'      => ['length' => '1,50'],
-			'version|版本'     => ['length' => '1,50'],
-			'description|描述' => [],
 			'sort|排序'        => ['integer', 'between' => '0,9999'],
 			'status|状态'      => ['require', 'integer', 'between' => '0,1'],
 			'config|配置'      => ['array'],
 		]);
-		$param===false && $this->error($this->getError());
+		is_string($param) && $this->error($param);
 		//校验
 		$info = \lib\Addon::getInfo($param['name']);
 		!$info && $this->error('该插件不存在');
@@ -58,8 +54,8 @@ class Addon extends \app\common\controller\AdminBase{
 			$result = $this->validate($param['config'], $validate);
 			$result!==true && $this->error($result);
 		}
-		$result = \lib\Addon::setCache($param['name'], array_merge($info, $param));
-		!$result && $this->error();
+		$result = \lib\Addon::setCache($param['name'], $param);
+		!$result && $this->error(\lib\Addon::getError());
 		$this->success('操作成功', cookie('forward'));
 	}
 	

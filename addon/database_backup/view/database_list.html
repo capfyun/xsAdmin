@@ -7,7 +7,19 @@
 	<div class="box-body">
 		<div class="row">
 			<div class="col-sm-12">
-				{include file="layout/option"/}
+				<a class="btn btn-app" href="/database/optimize" title="优化表" request="1" param="name:2" @click.prevent="optionEvent">
+					<i class="fa fa-space-shuttle" ></i>
+					优化表
+				</a>
+				<a class="btn btn-app" href="/database/export" title="备份" request="1" param="name:0" @click.prevent="optionEvent">
+					<i class="fa fa-sign-out" ></i>
+					备份
+				</a>
+				<a class="btn btn-app" href="/database/backup_list" title="已备份文件" request="0" param="" @click.prevent="optionEvent">
+					<i class="fa fa-file-text-o" ></i>
+					已备份文件
+				</a>
+
 			</div>
 		</div>
 

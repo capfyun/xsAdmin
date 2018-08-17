@@ -5,6 +5,7 @@
  */
 namespace app\common\model;
 
+use think\Config;
 use think\Cookie;
 use think\Session;
 use lib\Aes;
@@ -65,7 +66,8 @@ class User extends Base{
 	 * @return string 加密后的字符串
 	 */
 	public function encode($string){
-		return md5(sha1($string).config('password_secret_key'));
+		$key = Config::get('password_secret_key');
+		return md5(sha1($string).$key);
 	}
 	
 	/**
@@ -259,4 +261,14 @@ class User extends Base{
 		return $user_id;
 	}
 	
+	/**
+	 * 是否管理员用户
+	 * @param int $user_id 用户ID
+	 * @return bool
+	 */
+	public function isAdministrator($user_id = null){
+		$administrator_id = Config::get('administrator_id') ? : [];
+		is_null($user_id) && $user_id = $this->isLogin();
+		return in_array($user_id, $administrator_id);
+	}
 }

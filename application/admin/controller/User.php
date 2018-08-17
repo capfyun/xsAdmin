@@ -62,14 +62,14 @@ class User extends \app\common\controller\AdminBase{
 			]);
 		}
 		$param = $this->param([
-			'id'            => ['integer', '>=' => 0],
+			'id'            => ['integer', 'egt' => 0],
 			'username|用户名'  => ['require', 'length' => '6,16'],
 			'nickname|昵称'   => ['require', 'length' => '2,16'],
 			'status|状态'     => ['require', 'between' => '0,1'],
 			'password|密码'   => ['length' => '6,16'],
 			'group_ids|权限租' => ['array'],
 		]);
-		$param===false && $this->error($this->getError());
+		is_string($param) && $this->error($param);
 		if($param['id']){
 			//编辑
 			unset($param['username']);
@@ -114,14 +114,14 @@ class User extends \app\common\controller\AdminBase{
 		}
 		$param = $this->param([
 			'nickname|昵称'          => ['require', 'length' => '2,16'],
-			'face|头像'              => ['integer', '>=' => 0],
+			'face|头像'              => ['integer', 'egt' => 0],
 			'gender|性别'            => ['integer', 'between' => '0,2'],
 			'age|年龄'               => ['integer', 'between' => '0,100'],
 			'old_password|密码'      => ['length' => '6,16'],
 			'new_password|新密码'     => ['length' => '6,16'],
 			'verify_password|重复密码' => ['length' => '6,16', 'confirm' => 'new_password'],
 		]);
-		$param===false && $this->error($this->getError());
+		is_string($param) && $this->error($param);
 		//修改密码
 		if($param['old_password']){
 			model('User')->checkPassword($this->user_id, $param['old_password'])

@@ -5,15 +5,19 @@
  */
 namespace lib;
 
-class Curl {
+class Curl{
+	/**
+	 * @var array 缓存的实例
+	 */
+	public static $instance = [];
 	//连接资源句柄的信息
-	private static $curl_info = [];
+	private $curl_info = [];
 	//错误信息
-	private static $curl_error = '';
+	private $curl_error = '';
 	//错误编号
-	private static $curl_errno = 0;
+	private $curl_errno = 0;
 	//默认配置
-	private static $option = [
+	private $option = [
 		CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_0, //强制使用 HTTP/1.0
 		CURLOPT_USERAGENT      => 'toqi.net', //伪装浏览器
 		CURLOPT_CONNECTTIMEOUT => 30, //最长等待时间
@@ -27,22 +31,41 @@ class Curl {
 	];
 	
 	/**
+	 * 初始化
+	 */
+	private function __construct($option = []){
+		//Curl 设置参数
+		foreach($option as $k => $v){
+			$this->option[$k] = $v;
+		}
+	}
+	
+	/**
+	 * 连接驱动
+	 * @param array $option 配置数组
+	 * @return static
+	 */
+	public static function instance(array $option = []){
+		ksort($option);
+		$name = md5(serialize($option));
+		if(!isset(self::$instance[$name])){
+			self::$instance[$name] = new static($option);
+		}
+		return self::$instance[$name];
+	}
+	
+	/**
 	 * 请求url
 	 * @param string $url 请求地址
 	 * @param array $body 传输内容
 	 * @param string $method 传输方式
-	 * @param array $option 配置参数
 	 * @return string|false 失败返回false
 	 */
-	public static function request($url, $body = [], $method = 'POST', $option = []){
+	public function request($url, $body = [], $method = 'POST'){
 		//初始化curl会话
 		$ch = curl_init();
-		//Curl 设置参数
-		$option_merge = self::$option;
-		foreach($option as $k => $v){
-			$option_merge[$k] = $v;
-		}
-		curl_setopt_array($ch, $option_merge);
+		
+		curl_setopt_array($ch, $this->option);
 		//设置传输方式
 		switch(strtoupper($method)){
 			case 'POST':
@@ -64,9 +87,9 @@ class Curl {
 		//执行会话
 		$response = curl_exec($ch);
 		//保存会话信息
-		self::$curl_info  = curl_getinfo($ch);
-		self::$curl_error = curl_error($ch);
-		self::$curl_errno = curl_errno($ch);
+		$this->curl_info  = curl_getinfo($ch);
+		$this->curl_error = curl_error($ch);
+		$this->curl_errno = curl_errno($ch);
 		//关闭curl会话
 		curl_close($ch);
 		return $response;
@@ -76,14 +99,16 @@ class Curl {
 	 * 获取最后一次会话信息
 	 * @return array
 	 */
-	public static function getLastInfo(){
-		return self::$curl_error;
+	public function getLastInfo(){
+		return $this->curl_info;
 	}
-	public static function getLastError(){
-		return self::$curl_error;
+	
+	public function getLastError(){
+		return $this->curl_error;
 	}
-	public static function getLastErrno(){
-		return self::$curl_errno;
+	
+	public function getLastErrno(){
+		return $this->curl_errno;
 	}
 	
 	/**
@@ -92,11 +117,13 @@ class Curl {
 	 * @return boolean
 	 */
 	public static function ping($url){
-		self::request($url, [], 'GET', [
+		$instance = self::instance([
 			CURLOPT_RETURNTRANSFER => true, //文件流的形式返回，而不是直接输出
 			CURLOPT_NOBODY         => true, //不取回数据
 			CURLOPT_CONNECTTIMEOUT => 5, //最长等待时间
 		]);
-		return isset(self::$curl_info['http_code']) && self::$curl_info['http_code']==200 ? true : false;
+		$instance->request($url, [], 'GET');
+		$info = $instance->getLastInfo();
+		return isset($info['http_code']) && $info['http_code']==200 ? true : false;
 	}
 }

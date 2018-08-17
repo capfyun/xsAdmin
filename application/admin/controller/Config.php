@@ -67,9 +67,8 @@ class Config extends \app\common\controller\AdminBase{
 			'sort|排序'        => ['integer', 'between' => '0,9999'],
 			'status|状态'      => ['require', 'integer', 'between' => '0,1'],
 		]);
-		$param===false && $this->error($this->getError());
-		$result = model('Config')
-			->allowField(true)
+		is_string($param) && $this->error($param);
+		$result = model('Config')->allowField(true)
 			->isUpdate($param['id'] ? true : false)
 			->save($param);
 		$result || $this->error();
@@ -98,6 +97,7 @@ class Config extends \app\common\controller\AdminBase{
 		$param = $this->param([
 			'config' => ['require', 'array'],
 		]);
+		is_string($param) && $this->error($param);
 		//校验
 		$rule   = model("Config")
 			->where(['name' => ['IN', array_keys($param['config'])], 'validate' => db()->raw('!=""')])

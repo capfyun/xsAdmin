@@ -6,6 +6,7 @@
 namespace app\admin\controller;
 
 use lib\Addon;
+use lib\Thread;
 use OSS\OssClient;
 use lib\IpLocation;
 use lib\Rsa;
@@ -20,41 +21,17 @@ class Debug extends \app\common\controller\AdminBase{
 	 * 测试
 	 */
 	public function test(){
-		halt(ADDON_PATH);
+		$thread = Thread::instance();
+		$a = $thread->push('app\home\controller\Index=>test','213','aasdqwe','yyy');
 		
-		$name = '';
-		$name = md5($name);
-		if(true){
-			// 使用子目录
-			$name = substr($name, 0, 2).DS.substr($name, 2);
-		}
-		$name = 'xxx'.DS.$name;
-		$filename = 'abc/'.$name.'.php';
-		
-		halt($filename);
-		
-		
-		
-		
-		if($this->request->isPost()){
-			
-			$upload = new Upload(array('location' => 'alioss'), 'alioss');
-			
-			$result = $upload->upload();
-
-//			$file = $_FILES['aa']['tmp_name'];
-
-//			$oss = new OssClient('8Hg70iSdonOMf6Yt', 'fITEZVUpTCRCQ9eKTFbhb7t0h9COzu', 'oss-cn-shanghai.aliyuncs.com', false);
-//			$result = $oss->putObject('qiguo', "b.file", "hi, oss");
-
-//			$result = $oss->uploadFile('qiguo', "abc/asdqwe/asdqwe", $file);
-			
-			halt($result);
-			
-			exit();
-		}
+		halt($a);
 		
 		return $this->fetch();
+	}
+	
+	public function abc(){
+		echo 'asdqwe';
+		exit;
 	}
 	
 	public function produce(){

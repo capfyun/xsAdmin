@@ -5,7 +5,7 @@
  */
 namespace lib;
 
-use lib\cache\Driver												;
+use lib\cache\Driver;
 
 class Cache{
 	/**
@@ -20,15 +20,15 @@ class Cache{
 	
 	/**
 	 * 连接驱动
-	 * @param array $options 配置数组
+	 * @param array $option 配置数组
 	 * @param bool|string $name 连接标识 true 强制重新连接
 	 * @return Driver
 	 */
-	public static function connect(array $options = [], $name = false){
-		$type = !empty($options['type']) ? $options['type'] : 'File';
+	public static function connect(array $option = [], $name = false){
+		$type = !empty($option['type']) ? $option['type'] : 'File';
 		if(false===$name){
-			ksort($options);
-			$name = md5(serialize($options));
+			ksort($option);
+			$name = md5(serialize($option));
 		}
 		if(true===$name || !isset(self::$instance[$name])){
 			$class = false===strpos($type, '\\')
@@ -38,9 +38,9 @@ class Cache{
 				throw new \Exception('class not exists:'.$class);
 			}
 			if(true===$name){
-				return new $class($options);
+				return new $class($option);
 			}
-			self::$instance[$name] = new $class($options);
+			self::$instance[$name] = new $class($option);
 		}
 		return self::$instance[$name];
 	}

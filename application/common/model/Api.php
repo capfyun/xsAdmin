@@ -82,7 +82,7 @@ class Api extends Base{
 		if(isset($data['isinit']) && $data['isinit']==1){
 			//获取接口参数
 			$api_url = $this->getApiUrl($data['url']);
-			$result  = Curl::request($api_url, ['getapiinfo' => 1], 'post');
+			$result  = Curl::instance()->request($api_url, ['getapiinfo' => 1], 'post');
 			$result  = json_decode($result, true);
 			if(!$result){
 				$this->error = '初始化失败';
@@ -172,7 +172,7 @@ class Api extends Base{
 		}
 		//调用接口
 		$api_url = $this->getApiUrl($api->url);
-		$result  = Curl::request($api_url, $post, 'post');
+		$result  = Curl::instance()->request($api_url, $post, 'post');
 		
 		if(!$result){
 			$this->error = '请求失败';

@@ -77,6 +77,16 @@ define(function(){
             $('#modal-shade').modal(option || 'toggle');
         },
         /**
+         * 获取链接地址
+         */
+        href : function(url){
+            if(!url)
+                return 'javascript:;';
+            if(url.substring(0,1)!='/')
+                url = '/'+url;
+            return module=='admin' ? url : '/admin'+url;
+        },
+        /**
          * 工具栏
          */
         toolbar: {

@@ -17,6 +17,9 @@ require([
     Vue.component("menu-list",{
         template:"#menu-template",
         props:["param","is_bar","is_child"],
+        data:function(){
+            return {app:app};
+        },
         methods : {
             isChild : function(item){
                 return item.child && item.child.length>0 ? true : false;
@@ -79,6 +82,7 @@ require([
     var table = new Vue({
         el: '#table',
         data: {
+            app:app,
             option : []
         },
         computed : {
@@ -211,7 +215,6 @@ require([
                                             app.alert(data.msg, {code: 1000});
                                         }
                                     }else{
-                                        console.log(data);
                                         app.alert('请求失败', {code: 1002});
                                     }
                                     app.loading = false;
@@ -248,9 +251,9 @@ require([
 
     //工具栏
     app.toolbar.init();
-
     //请求菜单栏
-    $.post("/auth/get_menu",{url:window.location.pathname},function(data,status){
+    var url = module=='admin' ? "/auth/get_menu" : "/admin/auth/get_menu";
+    $.post(app.href("/auth/get_menu"),{url:window.location.pathname},function(data,status){
         if(status=='success' && data.code != undefined){
             menu.data = data.data.menu;
             table.option = data.data.option;

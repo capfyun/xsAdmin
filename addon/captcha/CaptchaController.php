@@ -15,9 +15,8 @@ class Captcha extends \app\common\controller\AdminBase{
 	public function image(){
 		require_once __DIR__.'/library/Captcha.php';
 		
-		$class = Addon::getClass('Captcha');
-		
-		$captcha = new \Captcha($class::config());
+		$info    = Addon::getInfo('Captcha');
+		$captcha = new \Captcha($info['config']);
 		$code    = $captcha->create();
 		session('captcha', $code);
 		$captcha->entry();

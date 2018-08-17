@@ -6,8 +6,7 @@
 namespace addon\system_info;
 
 use addon\Base;
-use think\Hook;
-use lib\Helper;
+use lib\Menu;
 
 class SystemInfo extends Base{
 	
@@ -23,34 +22,11 @@ class SystemInfo extends Base{
 	 * 注册
 	 */
 	public static function register(){
-		$url = strtolower(
-			request()->module()
-			.'/'.Helper::convertHump(request()->controller())
-			.'/'.request()->action()
-		);
-		$id  = uniqid();
-		//注册菜单
-		$menu = [
-			'id'        => $id,
-			'parent_id' => 4,
-			'name'      => 'system/info',
-			'title'     => '系统信息',
-			'sort'      => 100,
-			'type'      => 1,
-			'icon'      => 'fa-file-code-o',
-		];
-		Hook::add('create_menu_after', function(&$param) use ($menu){
-			$param[] = $menu;
-			array_multisort(array_column($param, 'sort'), SORT_DESC, $param);
-		});
-		if($url=='admin/system/info'){
-			Hook::add('create_checked_after', function(&$param) use ($menu, $id){
-				$param = [
-					$id => $menu,
-					4   => db('auth_rule')->where(['id' => 4])->find(),
-				];
-			});
-		}
+		Menu::push([
+			'name'    => 'system/info',
+			'title'   => '系统信息',
+			'icon'    => 'fa-file-code-o'
+		]);
 	}
 	
 	

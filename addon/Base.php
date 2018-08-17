@@ -123,4 +123,5 @@ abstract class Base{
 	public static function getError(){
 		return static::$error;
 	}
+	
 }

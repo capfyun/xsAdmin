@@ -5,59 +5,98 @@
  */
 namespace lib;
 
-class Thread {
-	//密钥
-	protected $secret_key = 'k+_b}yC2Hx~:uZ/O=a9g-0{6^B|LhfwFlG@I?1MY';
-	//入口地址
-	protected $portal_url = 'http://crm.7guoyouxi.com/open/thread';
+class Thread{
+	/**
+	 * @var array 缓存的实例
+	 */
+	public static $instance = [];
+	/**
+	 * 错误信息
+	 * @var string
+	 */
+	private $error = '';
+	/**
+	 * 密钥
+	 * @var string
+	 */
+	private $key = '6c17d28ar315uz5m';
+	/**
+	 * 异步入口地址
+	 * @var string
+	 */
+	private $url = 'http://xs.local/home/index/index';
+	
+	/**
+	 * 初始化
+	 */
+	private function __construct($option = []){
+		isset($option['key']) && $this->key = $option['key'];
+		isset($option['url']) && $this->key = $option['url'];
+	}
+	
+	/**
+	 * 连接驱动
+	 * @param array $option 配置数组
+	 * @return static
+	 */
+	public static function instance(array $option = []){
+		ksort($option);
+		$name = md5(serialize($option));
+		if(!isset(self::$instance[$name])){
+			self::$instance[$name] = new static($option);
+		}
+		return self::$instance[$name];
+	}
 	
 	/**
 	 * 异步线程
 	 * @param string $url 地址（如控制器/方法）
 	 * @param array $data 参数
 	 * @param string $method 请求方式
-	 * @return bool
+	 * @param bool $sync 是否同步
+	 * @return bool | string
 	 */
-	public function async($url, $param = [], $method = 'POST'){
-		//配置
-		$info = array_merge([
-			'host'  => '',
-			'path'  => '',
-			'query' => '',
-		], parse_url($url));
-		//参数
-		$query = trim(http_build_query($param)); //参数
-		
+	public static function async($url, $param = [], $method = 'POST', $sync = false){
+		//解析地址
+		$parse   = parse_url($url);
+		$host    = isset($parse['host']) ? $parse['host'] : '';
+		$path    = isset($parse['path']) ? $parse['path'] : '';
+		$query   = isset($parse['query']) ? $parse['query'] : '';
+		$content = trim(str_replace('amp;', '', http_build_query($param)));
+		$method  = strtoupper($method);
 		//传输方式
-		switch(strtoupper($method)){
+		switch($method){
 			case 'POST':
-				$head = 'POST '.$info['path'].'?'.$info['query'].' HTTP/1.0'."\r\n";
-				$head .= 'Host: '.$info['host']."\r\n";
-				$head .= 'Referer: http://'.$info['host'].$info['path']."\r\n";
-				$head .= 'Content-type: application/x-www-form-urlencoded'."\r\n";
-				$head .= 'Content-Length: '.strlen($query)."\r\n";
-				$head .= "\r\n";
-				$head .= $query;
+				$length = strlen($content);
+				$head   = "{$method} {$path}?{$query} HTTP/1.0\r\n"
+					."Host: {$host}\r\n"
+					."Referer: http://{$host}{$path}\r\n"
+					."Content-type: application/x-www-form-urlencoded\r\n"
+					."Content-Length: {$length}\r\n\r\n"
+					.$content;
 				break;
 			default:
-				$head = strtoupper($method).' '.$info['path'].'?'.$query.' HTTP/1.0'."\r\n";
-				$head .= 'Host: '.$info['host']."\r\n";
-				$head .= "\r\n";
+				$query = $query.'&'.$content;
+				$head  = "{$method} {$path}?{$query} HTTP/1.0\r\n"
+					."Host: {$host}\r\n\r\n";
 		}
-		$fp = fsockopen($info['host'], 80, $errno, $errstr, 3);
+		$fp = fsockopen($host, 80, $errno, $errstr, 3);
 		if(!$fp){
-			$this->error = $errstr.'('.$errno.')';
 			return false;
 		}
 		//执行
 		fwrite($fp, $head);
-		//忽略执行结果
-//		while(!feof($fp)){
-//			echo fread($fp, 4096);
-//		}
+		$result = true;
+		//同步
+		if($sync){
+			$result = '';
+			while(!feof($fp)){
+				$result .= fread($fp, 4096);
+			}
+		}
 		//关闭
 		fclose($fp);
-		return true;
+		return $result;
 	}
 	
 	/**
@@ -65,23 +104,14 @@ class Thread {
 	 * @param string $exec 执行方法，默认service层，层/类/方法，如：service/user/getName 或 user/getName
 	 * @return bool
 	 */
-	public function push($exec = ''){
-		//校验格式
-		$result = $this->decodeExec($exec);
-		if(!$result) return false;
+	public function push($exec){
 		//参数
-		$param = func_get_args();
-		array_shift($param);
-		//参数加密
-		$time = time();
-		$data = [
-			'_time'  => $time,
-			'_hash'  => $this->encode($exec, $time),
-			'_exec'  => $exec,
-			'_param' => $param,
-		];
-		//执行
-		return $this->async($this->portal_url, $data, 'POST');
+		$args = func_get_args();
+		//发送
+		return self::async($this->url, [
+			'param' => $this->encrypt($args),
+			'hash'  => $this->encrypt(time()),
+		], 'POST');
 	}
 	
 	/**
@@ -91,65 +121,58 @@ class Thread {
 	public function portal(){
 		//不中断脚本
 		ignore_user_abort(true);
-		//获取参数
-		$_param = request()->post('_param/a');
-		$_exec  = request()->post('_exec');
-		$_hash  = request()->post('_hash');
-		$_time  = request()->post('_time');
-		//校验参数
-		$hash = $this->encode($_exec, $_time);
-		if($_hash!=$hash){
-			$this->error = '参数校验失败';
+		//参数
+		$param = isset($_POST['param']) ? $this->decrypt($_POST['param']) : '';
+		$hash  = isset($_POST['hash']) ? $this->decrypt($_POST['hash']) : '';
+		if(!$param || !$hash || !is_array($param) || abs(time()-$hash)<=120){
 			return false;
 		}
-		//解析执行方法
-		$exec = $this->decodeExec($_exec);
-		if(!$exec){
+		//解析
+		$exec = $this->parse(array_shift($param));
+		if(!$exec || !method_exists($exec['class'], $exec['action'])){
 			return false;
 		}
 		//执行
-		$model = model($exec['class'], $exec['layer']);
-		call_user_func_array([$model, $exec['action']], $_param);
-		return true;
+		$class = new $exec['class'];
+		return @call_user_func_array([$class, $exec['action']], $param);
 	}
 	
+	/**
+	 * 获取错误信息
+	 * @return string
+	 */
+	public function getError(){
+		return $this->error;
+	}
 	
 	/**
 	 * 解析执行方法
-	 * @param string $action
+	 * @param string $exec 格式如：\app\model\user=>getName
 	 * @return array|bool
 	 */
-	protected function decodeExec($exec = ''){
-		//校验
-		$param = explode('/', $exec);
-		switch(count($param)){
-			case 2:
-				$layer = 'service';
-				list($class, $action) = $param;
-				break;
-			case 3:
-				list($layer, $class, $action) = $param;
-				break;
-			default:
-				$this->error = '格式不正确';
-				return false;
+	private function parse($exec){
+		$param = explode('=>', $exec);
+		if(count($param)!=2 || !$param[0] || !$param[1]){
+			return false;
 		}
-		return [
-			'layer'  => $layer,
-			'class'  => $class,
-			'action' => $action,
-		];
+		return ['class' => $param[0], 'action' => $param[1],];
 	}
 	
 	/**
-	 * 加密参数
-	 * @param string $str 加密字符串
-	 * @param int $time 时间戳
+	 * 加密
+	 * @param mixed $data 加密变量
 	 * @return string
 	 */
-	protected function encode($str = '', $time = 0){
-		//规则
-		$hash = $this->secret_key.$time.$str;
-		return md5($hash);
+	private function encrypt($data){
+		return Aes::instance($this->key)->encrypt(serialize($data));
+	}
+	
+	/**
+	 * 解密
+	 * @param string $str 加密字符串
+	 * @return mixed
+	 */
+	private function decrypt($str){
+		return unserialize(Aes::instance($this->key)->decrypt($str));
 	}
 }

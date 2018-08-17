@@ -48,10 +48,7 @@ requirejs.config({
     //楔子 { xxx: {deps:[],exportsFn: func, exports：'jQuery',init:func},...}
     shim: {
         'jquery-datetimepicker': {
-            deps: ['jquery-mousewheel', 'css!lib/jquery-datetimepicker/build/jquery.datetimepicker.min.css'],
-            remark: function(){
-                $.datetimepicker.setLocale('ch');
-            }
+            deps: ['jquery-mousewheel', 'css!lib/jquery-datetimepicker/build/jquery.datetimepicker.min.css']
         },
         'bootstrap': {
             deps: ['css!lib/ionicons/css/ionicons.min.css', 'css!lib/font-awesome/css/font-awesome.min.css', 'css!lib/bootstrap/dist/css/bootstrap.min.css']

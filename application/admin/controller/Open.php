@@ -26,7 +26,7 @@ class Open extends \app\common\controller\AdminBase{
 			'password|密码'   => ['require', 'length' => '6,16'],
 			'remember|记住帐号' => ['number', 'between' => '0,1'],
 		]);
-		$param===false && $this->apiReturn(['code' => 1000, 'msg' => $this->getError()]);
+		is_string($param) && $this->apiReturn(['code' => 1000, 'msg' => $param]);
 		
 		//登录
 		$user_id = model('User')->login($param['username'], 'username');

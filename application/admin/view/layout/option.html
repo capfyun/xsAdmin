@@ -1,6 +1,6 @@
 
 <a v-for="item in option" class="btn btn-app"
-    :href="item.name ? '/'+item.name : ''"
+    :href="app.href(item.name)"
     :title="item.title ? item.title : '操作'"
    	:request="item.request"
     :param="item.param"

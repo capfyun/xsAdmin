@@ -5,78 +5,15 @@
 
 
 
-<form action="http://helper.7g.local/transmit/quick" method="post" enctype="multipart/form-data">
+<form action="http://transmit.7guoyouxi.com/upload_qiguo" method="post" enctype="multipart/form-data">
 
-	<input type="file" name="aa">
-	<input type="text" name="name" value="/abc/xcxc/sd123.jpg">
+	<input type="file" name="file">
 	<button type="submit">submit</button>
 </form>
-<div id="xcxc">
-	<input  name="config" value="{{ message }}" type="text" class="form-control config-datetime" readonly placeholder="" >
-	{{ message }} {{ menu }}
-</div>
 
-
-<p>(You can double click on an item to turn it into a folder.)</p>
-
-<!-- the demo root element -->
-<div id="app" class="sidebar-menu" data-widget="tree">
-	<menu-list :param="menu_data"></menu-list>
-</div>
-
-
-
-<script type="vue/template" id="menu-template">
-
-	<ul class="sidebar-menu " data-widget="tree" >
-		<li v-for="item in param" :id="item.id" :class="{treeview: true, menu_open: true, active: true }" >
-
-			<a class="menu-item"  :href="item.name ? '/'+item.name : 'javascript:;'" :data-request-type="item.request">
-				<i class="fa" :class="item.icon ? item.icon : 'fa-link'"></i>
-				<span>{{ item.title }}</span>
-				<span class="pull-right-container">
-					<i class="fa fa-angle-left pull-right"></i>
-					<small v-if="item.label" class="label pull-right">asd</small>
-				</span>
-			</a>
-			<template v-if="item.child" >
-				<menu-list :param="item.child"></menu-list>
-			</template>
-		</li>
-	</ul>
-</script>
 
 <script >
-	console.log(window.location.pathname);
-
-	// string += '<li class="' + (is_child ? 'treeview' : '') + (is_checked ? ' menu_open active' : '') + '  " >'
-	//     + '	<a class="menu-item" href="' + (data[k].name ? '/' + data[k].name : 'javascript:;') + '" '
-	//     + ' data-request-type="' + (data[k].request ? data[k].request : 0) + '" >'
-	//     + '		<i class="fa ' + (data[k].icon ? data[k].icon : 'fa-link') + ' "></i>'
-	//     + '		<span>' + data[k].title + '</span>';
-	// string += '<span class="pull-right-container">';
-	// if(is_child){
-	//     string += '<i class="fa fa-angle-left pull-right"></i>';
-	// }
-	// var label = data[k]['label'] ? data[k]['label'].split(':') : [];
-	// if(label[1]){
-	//     string += '<small class="label pull-right ' + (label[0] ? 'bg-' + label[0] : '') + '">' + label[1] + '</small>';
-	// }
-	// if(data[k].badge){
-	//     $.each(data[k].badge, function(k1, v1){
-	//         string += '<small class="label pull-right ' + (isNaN(k1) ? 'bg-' + k1 : '') + '">' + (v1 ? v1 : '') + '</small>';
-	//     });
-	// }
-	// string += '</span>	</a>';
-	// if(is_child){
-	//     string += '<ul class="treeview-menu" ' + (is_checked ? ' style="display:block;" ' : '') + '>'
-	//         + $function(data[k]['child'])
-	//         + '</ul>';
-	// }
-	// string += '</li>';
 
 
-//	require(['jquery', 'jquery-datetimepicker', 'test'], function($, a, b){
-//		console.log('2');
-//	});
+
 </script>

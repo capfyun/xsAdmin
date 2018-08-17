@@ -9,7 +9,7 @@ class Aes{
 	/**
 	 * @var array 实例
 	 */
-	public static $instance = [];
+	private static $instance = [];
 	/**
 	 * 默认配置
 	 * @var array
@@ -34,10 +34,10 @@ class Aes{
 	
 	/**
 	 * 连接驱动
-	 * @param array $config 配置
+	 * @param array|string $config 配置
 	 * @return static
 	 */
-	public static function instance(array $config = []){
+	public static function instance($config = []){
 		is_string($config) && $config = ['key' => $config];
 		$config = array_merge(self::$default_config, $config);
 		ksort($config);

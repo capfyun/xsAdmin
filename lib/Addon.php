@@ -55,7 +55,7 @@ class Addon{
 			self::$error = $class::getError();
 			return false;
 		}
-		$result = self::setCache($name, self::getInfo($name));
+		$result = self::setCache($name, []);
 		if(!$result){
 			self::$error = '安装失败';
 			return false;
@@ -89,27 +89,29 @@ class Addon{
 	 * @return array
 	 */
 	public static function getInfo($name){
+		$name  = self::convertHump($name);
 		$class = self::getClass($name);
 		if(!class_exists($class)){
 			return [];
 		}
 		$cache = self::getCache();
+		$info  = [
+			'name'        => $name,
+			'title'       => $class::title(),
+			'description' => $class::description(),
+			'author'      => $class::author(),
+			'version'     => $class::version(),
+			'option'      => $class::option(),
+			'config'      => [],
+			'status'      => 0,
+			'sort'        => 0,
+			'install'     => 0,
+		];
 		if(isset($cache[$name]) && is_array($cache[$name])){
-			$info            = $cache[$name];
+			isset($cache[$name]['config']) && $info['config'] = $cache[$name]['config'];
+			isset($cache[$name]['status']) && $info['status'] = $cache[$name]['status'];
+			isset($cache[$name]['sort']) && $info['sort'] = $cache[$name]['sort'];
 			$info['install'] = 1;
-		}else{
-			$info = [
-				'name'        => $name,
-				'title'       => $class::title(),
-				'description' => $class::description(),
-				'author'      => $class::author(),
-				'version'     => $class::version(),
-				'option'      => $class::option(),
-				'config'      => [],
-				'status'      => 0,
-				'sort'        => 0,
-				'install'     => 0,
-			];
 		}
 		return $info;
 	}
@@ -165,10 +167,12 @@ class Addon{
 	 * @return bool
 	 */
 	public static function setCache($name, $cache = null){
+		$name         = self::convertHump($name);
 		$addon        = self::getCache();
 		$addon[$name] = $cache;
 		$result       = Cache::set('addon_config', $addon);
 		if(!$result){
+			self::$error = '插件缓存设置失败';
 			return false;
 		}
 		self::getCache(true);

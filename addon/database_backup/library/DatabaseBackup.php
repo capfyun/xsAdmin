@@ -25,7 +25,7 @@ class DatabaseBackup{
 		'hostport' => 3306,
 		// 编码
 		'charset'  => 'utf8',
-		// 备份分卷，字节
+		// 备份分卷，字节，0则不分卷
 		'size'     => 1024*1024*20,
 	];
 	//错误信息
@@ -132,7 +132,7 @@ class DatabaseBackup{
 			for($i = 0; $i<$batch; $i++){
 				$sql .= $this->createDataSql($table, $i);
 				// 如果大于分卷大小或已经结尾，则写入文件
-				$result = strlen($sql)>=$this->config['size'];
+				$result = $this->config['size'] && strlen($sql)>=$this->config['size'];
 				//备份文件需要分卷
 				$result && !$is_part && $is_part = 1;
 				if($result || (count($tables)==$k+1 && $batch==$i+1)){

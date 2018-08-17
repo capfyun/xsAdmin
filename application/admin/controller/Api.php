@@ -58,7 +58,7 @@ class Api extends \app\common\controller\AdminBase{
 			'description|描述' => [],
 			'init|初始化'       => ['integer', 'between' => '0,1'],
 		]);
-		$param===false && $this->error($this->getError());
+		is_string($param) && $this->error($param);
 		$result = model('Api')->apiUpdate($param);
 		$result || $this->error(model('Api')->getError());
 		$this->success('操作成功', cookie('forward'));
