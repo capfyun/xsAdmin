@@ -3,14 +3,14 @@ xsAdmin
 
 ## 安装方法
 
-需要工具：
-Composer
-Bower（依赖于node.js和npm，请事先安装）
+* 需要工具：
+* * Composer
+* * Bower（依赖于node.js和npm，请事先安装）
 
-克隆或解压项目后：
-在根目录执行指令：composer install（安装PHP依赖库）
-在根目录执行指令：bower install（安装JS依赖库）
-将SQL文件mysql.sql手动导入数据库（之后版本会更新为安装方式）之后，更新数据库配置文件application/database.php
+* 克隆或解压项目后：
+* * 在根目录执行指令：composer install（安装PHP依赖库）
+* * 在根目录执行指令：bower install（安装JS依赖库）
+* * 将SQL文件mysql.sql手动导入数据库（之后版本会更新为安装方式）之后，更新数据库配置文件application/database.php
 
 ## 联系作者
 联系方式 [QQ](http://wpa.qq.com/msgrd?v=3&uin=550373770&site=qq&menu=yes)。
