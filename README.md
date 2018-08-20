@@ -5,7 +5,7 @@ xsAdmin
 
 * 需要工具：
 * * Composer
-* * Bower（依赖于node.js和npm，请事先安装）
+* * Bower（使用npm安装：npm install -g bower）
 
 * 克隆或解压项目后：
 * * 在根目录执行指令：composer install（安装PHP依赖库）
@@ -19,13 +19,17 @@ xsAdmin
 
 xsAdmin是一款基于 `ThinkPHP5.0` + `AdminLTE` 的后台开发框架。
 
- + 完善的Auth验证的权限管理系统
- + 使用Composer进行PHP包管理
- + 基于AdminLTE二次开发
- + 基于Bootstrap开发，自适应手机、平板、PC
- + 使用RequireJS进行JS模块管理，惰性加载
- + 使用Bower进行前端组件包管理
- + 内置API管理系统，接口开发更为便捷
+ + 完善的 Auth 验证的权限管理系统
+ + 基于 AdminLTE 二次开发
+ + 基于 Bootstrap 开发，自适应手机、平板、PC
+ + 内置 API 管理系统，使接口开发更为便捷
+ + 简洁高效的插件系统，便于系统扩展，减少模块之间的耦合
+ + 独立的个人扩展库，便于制造车轮（设计库）
+ + 使用 Composer 进行 PHP 包管理
+ + Bower 进行前端组件包管理
+ + RequireJS 进行 JS 模块管理，惰性加载
+ + 内置各种常用类库，如：AES 和 RSA 加密、程序锁、消息队列、定时器、文件上传、QRCode 生成等
+ + ...
 
 > 运行环境要求PHP5.4以上。
 
