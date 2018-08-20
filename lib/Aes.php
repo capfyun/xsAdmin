@@ -11,25 +11,23 @@ class Aes{
 	 */
 	private static $instance = [];
 	/**
-	 * 默认配置
-	 * @var array
+	 * 密钥，16位
+	 * @var string
 	 */
-	private static $default_config = [
-		'cipher' => MCRYPT_RIJNDAEL_128, //加密方式
-		'key'    => '64617728a3150152', //密钥，16位
-		'iv'     => '8105547186756005', //加密向量
-	];
+	private $key = '64617728a3150152';
 	/**
-	 * 配置
-	 * @var array
+	 * 加密向量
+	 * @var string
 	 */
-	private $config = [];
+	private $iv = '8105547186756005';
 	
 	/**
 	 * 构造
 	 */
-	private function __construct($config){
-		$this->config = $config;
+	private function __construct(array $config){
+		foreach($config as $k => $v){
+			$this->$k = $v;
+		}
 	}
 	
 	/**
@@ -39,7 +37,6 @@ class Aes{
 	 */
 	public static function instance($config = []){
 		is_string($config) && $config = ['key' => $config];
-		$config = array_merge(self::$default_config, $config);
 		ksort($config);
 		$name = md5(serialize($config));
 		if(!isset(self::$instance[$name])){
@@ -54,13 +51,9 @@ class Aes{
 	 * @return string
 	 */
 	public function encrypt($string){
-		return bin2hex(@mcrypt_encrypt(
-			$this->config['cipher'],
-			$this->config['key'],
-			$string,
-			MCRYPT_MODE_CBC,
-			$this->config['iv']
-		));
+		return openssl_encrypt($string, 'AES-128-CBC', $this->key, 0, $this->iv);
+		//php-v5.6以下
+		//bin2hex(@mcrypt_encrypt(MCRYPT_RIJNDAEL_128,$this->key,$string,MCRYPT_MODE_CBC,$this->iv));
 	}
 	
 	/*
@@ -69,13 +62,9 @@ class Aes{
 	 * @return string
 	 */
 	public function decrypt($string){
-		return @mcrypt_decrypt(
-			$this->config['cipher'],
-			$this->config['key'],
-			pack("H*", $string),
-			MCRYPT_MODE_CBC,
-			$this->config['iv']
-		);
+		return openssl_decrypt($string, 'AES-128-CBC', $this->key, 0, $this->iv);
+		//php-v5.6以下
+		//@mcrypt_decrypt(MCRYPT_RIJNDAEL_128, $this->key, pack("H*", $string), MCRYPT_MODE_CBC, $this->iv);
 	}
 	
 }
